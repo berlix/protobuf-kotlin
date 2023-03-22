@@ -85,11 +85,13 @@ fun SerialDescriptor.nullableToOptional() = if (isNullable) FieldRule.Optional e
 
 private val polymorphicNamePattern = Regex("""^kotlinx\.serialization\.Polymorphic<(.*)>\??""")
 
+fun simpleTypeName(descriptor: SerialDescriptor): String =
+    fullTypeName(descriptor).substringAfterLast('.')
+
 @OptIn(ExperimentalSerializationApi::class)
-fun typeName(descriptor: SerialDescriptor): String {
-    val name = polymorphicNamePattern.find(descriptor.serialName)?.groupValues?.get(1) ?: descriptor.serialName
-    return (name.substringAfterLast('.')).removeSuffix("?")
-}
+fun fullTypeName(descriptor: SerialDescriptor): String =
+    (polymorphicNamePattern.find(descriptor.serialName)?.groupValues?.get(1)
+        ?: descriptor.serialName).removeSuffix("?")
 
 @OptIn(ExperimentalSerializationApi::class)
 fun SerialDescriptor.isCompatibleWith(other: SerialDescriptor): Boolean =
@@ -101,3 +103,9 @@ fun SerialDescriptor.isCompatibleWith(other: SerialDescriptor): Boolean =
                 getElementAnnotations(it) == other.getElementAnnotations(it)
             }
         )
+
+@Suppress("UNCHECKED_CAST")
+inline fun <reified T : Any> List<*>.castItems(): List<T> {
+    require(all { it is T })
+    return this as List<T>
+}

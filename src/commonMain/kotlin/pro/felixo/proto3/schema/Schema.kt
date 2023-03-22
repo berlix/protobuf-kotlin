@@ -1,11 +1,15 @@
 package pro.felixo.proto3.schema
 
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import pro.felixo.proto3.FieldType
 import pro.felixo.proto3.internal.FIELD_NUMBER_RESERVED_RANGE_END
 import pro.felixo.proto3.internal.FIELD_NUMBER_RESERVED_RANGE_START
 import pro.felixo.proto3.internal.MAX_FIELD_NUMBER
 import pro.felixo.proto3.internal.MIN_FIELD_NUMBER
 import pro.felixo.proto3.internal.requireNoDuplicates
-import kotlin.jvm.JvmInline
+import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireValue
 
 data class Schema(
     val types: Set<Type> = emptySet()
@@ -73,12 +77,38 @@ sealed interface Member {
     val name: Identifier
 }
 
-data class Field(
+class Field(
     override val name: Identifier,
     val type: FieldType,
     val number: FieldNumber,
-    val rule: FieldRule = FieldRule.Singular
-) : Member
+    val rule: FieldRule = FieldRule.Singular,
+    val encoder: ((WireOutput) -> Encoder),
+    val decoder: ((List<WireValue>) -> Decoder)
+) : Member {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Field
+
+        if (name != other.name) return false
+        if (type != other.type) return false
+        if (number != other.number) return false
+        return rule == other.rule
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + number.hashCode()
+        result = 31 * result + rule.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "Field(name=$name, type=$type, number=$number, rule=$rule)"
+    }
+}
 
 data class OneOf(
     override val name: Identifier,
@@ -90,56 +120,6 @@ data class OneOf(
     }
 }
 
-sealed class FieldType {
-    abstract class Scalar(val name: kotlin.String) : FieldType() {
-        override fun toString() = name
-    }
-
-    object Double : Scalar("double")
-    object Float : Scalar("float")
-    object Int32 : Scalar("int32")
-    object Int64 : Scalar("int64")
-    object UInt32 : Scalar("uint32")
-    object UInt64 : Scalar("uint64")
-    object SInt32 : Scalar("sint32")
-    object SInt64 : Scalar("sint64")
-    object Fixed32 : Scalar("fixed32")
-    object Fixed64 : Scalar("fixed64")
-    object SFixed32 : Scalar("sfixed32")
-    object SFixed64 : Scalar("sfixed64")
-    object Bool : Scalar("bool")
-    object String : Scalar("string")
-    object Bytes : Scalar("bytes")
-
-    /**
-     * A reference to a message or enum type.
-     */
-    data class Reference(val components: List<Identifier>) : FieldType() {
-        init {
-            require(components.isNotEmpty()) { "Type reference must not be empty" }
-        }
-
-        override fun toString() = components.joinToString(".")
-    }
-}
-
-val SCALARS: Set<FieldType.Scalar> = setOf(
-    FieldType.Double,
-    FieldType.Float,
-    FieldType.Int32,
-    FieldType.Int64,
-    FieldType.UInt32,
-    FieldType.UInt64,
-    FieldType.SInt32,
-    FieldType.SInt64,
-    FieldType.Fixed32,
-    FieldType.Fixed64,
-    FieldType.SFixed32,
-    FieldType.SFixed64,
-    FieldType.Bool,
-    FieldType.String,
-    FieldType.Bytes
-)
 
 @JvmInline
 value class FieldNumber(val value: Int) : Comparable<FieldNumber> {
@@ -213,7 +193,9 @@ data class EnumValue(
 value class Identifier(val value: String) : Comparable<Identifier> {
     init {
         require(value.isNotEmpty()) { "Identifier must not be empty" }
-        require(value.first().let { it.isLetter() || it == '_' }) { "Invalid identifier: $value" }
+        require(value.first().let { it.isLetter() || it == '_' }) {
+            "Invalid identifier: $value"
+        }
         require(value.all { it.isLetter() || it.isDigit() || it == '_' }) { "Invalid identifier: $value" }
     }
 

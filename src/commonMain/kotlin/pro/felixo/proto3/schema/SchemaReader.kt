@@ -1,5 +1,8 @@
 package pro.felixo.proto3.schema
 
+import pro.felixo.proto3.FieldType
+import pro.felixo.proto3.SCALARS
+
 class SchemaReader(private val tokenizer: SchemaTokenizer = SchemaTokenizer()) {
     fun readSchema(input: String): Schema {
         val tokens = tokenizer.tokenize(input).iterator()
@@ -154,7 +157,14 @@ class SchemaReader(private val tokenizer: SchemaTokenizer = SchemaTokenizer()) {
         tokens.expect<Token.Equals>()
         val number = tokens.expect<Token.NumberLiteral>()
         tokens.expect<Token.Semicolon>()
-        return Field(Identifier(name.text), type, FieldNumber(number.value), rule ?: FieldRule.Singular)
+        return Field(
+            Identifier(name.text),
+            type,
+            FieldNumber(number.value),
+            rule ?: FieldRule.Singular,
+            { throw NotImplementedError("Type created from schema cannot be used for encoding.") },
+            { throw NotImplementedError("Type created from schema cannot be used for decoding.") }
+        )
     }
 
     private fun putReserved(

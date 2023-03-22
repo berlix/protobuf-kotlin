@@ -1,11 +1,11 @@
 package pro.felixo.proto3.testutil
 
+import pro.felixo.proto3.FieldType
 import pro.felixo.proto3.schema.EnumValue
 import pro.felixo.proto3.schema.Enumeration
 import pro.felixo.proto3.schema.Field
 import pro.felixo.proto3.schema.FieldNumber
 import pro.felixo.proto3.schema.FieldRule
-import pro.felixo.proto3.schema.FieldType
 import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.schema.Message
 import pro.felixo.proto3.schema.Schema
@@ -37,7 +37,9 @@ val MAXIMAL_SCHEMA = Schema(
                 Field(
                     Identifier("field"),
                     FieldType.Int32,
-                    FieldNumber(1)
+                    FieldNumber(1),
+                    encoder = { error("Not implemented") },
+                    decoder = { error("Not implemented") }
                 )
             )
         ),
@@ -47,35 +49,47 @@ val MAXIMAL_SCHEMA = Schema(
                 Field(
                     Identifier("field"),
                     FieldType.Bytes,
-                    FieldNumber(1)
+                    FieldNumber(1),
+                    encoder = { error("Not implemented") },
+                    decoder = { error("Not implemented") }
                 ),
                 Field(
                     Identifier("field"),
                     FieldType.SFixed64,
                     FieldNumber(2),
-                    FieldRule.Repeated
+                    FieldRule.Repeated,
+                    encoder = { error("Not implemented") },
+                    decoder = { error("Not implemented") }
                 ),
                 Field(
                     Identifier("field"),
                     FieldType.Double,
                     FieldNumber(3),
-                    FieldRule.Optional
+                    FieldRule.Optional,
+                    encoder = { error("Not implemented") },
+                    decoder = { error("Not implemented") }
                 ),
                 Field(
                     Identifier("empty"),
                     FieldType.Reference(listOf(Identifier("EmptyMessage"))),
-                    FieldNumber(4)
+                    FieldNumber(4),
+                    encoder = { error("Not implemented") },
+                    decoder = { error("Not implemented") }
                 ),
                 Field(
                     Identifier("nested"),
                     FieldType.Reference(listOf(Identifier("NestedMessage"))),
                     FieldNumber(5),
-                    FieldRule.Repeated
+                    FieldRule.Repeated,
+                    encoder = { error("Not implemented") },
+                    decoder = { error("Not implemented") }
                 ),
                 Field(
                     Identifier("enum"),
                     FieldType.Reference(listOf(Identifier("NestedEnum"))),
-                    FieldNumber(6)
+                    FieldNumber(6),
+                    encoder = { error("Not implemented") },
+                    decoder = { error("Not implemented") }
                 ),
             ),
             setOf(
@@ -85,7 +99,9 @@ val MAXIMAL_SCHEMA = Schema(
                         Field(
                             Identifier("field"),
                             FieldType.Float,
-                            FieldNumber(1)
+                            FieldNumber(1),
+                            encoder = { error("Not implemented") },
+                            decoder = { error("Not implemented") }
                         )
                     )
                 ),
