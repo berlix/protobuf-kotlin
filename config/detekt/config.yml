@@ -1,0 +1,4 @@
+complexity:
+  active: true
+  TooManyFunctions:
+    active: false
