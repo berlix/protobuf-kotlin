@@ -19,7 +19,9 @@ import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializerOrNull
 import pro.felixo.proto3.encoding.*
+import pro.felixo.proto3.internal.TypeContext
 import pro.felixo.proto3.internal.fullTypeName
+import pro.felixo.proto3.internal.typeContext
 import pro.felixo.proto3.schema.EnumValue
 import pro.felixo.proto3.schema.Enumeration
 import pro.felixo.proto3.schema.Field
@@ -29,8 +31,6 @@ import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.schema.Message
 import pro.felixo.proto3.schema.OneOf
 import pro.felixo.proto3.schema.Schema
-import pro.felixo.proto3.schema.TypeContext
-import pro.felixo.proto3.schema.typeContext
 import pro.felixo.proto3.wire.WireOutput
 import pro.felixo.proto3.wire.WireValue
 import kotlin.reflect.KType
