@@ -499,6 +499,7 @@ class SchemaGenerator(
         Message(Identifier(simpleTypeName(descriptor)), emptySet())
     }
 
+    @Suppress("RecursivePropertyAccessor")
     private val SerialDescriptor.actual: SerialDescriptor
         get() = if (isInline) elementDescriptors.single().actual else this
 
