@@ -19,7 +19,7 @@ fun concatLenValues(wireValues: List<WireValue.Len>): WireValue.Len = when (wire
     else -> {
         val out = WireBuffer()
         for (value in wireValues)
-            out.write(value.value)
+            out.writeAndConsume(value.value)
         WireValue.Len(out)
     }
 }

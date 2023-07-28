@@ -44,7 +44,7 @@ fun WireBuffer.encodeValue(value: WireValue) {
         is WireValue.Fixed64 -> writeFixed64(value.value)
         is WireValue.Len -> {
             writeVarInt(value.value.remaining)
-            write(value.value)
+            writeAndConsume(value.value)
         }
         is WireValue.Fixed32 -> writeFixed32(value.value)
     }

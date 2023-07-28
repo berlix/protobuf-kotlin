@@ -1,7 +1,5 @@
 package pro.felixo.proto3.wire
 
-import pro.felixo.proto3.FieldNumber
-
 @Suppress("MagicNumber")
 class WireBuffer(
     initialBytes: ByteArray? = null,
@@ -136,7 +134,7 @@ class WireBuffer(
         length += value.size
     }
 
-    fun write(value: WireBuffer) {
+    fun writeAndConsume(value: WireBuffer) {
         val inputSize = value.remaining
         ensureCapacity(inputSize)
         value.bytes.copyInto(bytes, length, 0, value.remaining)

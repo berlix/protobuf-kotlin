@@ -43,7 +43,7 @@ class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer) {
                         "Long-form cannot be applied to the end of LEN groups."
                     }
                     out.writeVarInt(bytes.length, extraBytes)
-                    out.write(bytes)
+                    out.writeAndConsume(bytes)
                 }
                 Token.OpenGroupBrace -> {
                     error("Unexpected open group brace that does not follow a tag expression.")
@@ -85,7 +85,7 @@ class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer) {
                         check(tokens.expectToken() is Token.OpenGroupBrace) {
                             "Expected open group brace after inferred SGroup tag."
                         }
-                        out.write(convertBlock(tokens, expectCloseBrace = true))
+                        out.writeAndConsume(convertBlock(tokens, expectCloseBrace = true))
                         out.writeVarInt(
                             Tag.of(token.number, WireType.EGroup.value).value,
                             popExtraBytes()
