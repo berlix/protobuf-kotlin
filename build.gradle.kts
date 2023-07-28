@@ -3,15 +3,15 @@ import java.time.Instant
 import java.time.ZoneId
 
 plugins {
-    kotlin("multiplatform") version "1.8.10"
-    kotlin("plugin.serialization") version "1.8.10"
+    kotlin("multiplatform") version "1.9.0"
+    kotlin("plugin.serialization") version "1.9.0"
     id("maven-publish")
-    id("io.gitlab.arturbosch.detekt") version "1.22.0"
-    id("com.palantir.git-version") version "2.0.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.0"
+    id("com.palantir.git-version") version "3.0.0"
 }
 
 buildscript {
-    extra.set("kotlin_version", "1.8.10")
+    extra.set("kotlin_version", "1.9.0")
     repositories {
         google()
         mavenCentral()
@@ -51,7 +51,7 @@ detekt {
         "src/jsTest/kotlin"
     )
     buildUponDefaultConfig = true
-    config = files("$rootDir/config/detekt/config.yml")
+    config.setFrom(files("$rootDir/config/detekt/config.yml"))
 }
 
 apply<MavenPublishPlugin>()
@@ -76,18 +76,18 @@ kotlin {
         }
     }
 
-    @Suppress("UNUSED_VARIABLE")
+    @Suppress("UNUSED_VARIABLE", "KotlinRedundantDiagnosticSuppress")
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
-                implementation("com.willowtreeapps.assertk:assertk:0.25")
+                implementation("com.willowtreeapps.assertk:assertk:0.26.1")
             }
         }
         val jvmTest by getting {

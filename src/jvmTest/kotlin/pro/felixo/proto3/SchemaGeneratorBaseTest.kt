@@ -1,8 +1,8 @@
 package pro.felixo.proto3
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.modules.EmptySerializersModule
@@ -20,7 +20,7 @@ abstract class SchemaGeneratorBaseTest(
     protected open val proto3 = Proto3(module)
 
     protected fun verifyFailure(descriptor: SerialDescriptor) {
-        assertThat { generator.add(descriptor) }.isFailure()
+        assertFailure { generator.add(descriptor) }
     }
 
     protected fun verify(descriptor: SerialDescriptor, expectedSchema: String) =
