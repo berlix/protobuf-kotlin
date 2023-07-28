@@ -3,8 +3,7 @@ import java.time.Instant
 import java.time.ZoneId
 
 plugins {
-    kotlin("multiplatform") version "1.9.0"
-    kotlin("plugin.serialization") version "1.9.0"
+    kotlin("multiplatform") version "1.9.0" apply false
     id("maven-publish")
     id("io.gitlab.arturbosch.detekt") version "1.23.0"
     id("com.palantir.git-version") version "3.0.0"
@@ -31,68 +30,44 @@ fun version(): String = versionDetails().run {
             )
 }
 
-repositories {
-    mavenCentral()
-    google()
-}
-
-group = "pro.felixo"
-version = version()
-
-apply(plugin = "io.gitlab.arturbosch.detekt")
-
-detekt {
-    source.setFrom(
-        "src/commonMain/kotlin",
-        "src/commonTest/kotlin",
-        "src/jvmMain/kotlin",
-        "src/jvmTest/kotlin",
-        "src/jsMain/kotlin",
-        "src/jsTest/kotlin"
-    )
-    buildUponDefaultConfig = true
-    config.setFrom(files("$rootDir/config/detekt/config.yml"))
-}
-
-apply<MavenPublishPlugin>()
-
-publishing {
+allprojects {
     repositories {
-        maven {
-            name = "OSSRH"
-            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = System.getenv("OSSRH_USERNAME")
-                password = System.getenv("OSSRH_TOKEN")
-            }
-        }
+        mavenCentral()
+        google()
+    }
+
+
+    group = "pro.felixo"
+    version = version()
+
+    apply(plugin = "io.gitlab.arturbosch.detekt")
+
+    detekt {
+        source.setFrom(
+            "src/commonMain/kotlin",
+            "src/commonTest/kotlin",
+            "src/jvmMain/kotlin",
+            "src/jvmTest/kotlin",
+            "src/jsMain/kotlin",
+            "src/jsTest/kotlin"
+        )
+        buildUponDefaultConfig = true
+        config.setFrom(files("$rootDir/config/detekt/config.yml"))
     }
 }
 
-kotlin {
-    jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
-        }
-    }
+subprojects {
+    apply<MavenPublishPlugin>()
 
-    @Suppress("UNUSED_VARIABLE", "KotlinRedundantDiagnosticSuppress")
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
-                implementation("com.willowtreeapps.assertk:assertk:0.26.1")
-            }
-        }
-        val jvmTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
+    publishing {
+        repositories {
+            maven {
+                name = "OSSRH"
+                url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+                credentials {
+                    username = System.getenv("OSSRH_USERNAME")
+                    password = System.getenv("OSSRH_TOKEN")
+                }
             }
         }
     }

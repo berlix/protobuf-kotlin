@@ -2,3 +2,21 @@ complexity:
   active: true
   TooManyFunctions:
     active: false
+  LongMethod:
+    active: false
+  LargeClass:
+    active: false
+  CyclomaticComplexMethod:
+    active: false
+
+empty-blocks:
+  EmptyFunctionBlock:
+    ignoreOverridden: true
+
+style:
+  DestructuringDeclarationWithTooManyEntries:
+    maxDestructuringEntries: 5
+
+potential-bugs:
+  IteratorNotThrowingNoSuchElementException:
+    active: false
