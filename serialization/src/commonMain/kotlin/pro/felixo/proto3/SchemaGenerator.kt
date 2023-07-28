@@ -43,7 +43,7 @@ import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.schema.Message
 import pro.felixo.proto3.schema.OneOf
 import pro.felixo.proto3.schema.Schema
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 import kotlin.reflect.KType
 
@@ -193,7 +193,7 @@ class SchemaGenerator(
         number: FieldNumber,
         type: FieldType
     ): Field {
-        val elementEncoder = { output: WireOutput ->
+        val elementEncoder = { output: WireBuffer ->
             ValueEncoder(
                 this@SchemaGenerator,
                 output,
@@ -245,7 +245,7 @@ class SchemaGenerator(
             field
         }
 
-        val elementEncoder = { output: WireOutput ->
+        val elementEncoder = { output: WireBuffer ->
             SyntheticEncoder(this@SchemaGenerator, output, innerField, number)
         }
 
@@ -505,7 +505,7 @@ class SchemaGenerator(
     private fun valueEncoder(
         type: FieldType,
         number: FieldNumber
-    ): (WireOutput) -> Encoder = {
+    ): (WireBuffer) -> Encoder = {
         ValueEncoder(this, it, type, number)
     }
 

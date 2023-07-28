@@ -9,8 +9,7 @@ import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.wire.Tag
-import pro.felixo.proto3.wire.WireInput
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireType
 import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.encodeField
@@ -19,13 +18,13 @@ class ListEncoder(
     private val schemaGenerator: SchemaGenerator,
     private val fieldNumber: FieldNumber,
     private val packed: Boolean,
-    private val output: WireOutput,
-    private val elementEncoder: (WireOutput) -> Encoder
+    private val output: WireBuffer,
+    private val elementEncoder: (WireBuffer) -> Encoder
 ) : Encoder, CompositeEncoder {
     override val serializersModule: SerializersModule
         get() = schemaGenerator.serializersModule
 
-    private val packedBuffer by lazy { WireOutput() }
+    private val packedBuffer by lazy { WireBuffer() }
 
     private fun getElementEncoder(): Encoder = if (packed)
         elementEncoder(packedBuffer)
@@ -36,9 +35,7 @@ class ListEncoder(
 
     override fun endStructure(descriptor: SerialDescriptor) {
         if (packed && packedBuffer.length > 0)
-            // TODO inefficient: perhaps we should merge WireInput and WireOutput into one class, so we don't need to
-            //      getBytes()
-            output.encodeField(Tag.of(fieldNumber, WireType.Len), WireValue.Len(WireInput(packedBuffer.getBytes())))
+            output.encodeField(Tag.of(fieldNumber, WireType.Len), WireValue.Len(packedBuffer))
     }
 
     override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) =

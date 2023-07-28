@@ -10,8 +10,7 @@ import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.schema.Field
 import pro.felixo.proto3.wire.Tag
-import pro.felixo.proto3.wire.WireInput
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireType
 import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.encodeField
@@ -21,16 +20,16 @@ class MapEncoder(
     private val fieldNumber: FieldNumber,
     private val keyField: Field,
     private val valueField: Field,
-    private val output: WireOutput,
+    private val output: WireBuffer,
 ) : Encoder, CompositeEncoder {
     override val serializersModule: SerializersModule
         get() = schemaGenerator.serializersModule
 
     private val fieldNumbers = arrayOf(keyField.number, valueField.number)
 
-    private var currentEntryBuffer: WireOutput? = null
+    private var currentEntryBuffer: WireBuffer? = null
 
-    private fun encoder(fieldNumber: FieldNumber, wireOutput: WireOutput) = when (fieldNumber) {
+    private fun encoder(fieldNumber: FieldNumber, wireOutput: WireBuffer) = when (fieldNumber) {
         keyField.number -> keyField.encoder(wireOutput)
         valueField.number -> valueField.encoder(wireOutput)
         else -> error("Unknown field number: $fieldNumber")
@@ -40,7 +39,7 @@ class MapEncoder(
         val fieldNumber = fieldNumbers[fieldIndex % 2]
         if (fieldNumber == keyField.number) {
             writeCurrentEntry()
-            currentEntryBuffer = WireOutput()
+            currentEntryBuffer = WireBuffer()
         }
         return encoder(
             fieldNumber,
@@ -50,7 +49,7 @@ class MapEncoder(
 
     private fun writeCurrentEntry() {
         currentEntryBuffer?.let {
-            output.encodeField(Tag.of(fieldNumber, WireType.Len), WireValue.Len(WireInput(it.getBytes())))
+            output.encodeField(Tag.of(fieldNumber, WireType.Len), WireValue.Len(it))
             currentEntryBuffer = null
         }
     }

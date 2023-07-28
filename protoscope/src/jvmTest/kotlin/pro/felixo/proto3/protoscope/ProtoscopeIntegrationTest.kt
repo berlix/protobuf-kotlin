@@ -2,11 +2,11 @@ package pro.felixo.proto3.protoscope
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
 import kotlin.test.Test
 
 /**
- * A test that tests [ProtoscopeTokenizer] and [ProtoscopeConverter] (as well as [WireOutput]) in integration.
+ * A test that tests [ProtoscopeTokenizer] and [ProtoscopeConverter] (as well as [WireBuffer]) in integration.
  */
 class ProtoscopeIntegrationTest {
     private val converter = ProtoscopeConverter(ProtoscopeTokenizer())
@@ -39,7 +39,7 @@ class ProtoscopeIntegrationTest {
     )
 
     private fun verify(protoscope: String, expected: String) =
-        assertThat(converter.convert(protoscope)).isEqualTo(expected.bytes())
+            assertThat(converter.convert(protoscope)).isEqualTo(expected.bytes())
 
     private fun String.bytes() = replace(Regex("\\s"), "").chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 }

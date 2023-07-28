@@ -1,8 +1,7 @@
 package pro.felixo.proto3.encoding
 
 import pro.felixo.proto3.FieldType
-import pro.felixo.proto3.wire.WireInput
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
 fun <TField : FieldType.Scalar<TDecoded>, TDecoded: Any> decodeLast(
@@ -14,22 +13,13 @@ fun <TField : FieldType.Scalar<TDecoded>, TDecoded: Any> decodeLast(
     return ret
 }
 
-fun <TField : FieldType.Scalar<TDecoded>, TDecoded: Any> decode(
-    wireValue: WireValue,
-    type: TField
-): TDecoded? {
-    var ret: TDecoded? = null
-    type.decode(wireValue) { ret = it }
-    return ret
-}
-
 fun concatLenValues(wireValues: List<WireValue.Len>): WireValue.Len = when (wireValues.size) {
     1 -> wireValues[0]
-    0 -> WireValue.Len(WireInput(ByteArray(0)))
+    0 -> WireValue.Len(WireBuffer(ByteArray(0))) // TODO performance: make special EmptyLen value
     else -> {
-        val out = WireOutput()
+        val out = WireBuffer()
         for (value in wireValues)
             out.write(value.value)
-        WireValue.Len(WireInput(out.getBytes()))
+        WireValue.Len(out)
     }
 }

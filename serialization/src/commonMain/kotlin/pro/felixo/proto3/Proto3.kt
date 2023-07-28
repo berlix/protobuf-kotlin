@@ -7,8 +7,7 @@ import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.encoding.ValueDecoder
 import pro.felixo.proto3.encoding.ValueEncoder
 import pro.felixo.proto3.schema.Identifier
-import pro.felixo.proto3.wire.WireInput
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
 class Proto3(
@@ -17,7 +16,7 @@ class Proto3(
     private val schemaGenerator = SchemaGenerator(serializersModule)
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
-        val output = WireOutput()
+        val output = WireBuffer()
         val encoder = ValueEncoder(
             schemaGenerator,
             output,
@@ -29,6 +28,6 @@ class Proto3(
 
     override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T =
         deserializer.deserialize(
-            ValueDecoder(schemaGenerator, listOf(WireValue.Len(WireInput(bytes))), null)
+            ValueDecoder(schemaGenerator, listOf(WireValue.Len(WireBuffer(bytes))), null)
         )
 }

@@ -5,7 +5,7 @@ import kotlinx.serialization.encoding.Encoder
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldType
 import pro.felixo.proto3.internal.requireNoDuplicates
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
 data class Schema(
@@ -79,7 +79,7 @@ class Field(
     val type: FieldType,
     val number: FieldNumber,
     val rule: FieldRule = FieldRule.Singular,
-    val encoder: ((WireOutput) -> Encoder),
+    val encoder: ((WireBuffer) -> Encoder),
     val decoder: ((List<WireValue>) -> Decoder)
 ) : Member {
     override fun equals(other: Any?): Boolean {

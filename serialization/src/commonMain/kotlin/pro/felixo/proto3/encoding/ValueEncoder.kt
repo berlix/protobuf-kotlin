@@ -10,14 +10,14 @@ import pro.felixo.proto3.FieldType
 import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.isUnsigned
 import pro.felixo.proto3.wire.Tag
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireType
 import pro.felixo.proto3.wire.encodeValue
 
 @OptIn(ExperimentalSerializationApi::class)
 class ValueEncoder(
     private val schemaGenerator: SchemaGenerator,
-    private val output: WireOutput,
+    private val output: WireBuffer,
     private val type: FieldType,
     private val fieldNumber: FieldNumber? = null
 ) : Encoder {

@@ -2,7 +2,7 @@ package pro.felixo.proto3.protoscope
 
 import pro.felixo.proto3.util.PeekableIterator
 import pro.felixo.proto3.wire.Tag
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireType
 import pro.felixo.proto3.wire.encodeSInt64
 
@@ -18,11 +18,11 @@ class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer) {
         currentLongForm = null
         val result = convertBlock(PeekableIterator(tokenizer.tokenize(protoscope).iterator()), expectCloseBrace = false)
         check(currentLongForm == null) { "Unmatched long-form token encountered at end of input." }
-        return result
+        return result.getBytes()
     }
 
-    private fun convertBlock(tokens: PeekableIterator<Token>, expectCloseBrace: Boolean): ByteArray {
-        val out = WireOutput()
+    private fun convertBlock(tokens: PeekableIterator<Token>, expectCloseBrace: Boolean): WireBuffer {
+        val out = WireBuffer()
         while (tokens.hasNext())
             when (val token = tokens.expectToken()) {
                 is Token.BooleanLiteral -> out.writeVarInt(if (token.value) 1 else 0, popExtraBytes())
@@ -34,7 +34,7 @@ class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer) {
                 }
                 Token.CloseBrace -> {
                     check(expectCloseBrace) { "Unexpected closing brace." }
-                    return out.getBytes()
+                    return out
                 }
                 Token.OpenBrace -> {
                     val extraBytes = popExtraBytes()
@@ -42,7 +42,7 @@ class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer) {
                     check(currentLongForm == null) {
                         "Long-form cannot be applied to the end of LEN groups."
                     }
-                    out.writeVarInt(bytes.size, extraBytes)
+                    out.writeVarInt(bytes.length, extraBytes)
                     out.write(bytes)
                 }
                 Token.OpenGroupBrace -> {
@@ -99,7 +99,7 @@ class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer) {
             }
         if (expectCloseBrace)
             error("Unexpected end of input; missing closing brace.")
-        return out.getBytes()
+        return out
     }
 
     private fun popExtraBytes(): Int = (currentLongForm?.extraBytes ?: 0).also { currentLongForm = null }

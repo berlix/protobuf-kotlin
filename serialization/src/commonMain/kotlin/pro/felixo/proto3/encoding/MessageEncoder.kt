@@ -10,27 +10,26 @@ import pro.felixo.proto3.FieldType
 import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.schema.Field
 import pro.felixo.proto3.wire.Tag
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
+import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.encodeField
+import pro.felixo.proto3.wire.encodeValue
 
 @OptIn(ExperimentalSerializationApi::class)
 class MessageEncoder(
     private val schemaGenerator: SchemaGenerator,
     private val fieldByElementIndex: List<Field>,
     private val isStandalone: Boolean,
-    private val output: WireOutput
+    private val output: WireBuffer
 ) : CompositeEncoder {
     override val serializersModule: SerializersModule
         get() = schemaGenerator.serializersModule
 
-    private val buffer = if (!isStandalone) WireOutput() else output
+    private val buffer = if (!isStandalone) WireBuffer() else output
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (!isStandalone) {
-            val bytes = buffer.getBytes()
-            output.writeVarInt(bytes.size)
-            output.write(bytes)
-        }
+        if (!isStandalone)
+            output.encodeValue(WireValue.Len(buffer))
     }
 
     @ExperimentalSerializationApi

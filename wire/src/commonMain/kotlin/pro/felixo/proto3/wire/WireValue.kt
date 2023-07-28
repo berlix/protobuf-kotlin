@@ -6,7 +6,7 @@ sealed interface WireValue {
     @JvmInline
     value class Fixed64(val value: Long) : WireValue
     @JvmInline
-    value class Len(val value: WireInput) : WireValue
+    value class Len(val value: WireBuffer) : WireValue
     @JvmInline
     value class Fixed32(val value: Int) : WireValue
 }

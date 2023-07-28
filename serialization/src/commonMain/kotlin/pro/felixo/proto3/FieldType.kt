@@ -4,7 +4,7 @@ package pro.felixo.proto3
 
 import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.schema.Identifier
-import pro.felixo.proto3.wire.WireInput
+import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireType
 import pro.felixo.proto3.wire.decodeSInt32
 import pro.felixo.proto3.wire.decodeSInt64
@@ -229,7 +229,7 @@ sealed class FieldType {
             is WireValue.Fixed64 -> error("Cannot decode string from fixed64")
         }
 
-        override fun encode(value: kotlin.String) = WireValue.Len(WireInput(value.toByteArray()))
+        override fun encode(value: kotlin.String) = WireValue.Len(WireBuffer(value.toByteArray()))
     }
 
     object Bytes : Scalar<ByteArray>("bytes") {
@@ -243,7 +243,7 @@ sealed class FieldType {
             is WireValue.Fixed64 -> error("Cannot decode string from fixed64")
         }
 
-        override fun encode(value: ByteArray) = WireValue.Len(WireInput(value))
+        override fun encode(value: ByteArray) = WireValue.Len(WireBuffer(value))
     }
 
     /**

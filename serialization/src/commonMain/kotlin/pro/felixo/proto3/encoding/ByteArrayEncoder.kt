@@ -6,25 +6,23 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
+import pro.felixo.proto3.wire.WireValue
+import pro.felixo.proto3.wire.encodeValue
 
 class ByteArrayEncoder(
-    private val output: WireOutput,
+    private val output: WireBuffer,
     override val serializersModule: SerializersModule
 ) : CompositeEncoder {
 
-    private val buffer = WireOutput()
+    private val buffer = WireBuffer()
 
     override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) {
         require(index == buffer.length) { "Expected index ${buffer.length}, got $index" }
         buffer.writeByte(value)
     }
 
-    override fun endStructure(descriptor: SerialDescriptor) {
-        val bytes = buffer.getBytes()
-        output.writeVarInt(bytes.size)
-        output.write(bytes)
-    }
+    override fun endStructure(descriptor: SerialDescriptor) = output.encodeValue(WireValue.Len(buffer))
 
     override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) = error("Unsupported")
     override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) = error("Unsupported")

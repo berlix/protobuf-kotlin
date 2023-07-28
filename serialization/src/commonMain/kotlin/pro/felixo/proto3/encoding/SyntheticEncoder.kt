@@ -10,12 +10,14 @@ import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.schema.Field
 import pro.felixo.proto3.wire.Tag
-import pro.felixo.proto3.wire.WireOutput
+import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireType
+import pro.felixo.proto3.wire.WireValue
+import pro.felixo.proto3.wire.encodeValue
 
 class SyntheticEncoder(
     private val schemaGenerator: SchemaGenerator,
-    private val output: WireOutput,
+    private val output: WireBuffer,
     private val field: Field,
     private val fieldNumber: FieldNumber
 ) : Encoder, CompositeEncoder {
@@ -23,7 +25,7 @@ class SyntheticEncoder(
     override val serializersModule: SerializersModule
         get() = schemaGenerator.serializersModule
 
-    private val buffer = WireOutput()
+    private val buffer = WireBuffer()
     private val fieldEncoder by lazy { field.encoder(buffer) }
     private lateinit var fieldCompositeEncoder: CompositeEncoder
 
@@ -101,8 +103,6 @@ class SyntheticEncoder(
 
     private fun writeBuffer() {
         output.writeVarInt(Tag.of(fieldNumber, WireType.Len).value)
-        val bytes = buffer.getBytes()
-        output.writeVarInt(bytes.size)
-        output.write(bytes)
+        output.encodeValue(WireValue.Len(buffer))
     }
 }
