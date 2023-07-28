@@ -1,6 +1,7 @@
 package pro.felixo.proto3.encoding
 
 import pro.felixo.proto3.FieldType
+import pro.felixo.proto3.wire.EMPTY_LEN
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
@@ -15,7 +16,7 @@ fun <TField : FieldType.Scalar<TDecoded>, TDecoded: Any> decodeLast(
 
 fun concatLenValues(wireValues: List<WireValue.Len>): WireValue.Len = when (wireValues.size) {
     1 -> wireValues[0]
-    0 -> WireValue.Len(WireBuffer(ByteArray(0))) // TODO performance: make special EmptyLen value
+    0 -> EMPTY_LEN
     else -> {
         val out = WireBuffer()
         for (value in wireValues)

@@ -4,6 +4,8 @@ package pro.felixo.proto3.wire
 
 import pro.felixo.proto3.FieldNumber
 
+val EMPTY_LEN = WireValue.Len(WireBuffer(ByteArray(0)))
+
 fun Int.encodeSInt32(): Int = (this shl 1) xor (this shr 31)
 fun Int.decodeSInt32(): Int = (this ushr 1) xor -(this and 1)
 
