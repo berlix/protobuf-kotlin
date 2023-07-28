@@ -142,7 +142,7 @@ enum class TokenType(val regex: Regex, val getToken: (groupValues: List<String>)
         { Token.IntegerLiteral.of(it[1], it[5], it[4], it[6]) }
     ),
     BooleanLiteral(Regex("""true|false"""), { Token.BooleanLiteral.of(it[0]) }),
-    LongForm(Regex("""long-form:(\d+)"""), { Token.LongForm.of(it[1])})
+    LongForm(Regex("""long-form:(\d+)"""), { Token.LongForm.of(it[1]) })
 }
 
 class ProtoscopeTokenizer {

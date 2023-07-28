@@ -1,10 +1,10 @@
 package pro.felixo.proto3.protoscope
 
-import pro.felixo.proto3.encodeSInt64
 import pro.felixo.proto3.util.PeekableIterator
 import pro.felixo.proto3.wire.Tag
 import pro.felixo.proto3.wire.WireOutput
 import pro.felixo.proto3.wire.WireType
+import pro.felixo.proto3.wire.encodeSInt64
 
 class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer) {
     private var currentLongForm: Token.LongForm? = null

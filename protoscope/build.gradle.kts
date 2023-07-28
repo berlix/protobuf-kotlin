@@ -1,6 +1,5 @@
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.serialization") version "1.9.0"
 }
 
 kotlin {
@@ -15,12 +14,10 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":wire"))
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation(project(":protoscope"))
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
                 implementation("com.willowtreeapps.assertk:assertk:0.26.1")

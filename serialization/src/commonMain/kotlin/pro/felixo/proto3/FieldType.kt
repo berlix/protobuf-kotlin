@@ -6,6 +6,10 @@ import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.wire.WireInput
 import pro.felixo.proto3.wire.WireType
+import pro.felixo.proto3.wire.decodeSInt32
+import pro.felixo.proto3.wire.decodeSInt64
+import pro.felixo.proto3.wire.encodeSInt32
+import pro.felixo.proto3.wire.encodeSInt64
 
 sealed class FieldType {
     abstract val isPackable: Boolean
@@ -273,12 +277,5 @@ val SCALARS: Set<FieldType.Scalar<*>> = setOf(
     FieldType.String,
     FieldType.Bytes
 )
-
-private fun Int.decodeSInt32(): Int = (this ushr 1) xor -(this and 1)
-private fun Long.decodeSInt64(): Long = (this ushr 1) xor -(this and 1)
-
-
-fun Int.encodeSInt32(): Int = (this shl 1) xor (this shr 31)
-fun Long.encodeSInt64(): Long = (this shl 1) xor (this shr 63)
 
 val FieldType.isUnsigned get() = this is FieldType.UInt32 || this is FieldType.UInt64
