@@ -1,6 +1,6 @@
 package pro.felixo.proto3.util
 
-class PeekableIterator<T : Any>(
+internal class PeekableIterator<T : Any>(
     private val base: Iterator<T>
 ) : Iterator<T> {
     private var peeked = ArrayDeque<T>()
