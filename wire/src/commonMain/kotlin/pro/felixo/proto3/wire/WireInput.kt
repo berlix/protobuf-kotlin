@@ -65,9 +65,9 @@ class WireInput(
         return ret
     }
 
-    fun readByte(): Byte = bytes[position++]
-    fun readByteAsInt(): Int = readByte().toUByte().toInt()
-    fun readByteAsLong(): Long = readByte().toUByte().toLong()
+    private fun readByte(): Byte = bytes[position++]
+    private fun readByteAsInt(): Int = readByte().toUByte().toInt()
+    private fun readByteAsLong(): Long = readByte().toUByte().toLong()
 
     fun writeTo(destination: ByteArray, destinationOffset: Int) {
         bytes.copyInto(destination, destinationOffset, 0, remaining)

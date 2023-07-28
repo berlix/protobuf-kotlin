@@ -1,7 +1,5 @@
 package pro.felixo.proto3.wire
 
-import pro.felixo.proto3.FieldNumber
-
 @Suppress("MagicNumber")
 class WireOutput {
     private var buffer: ByteArray = ByteArray(INITIAL_BUFFER_SIZE)
@@ -82,19 +80,6 @@ class WireOutput {
         private const val INITIAL_BUFFER_SIZE = 32
     }
 }
-
-fun WireOutput.encodeField(number: FieldNumber, value: WireValue) = encodeField(
-    Tag.Companion.of(
-        number,
-        when (value) {
-            is WireValue.VarInt -> WireType.VarInt
-            is WireValue.Fixed64 -> WireType.Fixed64
-            is WireValue.Len -> WireType.Len
-            is WireValue.Fixed32 -> WireType.Fixed32
-        }
-    ),
-    value
-)
 
 fun WireOutput.encodeField(tag: Tag, value: WireValue) {
     writeVarInt(tag.value)
