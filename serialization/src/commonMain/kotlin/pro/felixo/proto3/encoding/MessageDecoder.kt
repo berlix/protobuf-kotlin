@@ -101,7 +101,6 @@ class MessageDecoder(
         return deserializer.deserialize(field.decoder(values))
     }
 
-    // TODO optimisation: if serializer is kotlin.ByteArray and field is of type bytes, read bytes directly
     override fun <T> decodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,

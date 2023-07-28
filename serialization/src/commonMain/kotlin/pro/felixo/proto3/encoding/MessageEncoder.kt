@@ -43,8 +43,6 @@ class MessageEncoder(
             encodeSerializableElement(descriptor, index, serializer, value)
     }
 
-    // TODO optimisation: if serializer is kotlin.ByteArray and value is ByteArray and field is of type bytes,
-    //      write bytes directly
     override fun <T> encodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
