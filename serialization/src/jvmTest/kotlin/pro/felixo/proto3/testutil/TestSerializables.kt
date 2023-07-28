@@ -379,7 +379,6 @@ data class ClassWithEnum(
     val enum: EnumClass?
 )
 
-@Suppress("unused")
 @Serializable
 enum class EnumClass {
     @ProtoDefaultEnumValue
@@ -394,7 +393,6 @@ data class ClassWithEnumClassMember(val enum: EnumClass)
 @Serializable
 data class ClassWithNullableEnumClassMember(val enum: EnumClass?)
 
-@Suppress("unused")
 @Serializable
 enum class EnumClassWithCustomNumbers {
     @ProtoNumber(5)
@@ -471,7 +469,6 @@ data class ClassWithPropertyWithCustomSerialName(
 @Serializable
 @SerialName("CustomName")
 enum class EnumClassWithCustomSerialName {
-    @Suppress("unused")
     @ProtoDefaultEnumValue
     A
 }
@@ -481,7 +478,6 @@ data class ClassWithEnumClassWithCustomSerialNameMember(val enum: EnumClassWithC
 
 @Serializable
 enum class EnumClassWithValueWithCustomSerialName {
-    @Suppress("unused")
     @ProtoDefaultEnumValue
     @SerialName("CUSTOM_NAME")
     A

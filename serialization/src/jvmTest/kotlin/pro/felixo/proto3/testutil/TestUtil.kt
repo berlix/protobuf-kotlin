@@ -41,8 +41,7 @@ class ListDescriptor(override val serialName: String, val elementDescriptor: Ser
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ListDescriptor) return false
-        if (elementDescriptor == other.elementDescriptor && serialName == other.serialName) return true
-        return false
+        return elementDescriptor == other.elementDescriptor && serialName == other.serialName
     }
 
     override fun hashCode(): Int = elementDescriptor.hashCode() * 31 + serialName.hashCode()

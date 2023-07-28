@@ -11,7 +11,6 @@ import pro.felixo.proto3.testutil.ClassWithNullableMap
 import pro.felixo.proto3.testutil.EnumClass
 import pro.felixo.proto3.testutil.SimpleClass
 import kotlin.reflect.typeOf
-import kotlin.test.Ignore
 
 class SchemaGeneratorMapTest : SchemaGeneratorBaseTest() {
 

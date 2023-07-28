@@ -68,7 +68,7 @@ class SchemaTokenizer {
         var position = 0
 
         outer@ while (position < input.length) {
-            for (type in TokenType.values()) {
+            for (type in TokenType.entries) {
                 val matchResult = type.regex.find(input, position)
 
                 if (matchResult != null && matchResult.range.first == position) {

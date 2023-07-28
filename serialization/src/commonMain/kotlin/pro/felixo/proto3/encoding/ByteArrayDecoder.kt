@@ -41,7 +41,8 @@ class ByteArrayDecoder(values: List<WireValue>, override val serializersModule: 
         index: Int,
         deserializer: DeserializationStrategy<T?>,
         previousValue: T?
-    ): T? = error("Unsupported")
+    ): T = error("Unsupported")
+
     override fun <T> decodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,

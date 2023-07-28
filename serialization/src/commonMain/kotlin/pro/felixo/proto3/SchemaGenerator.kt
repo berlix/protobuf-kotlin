@@ -126,7 +126,7 @@ class SchemaGenerator(
                         output
                     )
                 },
-                { PolymorphicDecoder(this@SchemaGenerator, fields.associateBy { it.second.number }, it) }
+                { values -> PolymorphicDecoder(this@SchemaGenerator, fields.associateBy { it.second.number }, values) }
             )
 
             Message(

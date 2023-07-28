@@ -50,19 +50,8 @@ abstract class SchemaGeneratorBaseTest(
     protected inline fun <reified T> verifyDecode(value: T, protoscope: String, serializer: KSerializer<T>) =
         verifyDecode(value, protoscopeConverter.convert(protoscope), serializer)
 
-    protected inline fun <reified T> verifyDecode(value: T, bytes: ByteArray) = verifyDecode(value, bytes, serializer())
-
     protected inline fun <reified T> verifyDecode(value: T, bytes: ByteArray, serializer: KSerializer<T>) =
-        assertThat(proto3.decodeFromByteArray<T>(serializer, bytes)).isEqualTo(value)
-
-    protected inline fun <reified T> verifyEncode(value: T, protoscope: String) =
-        verifyEncode(value, protoscope, serializer())
-
-    protected inline fun <reified T> verifyEncode(value: T, protoscope: String, serializer: KSerializer<T>) =
-        verifyEncode(value, protoscopeConverter.convert(protoscope), serializer)
-
-    protected inline fun <reified T> verifyEncode(value: T, bytes: ByteArray) =
-        verifyEncode(value, bytes, serializer())
+        assertThat(proto3.decodeFromByteArray(serializer, bytes)).isEqualTo(value)
 
     protected inline fun <reified T> verifyEncode(value: T, bytes: ByteArray, serializer: KSerializer<T>) {
         val encoded = proto3.encodeToByteArray(serializer, value)

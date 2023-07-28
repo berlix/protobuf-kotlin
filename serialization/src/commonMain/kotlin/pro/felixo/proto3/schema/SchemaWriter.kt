@@ -28,10 +28,10 @@ class SchemaWriter(
             message.nestedTypes.sortedBy { it.name }.forEach { write(it) }
             writeMessageReservedNumbers(message.reservedNumbers)
             writeReservedNames(message.reservedNames)
-            message.members.sortedBy {
-                when (it) {
-                    is Field -> it.number
-                    is OneOf -> it.fields.minOf { it.number }
+            message.members.sortedBy { member ->
+                when (member) {
+                    is Field -> member.number
+                    is OneOf -> member.fields.minOf { it.number }
                 }
             }.forEach { writeMember(it) }
         }
