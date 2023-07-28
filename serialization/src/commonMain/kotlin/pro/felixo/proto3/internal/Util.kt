@@ -4,11 +4,7 @@ import pro.felixo.proto3.ProtoNumber
 import pro.felixo.proto3.schema.FieldRule
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
-
-const val MIN_FIELD_NUMBER = 1
-const val FIELD_NUMBER_RESERVED_RANGE_START = 19_000
-const val FIELD_NUMBER_RESERVED_RANGE_END = 20_000
-const val MAX_FIELD_NUMBER = 536_870_911
+import pro.felixo.proto3.FieldNumber
 
 fun <T, U, C : Iterable<T>> C.requireNoDuplicates(transform: (T) -> U, message: (duplicate: T) -> String): C {
     val seen = mutableSetOf<U>()
@@ -53,8 +49,8 @@ class NumberIterator(first: Int, last: Int = Int.MAX_VALUE, private val reserved
 }
 
 class FieldNumberIterator(reserved: List<Int>) {
-    private val intIterator = NumberIterator(1, MAX_FIELD_NUMBER, reserved.map { it..it }
-        .plusElement(FIELD_NUMBER_RESERVED_RANGE_START until FIELD_NUMBER_RESERVED_RANGE_END))
+    private val intIterator = NumberIterator(1, FieldNumber.MAX, reserved.map { it..it }
+        .plusElement(FieldNumber.RESERVED_RANGE_START until FieldNumber.RESERVED_RANGE_END))
 
     fun next(): Int = intIterator.next()
 

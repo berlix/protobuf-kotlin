@@ -6,9 +6,9 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
+import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.schema.Field
-import pro.felixo.proto3.schema.FieldNumber
 import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.decodeMessage
 

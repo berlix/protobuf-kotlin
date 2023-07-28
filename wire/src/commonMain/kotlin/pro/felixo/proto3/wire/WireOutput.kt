@@ -1,6 +1,6 @@
 package pro.felixo.proto3.wire
 
-import pro.felixo.proto3.schema.FieldNumber
+import pro.felixo.proto3.FieldNumber
 
 @Suppress("MagicNumber")
 class WireOutput {
@@ -84,7 +84,7 @@ class WireOutput {
 }
 
 fun WireOutput.encodeField(number: FieldNumber, value: WireValue) = encodeField(
-    Tag.of(
+    Tag.Companion.of(
         number,
         when (value) {
             is WireValue.VarInt -> WireType.VarInt

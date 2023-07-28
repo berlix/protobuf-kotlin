@@ -1,6 +1,6 @@
 package pro.felixo.proto3.wire
 
-import pro.felixo.proto3.schema.FieldNumber
+import pro.felixo.proto3.FieldNumber
 
 @Suppress("MagicNumber")
 class WireInput(

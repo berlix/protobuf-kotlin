@@ -1,5 +1,6 @@
 package pro.felixo.proto3.schema
 
+import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldType
 import pro.felixo.proto3.SCALARS
 

@@ -1,7 +1,6 @@
 package pro.felixo.proto3.protoscope
 
 import pro.felixo.proto3.encodeSInt64
-import pro.felixo.proto3.schema.FieldNumber
 import pro.felixo.proto3.util.PeekableIterator
 import pro.felixo.proto3.wire.Tag
 import pro.felixo.proto3.wire.WireOutput

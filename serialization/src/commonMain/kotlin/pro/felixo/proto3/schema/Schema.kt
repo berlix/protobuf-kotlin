@@ -2,11 +2,8 @@ package pro.felixo.proto3.schema
 
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldType
-import pro.felixo.proto3.internal.FIELD_NUMBER_RESERVED_RANGE_END
-import pro.felixo.proto3.internal.FIELD_NUMBER_RESERVED_RANGE_START
-import pro.felixo.proto3.internal.MAX_FIELD_NUMBER
-import pro.felixo.proto3.internal.MIN_FIELD_NUMBER
 import pro.felixo.proto3.internal.requireNoDuplicates
 import pro.felixo.proto3.wire.WireOutput
 import pro.felixo.proto3.wire.WireValue
@@ -118,21 +115,6 @@ data class OneOf(
         require(fields.isNotEmpty()) { "OneOf must have at least one field" }
         require(fields.all { it.rule != FieldRule.Repeated }) { "OneOf fields may not be repeated" }
     }
-}
-
-
-@JvmInline
-value class FieldNumber(val value: Int) : Comparable<FieldNumber> {
-    init {
-        require(
-            value in MIN_FIELD_NUMBER until FIELD_NUMBER_RESERVED_RANGE_START ||
-                value in FIELD_NUMBER_RESERVED_RANGE_END..MAX_FIELD_NUMBER
-        ) { "Invalid field number $value" }
-    }
-
-    override fun compareTo(other: FieldNumber): Int = value.compareTo(other.value)
-
-    override fun toString(): String = value.toString()
 }
 
 enum class FieldRule {

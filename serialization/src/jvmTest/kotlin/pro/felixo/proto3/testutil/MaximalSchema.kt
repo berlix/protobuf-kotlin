@@ -1,10 +1,10 @@
 package pro.felixo.proto3.testutil
 
+import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldType
 import pro.felixo.proto3.schema.EnumValue
 import pro.felixo.proto3.schema.Enumeration
 import pro.felixo.proto3.schema.Field
-import pro.felixo.proto3.schema.FieldNumber
 import pro.felixo.proto3.schema.FieldRule
 import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.schema.Message
