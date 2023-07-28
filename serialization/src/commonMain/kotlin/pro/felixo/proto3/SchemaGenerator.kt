@@ -235,12 +235,6 @@ class SchemaGenerator(
                 descriptor
             )
 
-            // TODO remove and put directly in field instead?
-            compositeEncodings[fullTypeName(descriptor)] = CompositeEncoding(
-                { output, isStandalone -> MessageEncoder(this@SchemaGenerator, listOf(field), isStandalone, output) },
-                { MessageDecoder(this@SchemaGenerator, listOf(field), it) }
-            )
-
             innerField = field
             field
         }
