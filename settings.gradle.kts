@@ -1,1 +1,1 @@
-rootProject.name = "kotlinx-serialization-proto3"
+rootProject.name = "proto3-kotlin"
