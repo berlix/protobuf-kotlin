@@ -8,7 +8,7 @@ import kotlin.test.Test
 /**
  * A test that tests [ProtoscopeTokenizer] and [ProtoscopeConverter] (as well as [WireOutput]) in integration.
  */
-class ProtoScopeTest {
+class ProtoscopeIntegrationTest {
     private val converter = ProtoscopeConverter(ProtoscopeTokenizer())
 
     @Test
