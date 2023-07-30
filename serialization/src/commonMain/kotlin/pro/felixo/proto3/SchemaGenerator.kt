@@ -43,7 +43,7 @@ import pro.felixo.proto3.schema.FieldRule
 import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.schema.Message
 import pro.felixo.proto3.schema.OneOf
-import pro.felixo.proto3.schema.Schema
+import pro.felixo.proto3.schema.EncodingSchema
 import pro.felixo.proto3.util.FieldNumberIterator
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
@@ -58,7 +58,7 @@ class SchemaGenerator(
     private val enumEncodings = mutableMapOf<String, EnumEncoding>()
     private val compositeEncodings = mutableMapOf<String, CompositeEncoding>()
 
-    fun schema(): Schema = Schema(rootTypes.localTypes.toSet())
+    fun schema(): EncodingSchema = EncodingSchema(rootTypes.localTypes.toSet())
 
     fun add(descriptor: SerialDescriptor) {
         rootTypes.namedType(descriptor)

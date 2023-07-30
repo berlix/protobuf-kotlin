@@ -7,9 +7,10 @@ import pro.felixo.proto3.FieldType
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
-data class Schema(
+data class EncodingSchema(
     val types: Set<Type> = emptySet()
 )
+
 sealed class Type {
     abstract val name: Identifier
 }
