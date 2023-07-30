@@ -15,6 +15,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":wire"))
+                api(project(":schema-document"))
                 api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
             }
         }

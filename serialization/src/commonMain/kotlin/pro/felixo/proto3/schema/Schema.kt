@@ -9,22 +9,9 @@ import pro.felixo.proto3.wire.WireValue
 
 data class Schema(
     val types: Set<Type> = emptySet()
-) {
-    override fun toString(): String {
-        val out = StringBuilder()
-        SchemaWriter(out).write(this)
-        return out.toString()
-    }
-}
-
+)
 sealed class Type {
     abstract val name: Identifier
-
-    override fun toString(): String {
-        val out = StringBuilder()
-        SchemaWriter(out).write(this)
-        return out.toString()
-    }
 }
 
 data class Message(

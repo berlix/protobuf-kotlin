@@ -4,9 +4,9 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
-import pro.felixo.proto3.schema.SchemaReader
+import pro.felixo.proto3.schemadocument.SchemaDocumentReader
 
-fun schemaOf(proto3: String) = SchemaReader().readSchema(
+fun schemaOf(proto3: String) = SchemaDocumentReader().readSchema(
     "syntax=\"proto3\";$proto3"
 )
 

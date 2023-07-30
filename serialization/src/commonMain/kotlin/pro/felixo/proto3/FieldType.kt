@@ -260,22 +260,4 @@ sealed class FieldType {
     }
 }
 
-val SCALARS: Set<FieldType.Scalar<*>> = setOf(
-    FieldType.Double,
-    FieldType.Float,
-    FieldType.Int32,
-    FieldType.Int64,
-    FieldType.UInt32,
-    FieldType.UInt64,
-    FieldType.SInt32,
-    FieldType.SInt64,
-    FieldType.Fixed32,
-    FieldType.Fixed64,
-    FieldType.SFixed32,
-    FieldType.SFixed64,
-    FieldType.Bool,
-    FieldType.String,
-    FieldType.Bytes
-)
-
 val FieldType.isUnsigned get() = this is FieldType.UInt32 || this is FieldType.UInt64
