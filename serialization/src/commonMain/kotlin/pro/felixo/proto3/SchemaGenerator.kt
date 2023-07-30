@@ -40,7 +40,6 @@ import pro.felixo.proto3.schema.EnumValue
 import pro.felixo.proto3.schema.Enumeration
 import pro.felixo.proto3.schema.Field
 import pro.felixo.proto3.schema.FieldRule
-import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.schema.Message
 import pro.felixo.proto3.schema.OneOf
 import pro.felixo.proto3.schema.EncodingSchema

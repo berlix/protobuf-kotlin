@@ -2,7 +2,7 @@ package pro.felixo.proto3.internal
 
 import kotlinx.serialization.descriptors.SerialDescriptor
 import pro.felixo.proto3.FieldEncoding
-import pro.felixo.proto3.schema.Identifier
+import pro.felixo.proto3.Identifier
 import pro.felixo.proto3.schema.Type
 
 class TypeContext {

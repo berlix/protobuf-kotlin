@@ -1,5 +1,7 @@
 package pro.felixo.proto3.schemadocument
 
+import pro.felixo.proto3.Identifier
+
 class SchemaDocumentWriter(
     private val out: StringBuilder,
     private val indentSpaces: Int = 2

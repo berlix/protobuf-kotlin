@@ -4,6 +4,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldEncoding
+import pro.felixo.proto3.Identifier
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
@@ -87,11 +88,4 @@ data class EnumValue(
     val number: Int
 ) : Comparable<EnumValue> {
     override fun compareTo(other: EnumValue): Int = number.compareTo(other.number)
-}
-
-@JvmInline
-value class Identifier(val value: String) : Comparable<Identifier> {
-    override fun compareTo(other: Identifier): Int = value.compareTo(other.value)
-
-    override fun toString() = value
 }

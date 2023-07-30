@@ -6,7 +6,6 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.encoding.ValueDecoder
 import pro.felixo.proto3.encoding.ValueEncoder
-import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 

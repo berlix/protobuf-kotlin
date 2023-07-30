@@ -1,6 +1,7 @@
 package pro.felixo.proto3.schemadocument
 
 import pro.felixo.proto3.FieldNumber
+import pro.felixo.proto3.Identifier
 
 class SchemaDocumentReader(private val tokenizer: SchemaTokenizer = SchemaTokenizer()) {
     fun readSchema(input: String): SchemaDocument {

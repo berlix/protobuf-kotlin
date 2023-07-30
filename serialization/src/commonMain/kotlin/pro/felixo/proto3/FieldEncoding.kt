@@ -3,7 +3,6 @@
 package pro.felixo.proto3
 
 import pro.felixo.proto3.wire.WireValue
-import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireType
 import pro.felixo.proto3.wire.decodeSInt32
