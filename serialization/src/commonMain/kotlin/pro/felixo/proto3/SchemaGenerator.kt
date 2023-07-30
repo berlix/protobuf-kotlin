@@ -86,7 +86,7 @@ class SchemaGenerator(
         }
     }
 
-    private fun TypeContext.namedType(descriptor: SerialDescriptor): FieldType.Reference = when (descriptor.kind) {
+    private fun TypeContext.namedType(descriptor: SerialDescriptor): FieldEncoding.Reference = when (descriptor.kind) {
         PolymorphicKind.OPEN -> messageOfOpenPolymorphicClass(descriptor)
         PolymorphicKind.SEALED -> messageOfSealedPolymorphicClass(descriptor)
         SerialKind.CONTEXTUAL -> namedType(
@@ -113,7 +113,7 @@ class SchemaGenerator(
     private fun TypeContext.messageOfPolymorphicClass(
         descriptor: SerialDescriptor,
         subTypes: Iterable<SerialDescriptor>
-    ): FieldType.Reference = putOrGet(descriptor) {
+    ): FieldEncoding.Reference = putOrGet(descriptor) {
         typeContext {
             val numberIterator = fieldNumberIteratorFromSubTypes(subTypes)
 
@@ -181,7 +181,7 @@ class SchemaGenerator(
                     syntheticMessageName
                 )
                 StructureKind.LIST -> if (descriptor.actual.getElementDescriptor(0).kind == PrimitiveKind.BYTE)
-                    naturalRepeatedField(name, number, FieldType.Bytes)
+                    naturalRepeatedField(name, number, FieldEncoding.Bytes)
                 else
                     syntheticRepeatedField(name, number, syntheticMessageName, annotations, descriptor)
                 StructureKind.MAP -> syntheticRepeatedField(name, number, syntheticMessageName, annotations, descriptor)
@@ -193,7 +193,7 @@ class SchemaGenerator(
     private fun naturalRepeatedField(
         name: Identifier,
         number: FieldNumber,
-        type: FieldType
+        type: FieldEncoding
     ): Field {
         val elementEncoder = { output: WireBuffer ->
             ValueEncoder(
@@ -262,7 +262,7 @@ class SchemaGenerator(
     private fun TypeContext.syntheticMessage(
         syntheticMessageName: Identifier,
         field: TypeContext.() -> Field
-    ): FieldType.Reference = putOrGet(name = syntheticMessageName.value) {
+    ): FieldEncoding.Reference = putOrGet(name = syntheticMessageName.value) {
         typeContext {
             Message(
                 syntheticMessageName,
@@ -302,11 +302,11 @@ class SchemaGenerator(
                 if (descriptor.actual.getElementDescriptor(0).kind == PrimitiveKind.BYTE)
                     Field(
                         name,
-                        FieldType.Bytes,
+                        FieldEncoding.Bytes,
                         number,
                         descriptor.nullableToOptional(),
-                        valueEncoder(FieldType.Bytes, number),
-                        valueDecoder(FieldType.Bytes)
+                        valueEncoder(FieldEncoding.Bytes, number),
+                        valueDecoder(FieldEncoding.Bytes)
                     )
                 else if (descriptor.isNullable) {
                     val field = listField(Identifier("list"), FieldNumber(1), descriptor.actual)
@@ -405,39 +405,39 @@ class SchemaGenerator(
         )
     }
 
-    private fun scalar(annotations: List<Annotation>, kind: PrimitiveKind): FieldType =
+    private fun scalar(annotations: List<Annotation>, kind: PrimitiveKind): FieldEncoding =
         when (kind) {
-            PrimitiveKind.BOOLEAN -> FieldType.Bool
+            PrimitiveKind.BOOLEAN -> FieldEncoding.Bool
             PrimitiveKind.BYTE -> int32Type(annotations)
             PrimitiveKind.CHAR -> int32Type(annotations)
-            PrimitiveKind.DOUBLE -> FieldType.Double
-            PrimitiveKind.FLOAT -> FieldType.Float
+            PrimitiveKind.DOUBLE -> FieldEncoding.Double
+            PrimitiveKind.FLOAT -> FieldEncoding.Float
             PrimitiveKind.INT -> int32Type(annotations)
             PrimitiveKind.LONG -> int64Type(annotations)
             PrimitiveKind.SHORT -> int32Type(annotations)
-            PrimitiveKind.STRING -> FieldType.String
+            PrimitiveKind.STRING -> FieldEncoding.String
         }
 
     private fun int32Type(annotations: List<Annotation>) = when (integerType(annotations)) {
-        IntegerType.Default -> FieldType.Int32
-        IntegerType.Unsigned -> FieldType.UInt32
-        IntegerType.Signed -> FieldType.SInt32
-        IntegerType.Fixed -> FieldType.Fixed32
-        IntegerType.SignedFixed -> FieldType.SFixed32
+        IntegerType.Default -> FieldEncoding.Int32
+        IntegerType.Unsigned -> FieldEncoding.UInt32
+        IntegerType.Signed -> FieldEncoding.SInt32
+        IntegerType.Fixed -> FieldEncoding.Fixed32
+        IntegerType.SignedFixed -> FieldEncoding.SFixed32
     }
 
     private fun int64Type(annotations: List<Annotation>) = when (integerType(annotations)) {
-        IntegerType.Default -> FieldType.Int64
-        IntegerType.Unsigned -> FieldType.UInt64
-        IntegerType.Signed -> FieldType.SInt64
-        IntegerType.Fixed -> FieldType.Fixed64
-        IntegerType.SignedFixed -> FieldType.SFixed64
+        IntegerType.Default -> FieldEncoding.Int64
+        IntegerType.Unsigned -> FieldEncoding.UInt64
+        IntegerType.Signed -> FieldEncoding.SInt64
+        IntegerType.Fixed -> FieldEncoding.Fixed64
+        IntegerType.SignedFixed -> FieldEncoding.SFixed64
     }
 
     private fun integerType(annotations: List<Annotation>) =
         annotations.filterIsInstance<ProtoIntegerType>().firstOrNull()?.type ?: IntegerType.Default
 
-    private fun TypeContext.enum(descriptor: SerialDescriptor): FieldType.Reference = putOrGet(descriptor) {
+    private fun TypeContext.enum(descriptor: SerialDescriptor): FieldEncoding.Reference = putOrGet(descriptor) {
         val numberIterator = numberIteratorFromEnumElements(descriptor)
 
         val values = (0 until descriptor.elementsCount).map { index ->
@@ -460,7 +460,7 @@ class SchemaGenerator(
         )
     }
 
-    private fun TypeContext.messageOfClass(descriptor: SerialDescriptor): FieldType.Reference = putOrGet(descriptor) {
+    private fun TypeContext.messageOfClass(descriptor: SerialDescriptor): FieldEncoding.Reference = putOrGet(descriptor) {
         typeContext {
             val numberIterator = fieldNumberIteratorFromClassElements(descriptor)
 
@@ -486,7 +486,7 @@ class SchemaGenerator(
         }
     }
 
-    private fun TypeContext.messageOfObject(descriptor: SerialDescriptor): FieldType.Reference = putOrGet(descriptor) {
+    private fun TypeContext.messageOfObject(descriptor: SerialDescriptor): FieldEncoding.Reference = putOrGet(descriptor) {
         compositeEncodings[fullTypeName(descriptor)] = CompositeEncoding(
             { output, isStandalone -> MessageEncoder(this@SchemaGenerator, emptyList(), isStandalone, output) },
             { MessageDecoder(this@SchemaGenerator, emptyList(), it) }
@@ -500,13 +500,13 @@ class SchemaGenerator(
         get() = if (isInline) elementDescriptors.single().actual else this
 
     private fun valueEncoder(
-        type: FieldType,
+        type: FieldEncoding,
         number: FieldNumber
     ): (WireBuffer) -> Encoder = {
         ValueEncoder(this, it, type, number)
     }
 
-    private fun valueDecoder(type: FieldType?): (List<WireValue>) -> Decoder = {
+    private fun valueDecoder(type: FieldEncoding?): (List<WireValue>) -> Decoder = {
         ValueDecoder(this, it, type)
     }
 }

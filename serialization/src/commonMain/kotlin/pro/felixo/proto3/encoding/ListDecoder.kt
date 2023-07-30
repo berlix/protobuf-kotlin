@@ -6,14 +6,14 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.FieldType
+import pro.felixo.proto3.FieldEncoding
 import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.decodeValue
 
 class ListDecoder(
     private val schemaGenerator: SchemaGenerator,
-    private val elementType: FieldType,
+    private val elementType: FieldEncoding,
     private val input: List<WireValue>,
     private val elementDecoder: (List<WireValue>) -> Decoder
 ) : Decoder, CompositeDecoder {
@@ -50,7 +50,7 @@ class ListDecoder(
             when (input[currentInputIndex]) {
                 is WireValue.Len -> {
                     val len = input[currentInputIndex] as WireValue.Len
-                    currentElement = len.value.decodeValue((elementType as FieldType.Scalar<*>).wireType)
+                    currentElement = len.value.decodeValue((elementType as FieldEncoding.Scalar<*>).wireType)
                     if (currentElement == null) {
                         currentInputIndex++
                         decodeElementIndexPackable()

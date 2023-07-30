@@ -1,7 +1,7 @@
 package pro.felixo.proto3.internal
 
 import kotlinx.serialization.descriptors.SerialDescriptor
-import pro.felixo.proto3.FieldType
+import pro.felixo.proto3.FieldEncoding
 import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.schema.Type
 
@@ -14,8 +14,8 @@ class TypeContext {
         descriptor: SerialDescriptor? = null,
         name: String = requireNotNull(descriptor?.let { simpleTypeName(descriptor) }),
         createType: () -> Type
-    ): FieldType.Reference {
-        val reference = FieldType.Reference(listOf(Identifier(name)))
+    ): FieldEncoding.Reference {
+        val reference = FieldEncoding.Reference(listOf(Identifier(name)))
         val existingType = localTypesByName[name]
         return if (existingType != null) {
             if (descriptor != null && existingType.first?.isCompatibleWith(descriptor) == true)

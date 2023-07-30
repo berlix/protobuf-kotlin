@@ -6,7 +6,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.FieldType
+import pro.felixo.proto3.FieldEncoding
 import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.schema.Field
 import pro.felixo.proto3.wire.Tag
@@ -56,55 +56,55 @@ class MessageEncoder(
 
     override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldType.Bool
+        val type = field.type as FieldEncoding.Bool
         buffer.encodeField(Tag.of(field.number, type.wireType), type.encode(value))
     }
 
     override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldType.Integer32
+        val type = field.type as FieldEncoding.Integer32
         buffer.encodeField(Tag.of(field.number, type.wireType), type.encode(value.toInt()))
     }
 
     override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldType.Integer32
+        val type = field.type as FieldEncoding.Integer32
         buffer.encodeField(Tag.of(field.number, type.wireType), type.encode(value.code))
     }
 
     override fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldType.Double
+        val type = field.type as FieldEncoding.Double
         buffer.encodeField(Tag.of(field.number, type.wireType), type.encode(value))
     }
 
     override fun encodeFloatElement(descriptor: SerialDescriptor, index: Int, value: Float) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldType.Float
+        val type = field.type as FieldEncoding.Float
         buffer.encodeField(Tag.of(field.number, type.wireType), type.encode(value))
     }
 
     override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldType.Integer32
+        val type = field.type as FieldEncoding.Integer32
         buffer.encodeField(Tag.of(field.number, type.wireType), type.encode(value))
     }
 
     override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldType.Integer64
+        val type = field.type as FieldEncoding.Integer64
         buffer.encodeField(Tag.of(field.number, type.wireType), type.encode(value))
     }
 
     override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldType.Integer32
+        val type = field.type as FieldEncoding.Integer32
         buffer.encodeField(Tag.of(field.number, type.wireType), type.encode(value.toInt()))
     }
 
     override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldType.String
+        val type = field.type as FieldEncoding.String
         buffer.encodeField(Tag.of(field.number, type.wireType), type.encode(value))
     }
 }

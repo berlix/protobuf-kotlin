@@ -1,11 +1,11 @@
 package pro.felixo.proto3.encoding
 
-import pro.felixo.proto3.FieldType
+import pro.felixo.proto3.FieldEncoding
 import pro.felixo.proto3.wire.EMPTY_LEN
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
-fun <TField : FieldType.Scalar<TDecoded>, TDecoded: Any> decodeLast(
+fun <TField : FieldEncoding.Scalar<TDecoded>, TDecoded: Any> decodeLast(
     wireValues: List<WireValue>?,
     type: TField
 ): TDecoded? {

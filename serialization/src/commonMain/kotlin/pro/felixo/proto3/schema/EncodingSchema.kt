@@ -3,7 +3,7 @@ package pro.felixo.proto3.schema
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import pro.felixo.proto3.FieldNumber
-import pro.felixo.proto3.FieldType
+import pro.felixo.proto3.FieldEncoding
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
@@ -32,7 +32,7 @@ sealed interface Member {
 
 class Field(
     override val name: Identifier,
-    val type: FieldType,
+    val type: FieldEncoding,
     val number: FieldNumber,
     val rule: FieldRule = FieldRule.Singular,
     val encoder: ((WireBuffer) -> Encoder),

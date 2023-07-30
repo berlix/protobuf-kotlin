@@ -11,10 +11,10 @@ import pro.felixo.proto3.wire.decodeSInt64
 import pro.felixo.proto3.wire.encodeSInt32
 import pro.felixo.proto3.wire.encodeSInt64
 
-sealed class FieldType {
+sealed class FieldEncoding {
     abstract val isPackable: Boolean
 
-    sealed class Scalar<DecodedType: Any>(val name: kotlin.String) : FieldType() {
+    sealed class Scalar<DecodedType: Any>(val name: kotlin.String) : FieldEncoding() {
         abstract val wireType: WireType
         abstract fun encode(value: DecodedType): WireValue
         abstract fun decode(wire: WireValue, onValue: (DecodedType) -> Unit)
@@ -249,7 +249,7 @@ sealed class FieldType {
     /**
      * A reference to a message or enum type.
      */
-    data class Reference(val components: List<Identifier>) : FieldType() {
+    data class Reference(val components: List<Identifier>) : FieldEncoding() {
         override val isPackable = false
 
         init {
@@ -260,4 +260,4 @@ sealed class FieldType {
     }
 }
 
-val FieldType.isUnsigned get() = this is FieldType.UInt32 || this is FieldType.UInt64
+val FieldEncoding.isUnsigned get() = this is FieldEncoding.UInt32 || this is FieldEncoding.UInt64

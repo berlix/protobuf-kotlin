@@ -20,7 +20,7 @@ class Proto3(
         val encoder = ValueEncoder(
             schemaGenerator,
             output,
-            FieldType.Reference(listOf(Identifier("root")))
+            FieldEncoding.Reference(listOf(Identifier("root")))
         )
         encoder.encodeSerializableValue(serializer, value)
         return output.getBytes()
