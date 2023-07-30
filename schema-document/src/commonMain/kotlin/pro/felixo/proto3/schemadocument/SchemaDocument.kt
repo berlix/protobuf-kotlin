@@ -216,24 +216,22 @@ sealed class FieldType {
 
         override fun toString() = components.joinToString(".")
     }
-
-    companion object {
-        val SCALARS: Set<Scalar<*>> = setOf(
-            Double,
-            Float,
-            Int32,
-            Int64,
-            UInt32,
-            UInt64,
-            SInt32,
-            SInt64,
-            Fixed32,
-            Fixed64,
-            SFixed32,
-            SFixed64,
-            Bool,
-            String,
-            Bytes
-        )
-    }
 }
+
+val SCALARS: Set<FieldType.Scalar<*>> = setOf(
+    FieldType.Double,
+    FieldType.Float,
+    FieldType.Int32,
+    FieldType.Int64,
+    FieldType.UInt32,
+    FieldType.UInt64,
+    FieldType.SInt32,
+    FieldType.SInt64,
+    FieldType.Fixed32,
+    FieldType.Fixed64,
+    FieldType.SFixed32,
+    FieldType.SFixed64,
+    FieldType.Bool,
+    FieldType.String,
+    FieldType.Bytes
+)

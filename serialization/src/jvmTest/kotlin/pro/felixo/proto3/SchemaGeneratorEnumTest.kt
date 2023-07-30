@@ -17,14 +17,14 @@ class SchemaGeneratorEnumTest : SchemaGeneratorBaseTest() {
         verify(
             ClassWithEnumClassMember.serializer().descriptor,
             """
+            message ClassWithEnumClassMember {
+              EnumClass enum = 1;
+            }
+
             enum EnumClass {
               A = 0;
               B = 1;
               C = 2;
-            }
-
-            message ClassWithEnumClassMember {
-              EnumClass enum = 1;
             }
             """
         )
@@ -40,14 +40,14 @@ class SchemaGeneratorEnumTest : SchemaGeneratorBaseTest() {
         verify(
             ClassWithNullableEnumClassMember.serializer().descriptor,
             """
+            message ClassWithNullableEnumClassMember {
+              optional EnumClass enum = 1;
+            }
+
             enum EnumClass {
               A = 0;
               B = 1;
               C = 2;
-            }
-
-            message ClassWithNullableEnumClassMember {
-              optional EnumClass enum = 1;
             }
             """
         )
@@ -63,15 +63,15 @@ class SchemaGeneratorEnumTest : SchemaGeneratorBaseTest() {
         verify(
             ClassWithEnumClassWithCustomNumbersMember.serializer().descriptor,
             """
+            message ClassWithEnumClassWithCustomNumbersMember {
+                EnumClassWithCustomNumbers enum = 1;
+            }
+
             enum EnumClassWithCustomNumbers {
               A = 5;
               B = 1;
               C = 0;
               D = 2;
-            }
-
-            message ClassWithEnumClassWithCustomNumbersMember {
-                EnumClassWithCustomNumbers enum = 1;
             }
             """
         )
@@ -88,12 +88,12 @@ class SchemaGeneratorEnumTest : SchemaGeneratorBaseTest() {
         verify(
             ClassWithEnumClassWithCustomSerialNameMember.serializer().descriptor,
             """
-            enum CustomName {
-                A = 0;
-            }
-
             message ClassWithEnumClassWithCustomSerialNameMember {
                 CustomName enum = 1;
+            }
+
+            enum CustomName {
+                A = 0;
             }
             """
         )
@@ -107,12 +107,12 @@ class SchemaGeneratorEnumTest : SchemaGeneratorBaseTest() {
         verify(
             ClassWithEnumClassWithValueWithCustomSerialNameMember.serializer().descriptor,
             """
-            enum EnumClassWithValueWithCustomSerialName {
-                CUSTOM_NAME = 0;
-            }
-
             message ClassWithEnumClassWithValueWithCustomSerialNameMember {
                 EnumClassWithValueWithCustomSerialName enum = 1;
+            }
+
+            enum EnumClassWithValueWithCustomSerialName {
+                CUSTOM_NAME = 0;
             }
             """
         )

@@ -10,6 +10,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 import pro.felixo.proto3.protoscope.ProtoscopeConverter
 import pro.felixo.proto3.protoscope.ProtoscopeTokenizer
+import pro.felixo.proto3.schema.toSchemaDocument
 import pro.felixo.proto3.testutil.schemaOf
 
 abstract class SchemaGeneratorBaseTest(
@@ -31,7 +32,7 @@ abstract class SchemaGeneratorBaseTest(
         expectedSchema: String
     ) {
         descriptors.forEach { generator.add(it) }
-        assertThat(generator.schema()).isEqualTo(schemaOf(expectedSchema))
+        assertThat(generator.schema().toSchemaDocument()).isEqualTo(schemaOf(expectedSchema))
     }
 
     protected inline fun <reified T> verifyConversion(value: T, protoscope: String) =

@@ -3,6 +3,7 @@ package pro.felixo.proto3
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import kotlinx.serialization.modules.SerializersModule
+import pro.felixo.proto3.schema.toSchemaDocument
 import pro.felixo.proto3.testutil.ClassWithContextualAndSerializableProperty
 import pro.felixo.proto3.testutil.ClassWithContextualProperty
 import pro.felixo.proto3.testutil.ClassWithContextualSerializer
@@ -24,7 +25,7 @@ class SchemaGeneratorContextualTest : SchemaGeneratorBaseTest(
     @Test
     fun `creates message for class with contextual property`() {
         generator.add(ClassWithContextualProperty.serializer().descriptor)
-        assertThat(generator.schema()).isEqualTo(
+        assertThat(generator.schema().toSchemaDocument()).isEqualTo(
             schemaOf(
                 """
                 message ClassWithContextualProperty {
@@ -42,7 +43,7 @@ class SchemaGeneratorContextualTest : SchemaGeneratorBaseTest(
     @Test
     fun `creates message for class with contextual and serializable property`() {
         generator.add(ClassWithContextualAndSerializableProperty.serializer().descriptor)
-        assertThat(generator.schema()).isEqualTo(
+        assertThat(generator.schema().toSchemaDocument()).isEqualTo(
             schemaOf(
                 """
                 message ClassWithContextualAndSerializableProperty {

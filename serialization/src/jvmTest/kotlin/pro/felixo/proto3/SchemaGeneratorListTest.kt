@@ -174,14 +174,6 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
                 repeated SealedTopClass list = 1;
             }
 
-            message SealedTopClass {
-              oneof subtypes {
-                SealedLevel2LeafClassA sealedLevel2LeafClassA = 2;
-                SealedLevel2LeafClassB sealedLevel2LeafClassB = 3;
-                SealedLevel3LeafClass sealedLevel3LeafClass = 4;
-              }
-            }
-
             message SealedLevel2Class {
               oneof subtypes {
                 SealedLevel3LeafClass sealedLevel3LeafClass = 4;
@@ -198,6 +190,14 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
             
             message SealedLevel3LeafClass {
               SealedTopClass top = 1;
+            }
+
+            message SealedTopClass {
+              oneof subtypes {
+                SealedLevel2LeafClassA sealedLevel2LeafClassA = 2;
+                SealedLevel2LeafClassB sealedLevel2LeafClassB = 3;
+                SealedLevel3LeafClass sealedLevel3LeafClass = 4;
+              }
             }
             """
         )

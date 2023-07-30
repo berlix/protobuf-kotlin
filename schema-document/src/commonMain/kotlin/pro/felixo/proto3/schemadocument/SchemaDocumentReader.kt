@@ -43,7 +43,7 @@ class SchemaDocumentReader(private val tokenizer: SchemaTokenizer = SchemaTokeni
 
     private fun expectType(token: Token): FieldType = when (token) {
         is Token.Identifier ->
-            FieldType.SCALARS.firstOrNull {
+            SCALARS.firstOrNull {
                 it.name == token.text
             }
                 ?: FieldType.Reference(token.components.map { Identifier(it) })

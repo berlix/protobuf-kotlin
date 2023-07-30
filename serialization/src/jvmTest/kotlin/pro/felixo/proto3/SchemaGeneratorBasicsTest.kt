@@ -516,10 +516,10 @@ class SchemaGeneratorBasicsTest : SchemaGeneratorBaseTest() {
         verify(
             ClassAWithReference.serializer().descriptor,
             """
-            message EmptyClass {}
             message ClassAWithReference {
                 EmptyClass ref = 1;
             }
+            message EmptyClass {}
             """
         )
         verifyConversion(
@@ -538,13 +538,13 @@ class SchemaGeneratorBasicsTest : SchemaGeneratorBaseTest() {
                 ClassBWithReference.serializer().descriptor
             ),
             """
-            message EmptyClass {}
             message ClassAWithReference {
                 EmptyClass ref = 1;
             }
             message ClassBWithReference {
                 EmptyClass ref = 1;
             }
+            message EmptyClass {}
             """
         )
         verifyConversion(

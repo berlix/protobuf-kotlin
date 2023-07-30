@@ -3,6 +3,7 @@ package pro.felixo.proto3
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import kotlinx.serialization.modules.SerializersModule
+import pro.felixo.proto3.schema.toSchemaDocument
 import pro.felixo.proto3.testutil.NonSealedInterface
 import pro.felixo.proto3.testutil.NonSealedLevel2Class
 import pro.felixo.proto3.testutil.NonSealedLevel2LeafClassA
@@ -28,7 +29,7 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest(
     @Test
     fun `creates sealed class hierarchy`() {
         generator.add(SealedTopClass.serializer().descriptor)
-        assertThat(generator.schema()).isEqualTo(
+        assertThat(generator.schema().toSchemaDocument()).isEqualTo(
             schemaOf(
                 """
                 message SealedLevel2Class {
@@ -84,9 +85,17 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest(
     @Test
     fun `creates non-sealed polymorphic class hierarchy`() {
         generator.addFromSerializersModule(typeOf<NonSealedInterface>())
-        assertThat(generator.schema().also { println(it) }).isEqualTo(
+        assertThat(generator.schema().toSchemaDocument()).isEqualTo(
             schemaOf(
                 """
+                message NonSealedInterface {
+                  oneof subtypes {
+                    NonSealedLevel2LeafClassA nonSealedLevel2LeafClassA = 2;
+                    NonSealedLevel2LeafClassB nonSealedLevel2LeafClassB = 3;
+                    NonSealedLevel3LeafClass nonSealedLevel3LeafClass = 4;
+                  }
+                }
+
                 message NonSealedLevel2Class {
                   oneof subtypes {
                     NonSealedLevel3LeafClass nonSealedLevel3LeafClass = 4;
@@ -103,15 +112,7 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest(
                 
                 message NonSealedLevel3LeafClass {
                   NonSealedInterface top = 1;
-                }
-                
-                message NonSealedInterface {
-                  oneof subtypes {
-                    NonSealedLevel2LeafClassA nonSealedLevel2LeafClassA = 2;
-                    NonSealedLevel2LeafClassB nonSealedLevel2LeafClassB = 3;
-                    NonSealedLevel3LeafClass nonSealedLevel3LeafClass = 4;
-                  }
-                }
+                }                
                 """
             )
         )
