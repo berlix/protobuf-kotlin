@@ -2,6 +2,7 @@ package pro.felixo.proto3.schema
 
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import pro.felixo.proto3.EnumValue
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldEncoding
 import pro.felixo.proto3.Identifier
@@ -82,10 +83,3 @@ data class Enumeration(
     val reservedNames: Set<Identifier> = emptySet(),
     val reservedNumbers: Set<IntRange> = emptySet()
 ) : Type()
-
-data class EnumValue(
-    val name: Identifier,
-    val number: Int
-) : Comparable<EnumValue> {
-    override fun compareTo(other: EnumValue): Int = number.compareTo(other.number)
-}

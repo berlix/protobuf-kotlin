@@ -36,7 +36,6 @@ import pro.felixo.proto3.internal.fieldNumberIteratorFromSubTypes
 import pro.felixo.proto3.internal.fullTypeName
 import pro.felixo.proto3.internal.numberIteratorFromEnumElements
 import pro.felixo.proto3.internal.typeContext
-import pro.felixo.proto3.schema.EnumValue
 import pro.felixo.proto3.schema.Enumeration
 import pro.felixo.proto3.schema.Field
 import pro.felixo.proto3.schema.FieldRule

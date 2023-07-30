@@ -1,5 +1,6 @@
 package pro.felixo.proto3.schemadocument
 
+import pro.felixo.proto3.EnumValue
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.Identifier
 import pro.felixo.proto3.util.requireNoDuplicates
@@ -181,15 +182,6 @@ data class Enumeration(
             }
         }
     }
-}
-
-data class EnumValue(
-    val name: Identifier,
-    val number: Int
-) : Comparable<EnumValue> {
-    fun validate() = name.validate()
-
-    override fun compareTo(other: EnumValue): Int = number.compareTo(other.number)
 }
 
 sealed class FieldType {
