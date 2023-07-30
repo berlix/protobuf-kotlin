@@ -2,6 +2,7 @@ package pro.felixo.proto3.schemadocument
 
 import pro.felixo.proto3.EnumValue
 import pro.felixo.proto3.FieldNumber
+import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.Identifier
 import pro.felixo.proto3.util.requireNoDuplicates
 
@@ -124,12 +125,6 @@ data class OneOf(
         require(fields.all { it.rule != FieldRule.Repeated }) { "OneOf fields may not be repeated" }
         fields.forEach { it.validate() }
     }
-}
-
-enum class FieldRule {
-    Singular,
-    Optional,
-    Repeated
 }
 
 data class Enumeration(

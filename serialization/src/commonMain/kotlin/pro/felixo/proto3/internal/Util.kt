@@ -2,8 +2,8 @@ package pro.felixo.proto3.internal
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
+import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.ProtoNumber
-import pro.felixo.proto3.schema.FieldRule
 import pro.felixo.proto3.util.FieldNumberIterator
 import pro.felixo.proto3.util.NumberIterator
 import pro.felixo.proto3.util.requireNoDuplicates

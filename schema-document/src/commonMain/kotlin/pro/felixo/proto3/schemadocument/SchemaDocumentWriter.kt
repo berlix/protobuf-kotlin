@@ -1,6 +1,7 @@
 package pro.felixo.proto3.schemadocument
 
 import pro.felixo.proto3.EnumValue
+import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.Identifier
 
 class SchemaDocumentWriter(

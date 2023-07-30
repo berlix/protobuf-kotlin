@@ -5,6 +5,7 @@ import kotlinx.serialization.encoding.Encoder
 import pro.felixo.proto3.EnumValue
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldEncoding
+import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.Identifier
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
@@ -69,12 +70,6 @@ data class OneOf(
     override val name: Identifier,
     val fields: Set<Field>
 ) : Member
-
-enum class FieldRule {
-    Singular,
-    Optional,
-    Repeated
-}
 
 data class Enumeration(
     override val name: Identifier,
