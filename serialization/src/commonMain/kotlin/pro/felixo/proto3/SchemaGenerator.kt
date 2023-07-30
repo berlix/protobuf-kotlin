@@ -1,7 +1,5 @@
 package pro.felixo.proto3
 
-import pro.felixo.proto3.internal.FieldNumberIterator
-import pro.felixo.proto3.internal.NumberIterator
 import pro.felixo.proto3.internal.nullableToOptional
 import pro.felixo.proto3.internal.simpleTypeName
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -33,7 +31,10 @@ import pro.felixo.proto3.encoding.SyntheticEncoder
 import pro.felixo.proto3.encoding.ValueDecoder
 import pro.felixo.proto3.encoding.ValueEncoder
 import pro.felixo.proto3.internal.TypeContext
+import pro.felixo.proto3.internal.fieldNumberIteratorFromClassElements
+import pro.felixo.proto3.internal.fieldNumberIteratorFromSubTypes
 import pro.felixo.proto3.internal.fullTypeName
+import pro.felixo.proto3.internal.numberIteratorFromEnumElements
 import pro.felixo.proto3.internal.typeContext
 import pro.felixo.proto3.schema.EnumValue
 import pro.felixo.proto3.schema.Enumeration
@@ -43,6 +44,7 @@ import pro.felixo.proto3.schema.Identifier
 import pro.felixo.proto3.schema.Message
 import pro.felixo.proto3.schema.OneOf
 import pro.felixo.proto3.schema.Schema
+import pro.felixo.proto3.util.FieldNumberIterator
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 import kotlin.reflect.KType
@@ -113,7 +115,7 @@ class SchemaGenerator(
         subTypes: Iterable<SerialDescriptor>
     ): FieldType.Reference = putOrGet(descriptor) {
         typeContext {
-            val numberIterator = FieldNumberIterator.fromSubTypes(subTypes)
+            val numberIterator = fieldNumberIteratorFromSubTypes(subTypes)
 
             val fields = subTypes.map { it to fieldForSubType(it, numberIterator) }
 
@@ -436,7 +438,7 @@ class SchemaGenerator(
         annotations.filterIsInstance<ProtoIntegerType>().firstOrNull()?.type ?: IntegerType.Default
 
     private fun TypeContext.enum(descriptor: SerialDescriptor): FieldType.Reference = putOrGet(descriptor) {
-        val numberIterator = NumberIterator.fromEnumElements(descriptor)
+        val numberIterator = numberIteratorFromEnumElements(descriptor)
 
         val values = (0 until descriptor.elementsCount).map { index ->
             val annotations = descriptor.getElementAnnotations(index)
@@ -460,7 +462,7 @@ class SchemaGenerator(
 
     private fun TypeContext.messageOfClass(descriptor: SerialDescriptor): FieldType.Reference = putOrGet(descriptor) {
         typeContext {
-            val numberIterator = FieldNumberIterator.fromClassElements(descriptor)
+            val numberIterator = fieldNumberIteratorFromClassElements(descriptor)
 
             val fields = (0 until descriptor.elementsCount).map {
                 val number =

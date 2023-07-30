@@ -2,7 +2,7 @@ package pro.felixo.proto3
 
 @JvmInline
 value class FieldNumber(val value: Int) : Comparable<FieldNumber> {
-    init {
+    fun validate() {
         require(
             value in MIN until RESERVED_RANGE_START || value in RESERVED_RANGE_END..MAX
         ) { "Invalid field number $value" }

@@ -4,21 +4,12 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldType
-import pro.felixo.proto3.internal.requireNoDuplicates
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
 data class Schema(
     val types: Set<Type> = emptySet()
 ) {
-    init {
-        requireDistinctTypeNames()
-    }
-
-    private fun requireDistinctTypeNames() {
-        types.requireNoDuplicates({ it.name }) { "Duplicate type name: $it" }
-    }
-
     override fun toString(): String {
         val out = StringBuilder()
         SchemaWriter(out).write(this)
@@ -45,29 +36,6 @@ data class Message(
 ) : Type() {
     val fields: Set<Field> =
         (members.filterIsInstance<Field>() + members.filterIsInstance<OneOf>().flatMap { it.fields }).toSet()
-
-    init {
-        requireDistinctFieldNumbers()
-        requireDistinctTypeNames()
-        requireReservationsRespected()
-    }
-
-    private fun requireDistinctFieldNumbers() {
-        fields.requireNoDuplicates({ it.number }) { "Duplicate field number in message $name: $it" }
-    }
-
-    private fun requireDistinctTypeNames() {
-        nestedTypes.requireNoDuplicates({ it.name }) { "Duplicate nested type name in message $name: $it" }
-    }
-
-    private fun requireReservationsRespected() {
-        fields.forEach { field ->
-            require(!reservedNames.contains(field.name)) { "Field name ${field.name} is reserved in message $name" }
-            require(!reservedNumbers.any { it.contains(field.number.value) }) {
-                "Field number ${field.number.value} is reserved in message $name"
-            }
-        }
-    }
 }
 
 sealed interface Member {
@@ -110,12 +78,7 @@ class Field(
 data class OneOf(
     override val name: Identifier,
     val fields: Set<Field>
-) : Member {
-    init {
-        require(fields.isNotEmpty()) { "OneOf must have at least one field" }
-        require(fields.all { it.rule != FieldRule.Repeated }) { "OneOf fields may not be repeated" }
-    }
-}
+) : Member
 
 enum class FieldRule {
     Singular,
@@ -129,40 +92,7 @@ data class Enumeration(
     val allowAlias: Boolean = false,
     val reservedNames: Set<Identifier> = emptySet(),
     val reservedNumbers: Set<IntRange> = emptySet()
-) : Type() {
-    init {
-        requireValues()
-        requireDistinctNames()
-        requireDefaultValue()
-        if (!allowAlias)
-            requireDistinctNumbers()
-        requireReservationsRespected()
-    }
-
-    private fun requireValues() {
-        require(values.isNotEmpty()) { "Enum $name must have at least one value" }
-    }
-
-    private fun requireDefaultValue() {
-        require(values.any { it.number == 0 }) { "Enum $name must have a value with number 0" }
-    }
-
-    private fun requireDistinctNames() {
-        values.requireNoDuplicates({ it.name }) { "Duplicate value name in enum $name: $it" }
-    }
-
-    private fun requireDistinctNumbers() {
-        values.requireNoDuplicates({ it.number }) { "Duplicate value number in enum $name: $it" }
-    }
-
-    private fun requireReservationsRespected() {
-        values.forEach { value ->
-            require(!reservedNames.contains(value.name)) { "Field name ${value.name} is reserved in message $name" }
-            require(!reservedNumbers.any { it.contains(value.number) }) {
-                "Field number ${value.number} is reserved in message $name"
-            }
-        }
-    }}
+) : Type()
 
 data class EnumValue(
     val name: Identifier,
@@ -173,14 +103,6 @@ data class EnumValue(
 
 @JvmInline
 value class Identifier(val value: String) : Comparable<Identifier> {
-    init {
-        require(value.isNotEmpty()) { "Identifier must not be empty" }
-        require(value.first().let { it.isLetter() || it == '_' }) {
-            "Invalid identifier: $value"
-        }
-        require(value.all { it.isLetter() || it.isDigit() || it == '_' }) { "Invalid identifier: $value" }
-    }
-
     override fun compareTo(other: Identifier): Int = value.compareTo(other.value)
 
     override fun toString() = value
