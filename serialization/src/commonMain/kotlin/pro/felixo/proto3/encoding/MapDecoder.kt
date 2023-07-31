@@ -15,7 +15,7 @@ class MapDecoder(
     private val keyField: Field,
     private val valueField: Field,
     private val entries: List<WireValue>
-) : Decoder, CompositeDecoder {
+) : HybridDecoder() {
 
     override val serializersModule: SerializersModule
         get() = schemaGenerator.serializersModule
@@ -24,7 +24,6 @@ class MapDecoder(
     private var currentEntry: MessageDecoder? = null
 
 
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = this
     override fun endStructure(descriptor: SerialDescriptor) {}
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int =
@@ -115,23 +114,4 @@ class MapDecoder(
         requireNotNull(currentEntry) {
             "Extraneous call of decodeInlineElement($index)"
         }.decodeInlineElement(descriptor, index % 2)
-
-    override fun decodeBoolean(): Boolean = error("ListDecoder does not support decodeBoolean")
-    override fun decodeByte(): Byte = error("ListDecoder does not support decodeByte")
-    override fun decodeChar(): Char = error("ListDecoder does not support decodeChar")
-    override fun decodeDouble(): Double = error("ListDecoder does not support decodeDouble")
-    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = error("ListDecoder does not support decodeEnum")
-    override fun decodeFloat(): Float = error("ListDecoder does not support decodeFloat")
-    override fun decodeInline(descriptor: SerialDescriptor): Decoder =
-        error("ListDecoder does not support decodeInline")
-    override fun decodeInt(): Int = error("ListDecoder does not support decodeInt")
-    override fun decodeLong(): Long = error("ListDecoder does not support decodeLong")
-    override fun decodeShort(): Short = error("ListDecoder does not support decodeShort")
-    override fun decodeString(): String = error("ListDecoder does not support decodeString")
-
-    @ExperimentalSerializationApi
-    override fun decodeNotNullMark(): Boolean = error("ListDecoder does not support decodeNotNullMark")
-
-    @ExperimentalSerializationApi
-    override fun decodeNull(): Nothing = error("ListDecoder does not support decodeNull")
 }

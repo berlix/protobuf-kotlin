@@ -19,7 +19,7 @@ class MessageDecoder(
     private val schemaGenerator: SchemaGenerator,
     private val fieldByElementIndex: List<Field>,
     wireValues: List<WireValue>
-) : CompositeDecoder {
+) : HybridDecoder() {
 
     override val serializersModule: SerializersModule
         get() = schemaGenerator.serializersModule

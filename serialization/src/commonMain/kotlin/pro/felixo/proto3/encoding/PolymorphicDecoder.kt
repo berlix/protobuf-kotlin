@@ -16,7 +16,7 @@ class PolymorphicDecoder(
     private val schemaGenerator: SchemaGenerator,
     fieldByDescriptor: Map<FieldNumber, Pair<SerialDescriptor, Field>>,
     wireValues: List<WireValue>
-) : CompositeDecoder {
+) : HybridDecoder() {
 
     override val serializersModule: SerializersModule
         get() = schemaGenerator.serializersModule

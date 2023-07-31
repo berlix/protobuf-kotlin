@@ -20,7 +20,7 @@ class ListEncoder(
     private val packed: Boolean,
     private val output: WireBuffer,
     private val elementEncoder: (WireBuffer) -> Encoder
-) : Encoder, CompositeEncoder {
+) : HybridEncoder() {
     override val serializersModule: SerializersModule
         get() = schemaGenerator.serializersModule
 
@@ -30,8 +30,6 @@ class ListEncoder(
         elementEncoder(packedBuffer)
     else
         elementEncoder(output)
-
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = this
 
     override fun endStructure(descriptor: SerialDescriptor) {
         if (packed && packedBuffer.length > 0)
@@ -88,19 +86,4 @@ class ListEncoder(
     ) = serializer.serialize(getElementEncoder(), value)
 
     override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder = getElementEncoder()
-
-    override fun encodeBoolean(value: Boolean) = error("ListEncoder does not support encodeBoolean")
-    override fun encodeByte(value: Byte) = error("ListEncoder does not support encodeByte")
-    override fun encodeChar(value: Char) = error("ListEncoder does not support encodeChar")
-    override fun encodeDouble(value: Double) = error("ListEncoder does not support encodeDouble")
-    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) =
-        error("ListEncoder does not support encodeEnum")
-    override fun encodeFloat(value: Float) = error("ListEncoder does not support encodeFloat")
-    override fun encodeInline(descriptor: SerialDescriptor): Encoder =
-        error("ListEncoder does not support encodeInline")
-    override fun encodeInt(value: Int) = error("ListEncoder does not support encodeInt")
-    override fun encodeLong(value: Long) = error("ListEncoder does not support encodeLong")
-    @ExperimentalSerializationApi override fun encodeNull() = error("ListEncoder does not support encodeNull")
-    override fun encodeShort(value: Short) = error("ListEncoder does not support encodeShort")
-    override fun encodeString(value: String) = error("ListEncoder does not support encodeString")
 }

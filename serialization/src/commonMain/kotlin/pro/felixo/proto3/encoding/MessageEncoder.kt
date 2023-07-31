@@ -3,7 +3,6 @@ package pro.felixo.proto3.encoding
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.FieldEncoding
@@ -21,7 +20,7 @@ class MessageEncoder(
     private val fieldByElementIndex: List<Field>,
     private val isStandalone: Boolean,
     private val output: WireBuffer
-) : CompositeEncoder {
+) : HybridEncoder() {
     override val serializersModule: SerializersModule
         get() = schemaGenerator.serializersModule
 

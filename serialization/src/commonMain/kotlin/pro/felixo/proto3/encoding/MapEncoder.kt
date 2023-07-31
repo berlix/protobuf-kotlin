@@ -21,7 +21,7 @@ class MapEncoder(
     private val keyField: Field,
     private val valueField: Field,
     private val output: WireBuffer,
-) : Encoder, CompositeEncoder {
+) : HybridEncoder() {
     override val serializersModule: SerializersModule
         get() = schemaGenerator.serializersModule
 
@@ -53,8 +53,6 @@ class MapEncoder(
             currentEntryBuffer = null
         }
     }
-
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = this
 
     override fun endStructure(descriptor: SerialDescriptor) {
         writeCurrentEntry()
@@ -110,18 +108,4 @@ class MapEncoder(
     ) = encoder(index).encodeSerializableValue(serializer, value)
 
     override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder = encoder(index)
-
-    override fun encodeBoolean(value: Boolean) = error("MapEncoder does not support encodeBoolean")
-    override fun encodeByte(value: Byte) = error("MapEncoder does not support encodeByte")
-    override fun encodeChar(value: Char) = error("MapEncoder does not support encodeChar")
-    override fun encodeDouble(value: Double) = error("MapEncoder does not support encodeDouble")
-    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) =
-        error("MapEncoder does not support encodeEnum")
-    override fun encodeFloat(value: Float) = error("MapEncoder does not support encodeFloat")
-    override fun encodeInline(descriptor: SerialDescriptor): Encoder = error("MapEncoder does not support encodeInline")
-    override fun encodeInt(value: Int) = error("MapEncoder does not support encodeInt")
-    override fun encodeLong(value: Long) = error("MapEncoder does not support encodeLong")
-    @ExperimentalSerializationApi override fun encodeNull() = error("MapEncoder does not support encodeNull")
-    override fun encodeShort(value: Short) = error("MapEncoder does not support encodeShort")
-    override fun encodeString(value: String) = error("MapEncoder does not support encodeString")
 }
