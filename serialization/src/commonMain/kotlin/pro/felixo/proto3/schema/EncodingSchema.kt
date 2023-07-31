@@ -53,7 +53,7 @@ data class Enumeration(
     override val name: Identifier,
     val values: List<EnumValue>
 ) : Type() {
-    val numberByElementIndex: List<Int> by lazy { values.map { it.number } }
+    private val numberByElementIndex: List<Int> by lazy { values.map { it.number } }
     private val elementIndexByNumber = numberByElementIndex.withIndex().associate { it.value to it.index }
     private val defaultElementIndex: Int = numberByElementIndex.indexOf(0)
 
