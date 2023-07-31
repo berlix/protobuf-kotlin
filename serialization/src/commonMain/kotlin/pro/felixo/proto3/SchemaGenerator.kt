@@ -1,7 +1,5 @@
 package pro.felixo.proto3
 
-import pro.felixo.proto3.internal.nullableToOptional
-import pro.felixo.proto3.internal.simpleTypeName
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -16,8 +14,6 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializerOrNull
-import pro.felixo.proto3.encoding.CompositeEncoding
-import pro.felixo.proto3.encoding.EnumEncoding
 import pro.felixo.proto3.encoding.ListDecoder
 import pro.felixo.proto3.encoding.ListEncoder
 import pro.felixo.proto3.encoding.MapDecoder
@@ -33,14 +29,15 @@ import pro.felixo.proto3.encoding.ValueEncoder
 import pro.felixo.proto3.internal.TypeContext
 import pro.felixo.proto3.internal.fieldNumberIteratorFromClassElements
 import pro.felixo.proto3.internal.fieldNumberIteratorFromSubTypes
-import pro.felixo.proto3.internal.fullTypeName
+import pro.felixo.proto3.internal.nullableToOptional
 import pro.felixo.proto3.internal.numberIteratorFromEnumElements
+import pro.felixo.proto3.internal.simpleTypeName
 import pro.felixo.proto3.internal.typeContext
+import pro.felixo.proto3.schema.EncodingSchema
 import pro.felixo.proto3.schema.Enumeration
 import pro.felixo.proto3.schema.Field
 import pro.felixo.proto3.schema.Message
 import pro.felixo.proto3.schema.OneOf
-import pro.felixo.proto3.schema.EncodingSchema
 import pro.felixo.proto3.util.FieldNumberIterator
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
@@ -52,35 +49,14 @@ class SchemaGenerator(
 ) {
     private val rootTypes = TypeContext()
 
-    private val enumEncodings = mutableMapOf<String, EnumEncoding>()
-    private val compositeEncodings = mutableMapOf<String, CompositeEncoding>()
-
     fun schema(): EncodingSchema = EncodingSchema(rootTypes.localTypes.toSet())
 
-    fun add(descriptor: SerialDescriptor) {
-        rootTypes.namedType(descriptor)
-    }
+    fun add(descriptor: SerialDescriptor) = rootTypes.namedType(descriptor)
 
     fun addFromSerializersModule(type: KType) {
         rootTypes.namedType(
             serializersModule.serializerOrNull(type)?.descriptor ?: error("No serializer in module found for $type")
         )
-    }
-
-    fun getCompositeEncoding(descriptor: SerialDescriptor): CompositeEncoding {
-        val name = fullTypeName(descriptor)
-        return compositeEncodings[name] ?: run {
-            add(descriptor)
-            compositeEncodings[name] ?: error("Not a composite: ${descriptor.serialName}")
-        }
-    }
-
-    fun getEnumEncoding(descriptor: SerialDescriptor): EnumEncoding {
-        val name = fullTypeName(descriptor)
-        return enumEncodings[name] ?: run {
-            add(descriptor)
-            enumEncodings[name] ?: error("Not an enum: ${descriptor.serialName}")
-        }
     }
 
     private fun TypeContext.namedType(descriptor: SerialDescriptor): FieldEncoding.Reference = when (descriptor.kind) {
@@ -116,18 +92,6 @@ class SchemaGenerator(
 
             val fields = subTypes.map { it to fieldForSubType(it, numberIterator) }
 
-            compositeEncodings[fullTypeName(descriptor)] = CompositeEncoding(
-                { output, isStandalone ->
-                    PolymorphicEncoder(
-                        this@SchemaGenerator,
-                        fields.toMap(),
-                        isStandalone,
-                        output
-                    )
-                },
-                { values -> PolymorphicDecoder(this@SchemaGenerator, fields.associateBy { it.second.number }, values) }
-            )
-
             Message(
                 Identifier(simpleTypeName(descriptor)),
                 setOf(
@@ -135,7 +99,18 @@ class SchemaGenerator(
                         Identifier("subtypes"),
                         fields.map { it.second }.toSet()
                     )
-                )
+                ),
+                encoder = { output, isStandalone ->
+                    PolymorphicEncoder(
+                        this@SchemaGenerator,
+                        fields.toMap(),
+                        isStandalone,
+                        output
+                    )
+                },
+                decoder = { values ->
+                    PolymorphicDecoder(this@SchemaGenerator, fields.associateBy { it.second.number }, values)
+                }
             )
         }
     }
@@ -149,7 +124,7 @@ class SchemaGenerator(
         )
         return Field(
             Identifier(
-                subTypeRef.components.last().value.replaceFirstChar { it.lowercaseChar() }
+                subTypeRef.name.value.replaceFirstChar { it.lowercaseChar() }
             ),
             subTypeRef,
             number,
@@ -264,7 +239,9 @@ class SchemaGenerator(
             Message(
                 syntheticMessageName,
                 setOf(field()),
-                localTypes
+                localTypes,
+                encoder = { _, _ -> error("Synthetic messages don't have encoders") },
+                decoder = { error("Synthetic messages don't have decoders") }
             )
         }
     }
@@ -388,7 +365,9 @@ class SchemaGenerator(
                             descriptor.getElementDescriptor(1)
                         ).also { valueField = it },
                     ),
-                    localTypes
+                    localTypes,
+                    encoder = { _, _ -> error("Map entry messages don't have encoders") },
+                    decoder = { error("Map entry messages don't have decoders") }
                 )
             }
         }
@@ -449,11 +428,9 @@ class SchemaGenerator(
             EnumValue(Identifier(descriptor.getElementName(index)), number)
         }
 
-        enumEncodings[fullTypeName(descriptor)] = EnumEncoding(values.map { it.number })
-
         Enumeration(
             Identifier(simpleTypeName(descriptor)),
-            values.toSet()
+            values
         )
     }
 
@@ -474,22 +451,25 @@ class SchemaGenerator(
                 )
             }
 
-            compositeEncodings[fullTypeName(descriptor)] = CompositeEncoding(
-                { output, isStandalone -> MessageEncoder(this@SchemaGenerator, fields, isStandalone, output) },
-                { MessageDecoder(this@SchemaGenerator, fields, it) }
+            Message(
+                Identifier(simpleTypeName(descriptor)),
+                fields.toSet(),
+                localTypes,
+                encoder =
+                    { output, isStandalone -> MessageEncoder(this@SchemaGenerator, fields, isStandalone, output) },
+                decoder = { MessageDecoder(this@SchemaGenerator, fields, it) }
             )
-
-            Message(Identifier(simpleTypeName(descriptor)), fields.toSet(), localTypes)
         }
     }
 
     private fun TypeContext.messageOfObject(descriptor: SerialDescriptor): FieldEncoding.Reference = putOrGet(descriptor) {
-        compositeEncodings[fullTypeName(descriptor)] = CompositeEncoding(
-            { output, isStandalone -> MessageEncoder(this@SchemaGenerator, emptyList(), isStandalone, output) },
-            { MessageDecoder(this@SchemaGenerator, emptyList(), it) }
+        Message(
+            Identifier(simpleTypeName(descriptor)),
+            emptySet(),
+            encoder =
+                { output, isStandalone -> MessageEncoder(this@SchemaGenerator, emptyList(), isStandalone, output) },
+            decoder = { MessageDecoder(this@SchemaGenerator, emptyList(), it) }
         )
-
-        Message(Identifier(simpleTypeName(descriptor)), emptySet())
     }
 
     @Suppress("RecursivePropertyAccessor")

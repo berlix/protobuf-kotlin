@@ -2,9 +2,10 @@
 
 package pro.felixo.proto3
 
-import pro.felixo.proto3.wire.WireValue
+import pro.felixo.proto3.schema.Type
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireType
+import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.decodeSInt32
 import pro.felixo.proto3.wire.decodeSInt64
 import pro.felixo.proto3.wire.encodeSInt32
@@ -245,17 +246,28 @@ sealed class FieldEncoding {
         override fun encode(value: ByteArray) = WireValue.Len(WireBuffer(value))
     }
 
-    /**
-     * A reference to a message or enum type.
-     */
-    data class Reference(val components: List<Identifier>) : FieldEncoding() {
+    class Reference : FieldEncoding() {
         override val isPackable = false
 
-        init {
-            require(components.isNotEmpty()) { "Type reference must not be empty" }
-        }
+        lateinit var type: Type
+            private set
 
-        override fun toString() = components.joinToString(".")
+        val name: Identifier by lazy { type.name }
+
+        override fun toString() = type.name.toString()
+
+        companion object {
+            fun to(type: Type): Reference {
+                val ref = Reference()
+                ref.type = type
+                return ref
+            }
+
+            fun lazy(): Pair<Reference, (Type) -> Unit> {
+                val ref = Reference()
+                return ref to { ref.type = it }
+            }
+        }
     }
 }
 

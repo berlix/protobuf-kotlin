@@ -63,5 +63,5 @@ private fun FieldEncoding.toDocumentFieldType() = when (this) {
     FieldEncoding.SInt64 -> FieldType.SInt64
     FieldEncoding.UInt64 -> FieldType.UInt64
     FieldEncoding.String -> FieldType.String
-    is FieldEncoding.Reference -> FieldType.Reference(components)
+    is FieldEncoding.Reference -> FieldType.Reference(listOf(name))
 }

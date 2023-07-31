@@ -3,10 +3,12 @@ package pro.felixo.proto3.schema
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import pro.felixo.proto3.EnumValue
-import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldEncoding
+import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.Identifier
+import pro.felixo.proto3.encoding.HybridDecoder
+import pro.felixo.proto3.encoding.HybridEncoder
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
@@ -23,7 +25,9 @@ data class Message(
     val members: Set<Member>,
     val nestedTypes: Set<Type> = emptySet(),
     val reservedNames: Set<Identifier> = emptySet(),
-    val reservedNumbers: Set<IntRange> = emptySet()
+    val reservedNumbers: Set<IntRange> = emptySet(),
+    val encoder: (output: WireBuffer, isStandalone: Boolean) -> HybridEncoder,
+    val decoder: (value: List<WireValue>) -> HybridDecoder
 ) : Type() {
     val fields: Set<Field> =
         (members.filterIsInstance<Field>() + members.filterIsInstance<OneOf>().flatMap { it.fields }).toSet()
@@ -73,8 +77,15 @@ data class OneOf(
 
 data class Enumeration(
     override val name: Identifier,
-    val values: Set<EnumValue>,
+    val values: List<EnumValue>,
     val allowAlias: Boolean = false,
     val reservedNames: Set<Identifier> = emptySet(),
     val reservedNumbers: Set<IntRange> = emptySet()
-) : Type()
+) : Type() {
+    val numberByElementIndex: List<Int> by lazy { values.map { it.number } }
+    private val elementIndexByNumber = numberByElementIndex.withIndex().associate { it.value to it.index }
+    private val defaultElementIndex: Int = numberByElementIndex.indexOf(0)
+
+    fun decode(number: Int): Int = elementIndexByNumber[number] ?: defaultElementIndex
+    fun encode(elementIndex: Int): Int = numberByElementIndex[elementIndex]
+}

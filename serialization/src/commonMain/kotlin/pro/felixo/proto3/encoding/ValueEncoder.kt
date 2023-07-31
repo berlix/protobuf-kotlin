@@ -9,6 +9,8 @@ import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldEncoding
 import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.isUnsigned
+import pro.felixo.proto3.schema.Enumeration
+import pro.felixo.proto3.schema.Message
 import pro.felixo.proto3.wire.Tag
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireType
@@ -43,8 +45,10 @@ class ValueEncoder(
         writeTag()
         return if (type == FieldEncoding.Bytes)
             ByteArrayEncoder(output, serializersModule)
-        else
-            schemaGenerator.getCompositeEncoding(descriptor).encoder(output, fieldNumber == null)
+        else {
+            val message = (type as FieldEncoding.Reference).type as Message
+            message.encoder(output, fieldNumber == null)
+        }
     }
 
     @ExperimentalSerializationApi
@@ -56,8 +60,9 @@ class ValueEncoder(
     override fun encodeInline(descriptor: SerialDescriptor): Encoder = this
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
+        val enum = (type as FieldEncoding.Reference).type as Enumeration
         writeEnumTag()
-        output.writeVarInt(schemaGenerator.getEnumEncoding(enumDescriptor).encode(index))
+        output.writeVarInt(enum.encode(index))
     }
 
     override fun encodeBoolean(value: Boolean) {

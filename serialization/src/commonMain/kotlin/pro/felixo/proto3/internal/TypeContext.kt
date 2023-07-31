@@ -2,39 +2,30 @@ package pro.felixo.proto3.internal
 
 import kotlinx.serialization.descriptors.SerialDescriptor
 import pro.felixo.proto3.FieldEncoding
-import pro.felixo.proto3.Identifier
 import pro.felixo.proto3.schema.Type
 
 class TypeContext {
-    private val typesInCreation = mutableMapOf<String, SerialDescriptor?>()
-    private val localTypesByName = mutableMapOf<String, Pair<SerialDescriptor?, Type>>()
-    val localTypes get() = localTypesByName.values.map { it.second }.toSet()
+    private val localTypesByName =
+        mutableMapOf<String, Pair<FieldEncoding.Reference, SerialDescriptor?>>()
+
+    val localTypes: Set<Type> get() = localTypesByName.values.map { it.first.type }.toSet()
 
     fun putOrGet(
         descriptor: SerialDescriptor? = null,
         name: String = requireNotNull(descriptor?.let { simpleTypeName(descriptor) }),
         createType: () -> Type
     ): FieldEncoding.Reference {
-        val reference = FieldEncoding.Reference(listOf(Identifier(name)))
         val existingType = localTypesByName[name]
         return if (existingType != null) {
-            if (descriptor != null && existingType.first?.isCompatibleWith(descriptor) == true)
-                reference
+            if (descriptor != null && existingType.second?.isCompatibleWith(descriptor) == true)
+                existingType.first
             else
                 error("Name conflict: encountered two incompatible types for type name $name")
         } else {
-            if (typesInCreation.containsKey(name)) {
-                if (descriptor != null && typesInCreation[name]?.isCompatibleWith(descriptor) == true)
-                    reference
-                else
-                    error("Name conflict: encountered two incompatible types for type name $name")
-            } else try {
-                typesInCreation[name] = descriptor
-                localTypesByName[name] = descriptor to createType()
-                reference
-            } finally {
-                typesInCreation.remove(name)
-            }
+            val (reference, onCreateType) = FieldEncoding.Reference.lazy()
+            localTypesByName[name] = Pair(reference, descriptor)
+            onCreateType(createType())
+            reference
         }
     }
 }

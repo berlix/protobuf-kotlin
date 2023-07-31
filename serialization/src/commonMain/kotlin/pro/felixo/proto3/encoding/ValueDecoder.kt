@@ -8,6 +8,8 @@ import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.FieldEncoding
 import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.internal.castItems
+import pro.felixo.proto3.schema.Enumeration
+import pro.felixo.proto3.schema.Message
 import pro.felixo.proto3.wire.WireValue
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -22,11 +24,15 @@ class ValueDecoder(
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
         if (type == FieldEncoding.Bytes)
             ByteArrayDecoder(values, serializersModule)
-        else
-            schemaGenerator.getCompositeEncoding(descriptor).decoder(values)
+        else {
+            val message = (type as FieldEncoding.Reference).type as Message
+            message.decoder(values)
+        }
 
-    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
-        schemaGenerator.getEnumEncoding(enumDescriptor).decode(decodeLast(values, FieldEncoding.Int32) ?: 0)
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
+        val enum = (type as FieldEncoding.Reference).type as Enumeration
+        return enum.decode(decodeLast(values, FieldEncoding.Int32) ?: 0)
+    }
 
     @ExperimentalSerializationApi
     override fun decodeNotNullMark(): Boolean = values.isNotEmpty()
