@@ -35,38 +35,14 @@ sealed interface Member {
     val name: Identifier
 }
 
-class Field(
+data class Field(
     override val name: Identifier,
     val type: FieldEncoding,
     val number: FieldNumber,
     val rule: FieldRule = FieldRule.Singular,
     val encoder: ((WireBuffer) -> Encoder),
     val decoder: ((List<WireValue>) -> Decoder)
-) : Member {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Field
-
-        if (name != other.name) return false
-        if (type != other.type) return false
-        if (number != other.number) return false
-        return rule == other.rule
-    }
-
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + type.hashCode()
-        result = 31 * result + number.hashCode()
-        result = 31 * result + rule.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "Field(name=$name, type=$type, number=$number, rule=$rule)"
-    }
-}
+) : Member
 
 data class OneOf(
     override val name: Identifier,
