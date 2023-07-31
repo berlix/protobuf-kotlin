@@ -13,7 +13,7 @@ import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 
 data class EncodingSchema(
-    val types: Set<Type> = emptySet()
+    val types: List<Type> = emptyList()
 )
 
 sealed class Type {
@@ -22,13 +22,13 @@ sealed class Type {
 
 data class Message(
     override val name: Identifier,
-    val members: Set<Member>,
-    val nestedTypes: Set<Type> = emptySet(),
+    val members: List<Member> = emptyList(),
+    val nestedTypes: List<Type> = emptyList(),
     val encoder: (output: WireBuffer, isStandalone: Boolean) -> HybridEncoder,
     val decoder: (value: List<WireValue>) -> HybridDecoder
 ) : Type() {
-    val fields: Set<Field> =
-        (members.filterIsInstance<Field>() + members.filterIsInstance<OneOf>().flatMap { it.fields }).toSet()
+    val fields: List<Field> =
+        members.filterIsInstance<Field>() + members.filterIsInstance<OneOf>().flatMap { it.fields }
 }
 
 sealed interface Member {
@@ -46,7 +46,7 @@ data class Field(
 
 data class OneOf(
     override val name: Identifier,
-    val fields: Set<Field>
+    val fields: List<Field>
 ) : Member
 
 data class Enumeration(

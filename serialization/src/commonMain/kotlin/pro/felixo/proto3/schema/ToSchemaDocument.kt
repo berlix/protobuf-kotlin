@@ -22,7 +22,7 @@ fun Message.toDocumentMessage() = pro.felixo.proto3.schemadocument.Message(
 
 fun Enumeration.toDocumentEnumeration() = pro.felixo.proto3.schemadocument.Enumeration(
     name,
-    values.toList()
+    values
 )
 
 fun Member.toDocumentMember(): pro.felixo.proto3.schemadocument.Member = when (this) {

@@ -49,7 +49,7 @@ class SchemaGenerator(
 ) {
     private val rootTypes = TypeContext()
 
-    fun schema(): EncodingSchema = EncodingSchema(rootTypes.localTypes.toSet())
+    fun schema(): EncodingSchema = EncodingSchema(rootTypes.localTypes)
 
     fun add(descriptor: SerialDescriptor) = rootTypes.namedType(descriptor)
 
@@ -94,10 +94,10 @@ class SchemaGenerator(
 
             Message(
                 Identifier(simpleTypeName(descriptor)),
-                setOf(
+                listOf(
                     OneOf(
                         Identifier("subtypes"),
-                        fields.map { it.second }.toSet()
+                        fields.map { it.second }
                     )
                 ),
                 encoder = { output, isStandalone ->
@@ -238,7 +238,7 @@ class SchemaGenerator(
         typeContext {
             Message(
                 syntheticMessageName,
-                setOf(field()),
+                listOf(field()),
                 localTypes,
                 encoder = { _, _ -> error("Synthetic messages don't have encoders") },
                 decoder = { error("Synthetic messages don't have decoders") }
@@ -351,7 +351,7 @@ class SchemaGenerator(
             typeContext {
                 Message(
                     Identifier(entryTypeName),
-                    setOf(
+                    listOf(
                         field(
                             Identifier(mapEntryAnnotation.keyName),
                             FieldNumber(1),
@@ -453,7 +453,7 @@ class SchemaGenerator(
 
             Message(
                 Identifier(simpleTypeName(descriptor)),
-                fields.toSet(),
+                fields,
                 localTypes,
                 encoder =
                     { output, isStandalone -> MessageEncoder(this@SchemaGenerator, fields, isStandalone, output) },
@@ -465,7 +465,6 @@ class SchemaGenerator(
     private fun TypeContext.messageOfObject(descriptor: SerialDescriptor): FieldEncoding.Reference = putOrGet(descriptor) {
         Message(
             Identifier(simpleTypeName(descriptor)),
-            emptySet(),
             encoder =
                 { output, isStandalone -> MessageEncoder(this@SchemaGenerator, emptyList(), isStandalone, output) },
             decoder = { MessageDecoder(this@SchemaGenerator, emptyList(), it) }

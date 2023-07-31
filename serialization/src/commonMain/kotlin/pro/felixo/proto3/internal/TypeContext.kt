@@ -8,7 +8,7 @@ class TypeContext {
     private val localTypesByName =
         mutableMapOf<String, Pair<FieldEncoding.Reference, SerialDescriptor?>>()
 
-    val localTypes: Set<Type> get() = localTypesByName.values.map { it.first.type }.toSet()
+    val localTypes: List<Type> get() = localTypesByName.values.map { it.first.type }
 
     fun putOrGet(
         descriptor: SerialDescriptor? = null,

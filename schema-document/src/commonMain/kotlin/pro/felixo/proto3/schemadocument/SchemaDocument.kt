@@ -218,7 +218,7 @@ sealed class FieldType {
     }
 }
 
-val SCALARS: Set<FieldType.Scalar<*>> = setOf(
+val SCALARS: List<FieldType.Scalar<*>> = listOf(
     FieldType.Double,
     FieldType.Float,
     FieldType.Int32,
