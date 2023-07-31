@@ -17,17 +17,12 @@ fun Type.toDocumentType(): pro.felixo.proto3.schemadocument.Type = when (this) {
 fun Message.toDocumentMessage() = pro.felixo.proto3.schemadocument.Message(
     name,
     members.map { it.toDocumentMember() },
-    nestedTypes.sortedBy { it.name }.map { it.toDocumentType() },
-    reservedNames.sortedBy { it.value }.toList(),
-    reservedNumbers.sortedBy { it.first }.toList()
+    nestedTypes.sortedBy { it.name }.map { it.toDocumentType() }
 )
 
 fun Enumeration.toDocumentEnumeration() = pro.felixo.proto3.schemadocument.Enumeration(
     name,
-    values.toList(),
-    allowAlias,
-    reservedNames.sortedBy { it.value }.toList(),
-    reservedNumbers.sortedBy { it.first }.toList()
+    values.toList()
 )
 
 fun Member.toDocumentMember(): pro.felixo.proto3.schemadocument.Member = when (this) {
