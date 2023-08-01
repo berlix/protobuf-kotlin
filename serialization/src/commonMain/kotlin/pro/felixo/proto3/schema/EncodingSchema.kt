@@ -1,20 +1,60 @@
 package pro.felixo.proto3.schema
 
+import kotlinx.serialization.BinaryFormat
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.modules.EmptySerializersModule
+import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.EnumValue
 import pro.felixo.proto3.FieldEncoding
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.Identifier
+import pro.felixo.proto3.SchemaGenerator
 import pro.felixo.proto3.encoding.HybridDecoder
 import pro.felixo.proto3.encoding.HybridEncoder
+import pro.felixo.proto3.internal.simpleTypeName
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
+import kotlin.reflect.KType
 
-data class EncodingSchema(
-    val types: List<Type> = emptyList()
-)
+class EncodingSchema internal constructor(
+    override val serializersModule: SerializersModule,
+    val types: Map<String, Type>
+) : BinaryFormat {
+
+    override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
+        val output = WireBuffer()
+        val simpleTypeName = simpleTypeName(serializer.descriptor)
+        val message = types[simpleTypeName] as? Message ?: error("Not a message type: $simpleTypeName")
+        val encoder = message.encoder(output, true)
+        serializer.serialize(encoder, value)
+        return output.getBytes()
+    }
+
+    override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
+        val simpleTypeName = simpleTypeName(deserializer.descriptor)
+        val message = types[simpleTypeName] as? Message ?: error("Not a message type: $simpleTypeName")
+        val decoder = message.decoder(listOf(WireValue.Len(WireBuffer(bytes))))
+        return deserializer.deserialize(decoder)
+    }
+
+    companion object {
+        fun of(
+            descriptors: List<SerialDescriptor> = emptyList(),
+            typesFromSerializersModule: List<KType> = emptyList(),
+            serializersModule: SerializersModule = EmptySerializersModule(),
+        ): EncodingSchema {
+            val schemaGenerator = SchemaGenerator(serializersModule)
+            descriptors.forEach { schemaGenerator.add(it) }
+            typesFromSerializersModule.forEach { schemaGenerator.addFromSerializersModule(it) }
+            return schemaGenerator.schema()
+        }
+    }
+}
 
 sealed class Type {
     abstract val name: Identifier

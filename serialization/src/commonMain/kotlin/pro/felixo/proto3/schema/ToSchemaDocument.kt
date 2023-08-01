@@ -6,7 +6,7 @@ import pro.felixo.proto3.schemadocument.SchemaDocument
 
 fun EncodingSchema.toSchemaDocument(): SchemaDocument =
     SchemaDocument(
-        types.sortedBy { it.name }.map { it.toDocumentType() }
+        types.values.sortedBy { it.name }.map { it.toDocumentType() }
     )
 
 fun Type.toDocumentType(): pro.felixo.proto3.schemadocument.Type = when (this) {

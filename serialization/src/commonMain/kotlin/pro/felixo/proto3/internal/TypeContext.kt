@@ -5,17 +5,18 @@ import pro.felixo.proto3.FieldEncoding
 import pro.felixo.proto3.schema.Type
 
 class TypeContext {
-    private val localTypesByName =
+    private val referencesByName =
         mutableMapOf<String, Pair<FieldEncoding.Reference, SerialDescriptor?>>()
 
-    val localTypes: List<Type> get() = localTypesByName.values.map { it.first.type }
+    val localTypes: List<Type> get() = referencesByName.values.map { it.first.type }
+    val localTypesByName: Map<String, Type> get() = referencesByName.mapValues { (_, v) -> v.first.type }
 
     fun putOrGet(
         descriptor: SerialDescriptor? = null,
         name: String = requireNotNull(descriptor?.let { simpleTypeName(descriptor) }),
         createType: () -> Type
     ): FieldEncoding.Reference {
-        val existingType = localTypesByName[name]
+        val existingType = referencesByName[name]
         return if (existingType != null) {
             if (descriptor != null && existingType.second?.isCompatibleWith(descriptor) == true)
                 existingType.first
@@ -23,7 +24,7 @@ class TypeContext {
                 error("Name conflict: encountered two incompatible types for type name $name")
         } else {
             val (reference, onCreateType) = FieldEncoding.Reference.lazy()
-            localTypesByName[name] = Pair(reference, descriptor)
+            referencesByName[name] = Pair(reference, descriptor)
             onCreateType(createType())
             reference
         }

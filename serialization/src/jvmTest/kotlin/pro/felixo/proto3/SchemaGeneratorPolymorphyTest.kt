@@ -1,37 +1,33 @@
 package pro.felixo.proto3
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.schema.toSchemaDocument
 import pro.felixo.proto3.testutil.NonSealedInterface
 import pro.felixo.proto3.testutil.NonSealedLevel2Class
 import pro.felixo.proto3.testutil.NonSealedLevel2LeafClassA
 import pro.felixo.proto3.testutil.NonSealedLevel2LeafClassB
 import pro.felixo.proto3.testutil.NonSealedLevel3LeafClass
-import pro.felixo.proto3.testutil.SealedTopClass
-import pro.felixo.proto3.testutil.SealedLevel2LeafClassA
 import pro.felixo.proto3.testutil.SealedLevel2Class
+import pro.felixo.proto3.testutil.SealedLevel2LeafClassA
 import pro.felixo.proto3.testutil.SealedLevel2LeafClassB
 import pro.felixo.proto3.testutil.SealedLevel3LeafClass
-import pro.felixo.proto3.testutil.schemaOf
+import pro.felixo.proto3.testutil.SealedTopClass
 import kotlin.reflect.typeOf
 import kotlin.test.Test
 
-class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest(
-    SerializersModule {
+class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest() {
+    private val module = SerializersModule {
         polymorphic(NonSealedLevel2Class::class, NonSealedLevel3LeafClass::class, NonSealedLevel3LeafClass.serializer())
         polymorphic(NonSealedInterface::class, NonSealedLevel2LeafClassA::class, NonSealedLevel2LeafClassA.serializer())
         polymorphic(NonSealedInterface::class, NonSealedLevel2LeafClassB::class, NonSealedLevel2LeafClassB.serializer())
         polymorphic(NonSealedInterface::class, NonSealedLevel3LeafClass::class, NonSealedLevel3LeafClass.serializer())
     }
-) {
+
     @Test
     fun `creates sealed class hierarchy`() {
-        generator.add(SealedTopClass.serializer().descriptor)
-        assertThat(generator.schema().toSchemaDocument()).isEqualTo(
-            schemaOf(
-                """
+        verifySchema(
+            listOf(SealedTopClass.serializer().descriptor),
+            serializersModule = module,
+            expectedSchema = """
                 message SealedLevel2Class {
                   oneof subtypes {
                     SealedLevel3LeafClass sealedLevel3LeafClass = 4;
@@ -58,7 +54,6 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest(
                   }
                 }
                 """
-            )
         )
         verifyConversion(
             SealedLevel2LeafClassA(42),
@@ -84,10 +79,10 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest(
 
     @Test
     fun `creates non-sealed polymorphic class hierarchy`() {
-        generator.addFromSerializersModule(typeOf<NonSealedInterface>())
-        assertThat(generator.schema().toSchemaDocument()).isEqualTo(
-            schemaOf(
-                """
+        verifySchema(
+            typesFromSerializersModule = listOf(typeOf<NonSealedInterface>()),
+            serializersModule = module,
+            expectedSchema = """
                 message NonSealedInterface {
                   oneof subtypes {
                     NonSealedLevel2LeafClassA nonSealedLevel2LeafClassA = 2;
@@ -114,7 +109,6 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest(
                   NonSealedInterface top = 1;
                 }                
                 """
-            )
         )
         verifyConversion(
             NonSealedLevel2LeafClassA(42),

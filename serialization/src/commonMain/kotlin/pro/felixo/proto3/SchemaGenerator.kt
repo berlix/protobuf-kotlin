@@ -49,7 +49,7 @@ class SchemaGenerator(
 ) {
     private val rootTypes = TypeContext()
 
-    fun schema(): EncodingSchema = EncodingSchema(rootTypes.localTypes)
+    fun schema(): EncodingSchema = EncodingSchema(serializersModule, rootTypes.localTypesByName)
 
     fun add(descriptor: SerialDescriptor) = rootTypes.namedType(descriptor)
 

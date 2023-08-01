@@ -10,30 +10,37 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 import pro.felixo.proto3.protoscope.ProtoscopeConverter
 import pro.felixo.proto3.protoscope.ProtoscopeTokenizer
+import pro.felixo.proto3.schema.EncodingSchema
 import pro.felixo.proto3.schema.toSchemaDocument
 import pro.felixo.proto3.testutil.schemaOf
+import kotlin.reflect.KType
 
-abstract class SchemaGeneratorBaseTest(
-    module: SerializersModule = EmptySerializersModule()
-) {
-    protected open val generator = SchemaGenerator(module)
+abstract class SchemaGeneratorBaseTest {
     protected val protoscopeConverter = ProtoscopeConverter(ProtoscopeTokenizer())
-    protected open val proto3 = Proto3(module)
+    protected lateinit var schema: EncodingSchema
 
     protected fun verifyFailure(descriptor: SerialDescriptor) {
-        assertFailure { generator.add(descriptor) }
+        assertFailure { EncodingSchema.of(listOf(descriptor)) }
     }
 
     protected fun verify(descriptor: SerialDescriptor, expectedSchema: String) =
-        verify(listOf(descriptor), expectedSchema)
+        verify(listOf(descriptor), expectedSchema = expectedSchema)
 
-    protected fun verify(
-        descriptors: List<SerialDescriptor>,
+    protected fun verify(descriptors: List<SerialDescriptor>, expectedSchema: String) =
+        verifySchema(descriptors, expectedSchema = expectedSchema)
+
+    protected fun verifySchema(
+        descriptors: List<SerialDescriptor> = emptyList(),
+        typesFromSerializersModule: List<KType> = emptyList(),
+        serializersModule: SerializersModule = EmptySerializersModule(),
         expectedSchema: String
-    ) {
-        descriptors.forEach { generator.add(it) }
-        assertThat(generator.schema().toSchemaDocument()).isEqualTo(schemaOf(expectedSchema))
-    }
+    ) = assertThat(
+        EncodingSchema.of(
+            descriptors,
+            typesFromSerializersModule,
+            serializersModule
+        ).also { schema = it }.toSchemaDocument()
+    ).isEqualTo(schemaOf(expectedSchema))
 
     protected inline fun <reified T> verifyConversion(value: T, protoscope: String) =
         verifyConversion(value, protoscope, serializer())
@@ -52,10 +59,10 @@ abstract class SchemaGeneratorBaseTest(
         verifyDecode(value, protoscopeConverter.convert(protoscope), serializer)
 
     protected inline fun <reified T> verifyDecode(value: T, bytes: ByteArray, serializer: KSerializer<T>) =
-        assertThat(proto3.decodeFromByteArray(serializer, bytes)).isEqualTo(value)
+        assertThat(schema.decodeFromByteArray(serializer, bytes)).isEqualTo(value)
 
     protected inline fun <reified T> verifyEncode(value: T, bytes: ByteArray, serializer: KSerializer<T>) {
-        val encoded = proto3.encodeToByteArray(serializer, value)
+        val encoded = schema.encodeToByteArray(serializer, value)
         println("Encoded:    ${encoded.hex()}")
         assertThat(encoded).isEqualTo(bytes)
     }
