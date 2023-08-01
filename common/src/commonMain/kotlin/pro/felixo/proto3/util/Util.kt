@@ -2,7 +2,6 @@ package pro.felixo.proto3.util
 
 import pro.felixo.proto3.FieldNumber
 
-
 fun <T, U, C : Iterable<T>> C.requireNoDuplicates(transform: (T) -> U, message: (duplicate: T) -> String): C {
     val seen = mutableSetOf<U>()
     forEach {

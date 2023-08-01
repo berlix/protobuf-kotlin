@@ -4,15 +4,13 @@ import pro.felixo.proto3.EnumValue
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.Identifier
-import pro.felixo.proto3.util.requireNoDuplicates
 
 data class SchemaDocument(
     val types: List<Type> = emptyList()
 ) {
-    fun validate() {
-        types.requireNoDuplicates({ it.name }) { "Duplicate type name: $it" }
-        types.forEach { it.validate() }
-    }
+    fun validate(): ValidationResult =
+        types.validateNoDuplicates({ it.name }) { ValidationError.DuplicateTypeName(it.name) } +
+        types.map { it.validate() }
 
     override fun toString(): String {
         val out = StringBuilder()
@@ -24,12 +22,9 @@ data class SchemaDocument(
 sealed class Type {
     abstract val name: Identifier
 
-    fun validate() {
-        name.validate()
-        validateType()
-    }
+    fun validate(): ValidationResult = name.validate() + validateType()
 
-    protected abstract fun validateType()
+    protected abstract fun validateType(): ValidationResult
 
     override fun toString(): String {
         val out = StringBuilder()
@@ -45,46 +40,35 @@ data class Message(
     val reservedNames: List<Identifier> = emptyList(),
     val reservedNumbers: List<IntRange> = emptyList()
 ) : Type() {
-    override fun validateType() {
-        validateMembers()
-        validateNestedTypes()
-        validateReservedNames()
-        requireDistinctFieldNames()
-        requireDistinctFieldNumbers()
-        requireDistinctTypeNames()
-        requireReservationsRespected()
+    override fun validateType(): ValidationResult =
+        validateMembers() +
+                validateNestedTypes() +
+                validateReservedNames() +
+                validateDistinctFieldNames() +
+                validateDistinctFieldNumbers() +
+                validateDistinctTypeNames() +
+                validateReservationsRespected()
+
+    private fun validateMembers() = members.merge { it.validate() }
+    private fun validateNestedTypes() = nestedTypes.merge { it.validate() }
+    private fun validateReservedNames() = reservedNames.merge { it.validate() }
+
+    private fun validateDistinctFieldNumbers() = fields.validateNoDuplicates({ it.number }) {
+        ValidationError.DuplicateFieldNumber(it.number)
     }
 
-    private fun validateMembers() {
-        members.forEach { it.validate() }
+    private fun validateDistinctFieldNames() = fields.validateNoDuplicates({ it.name }) {
+        ValidationError.DuplicateFieldName(it.name)
     }
 
-    private fun validateNestedTypes() {
-        nestedTypes.forEach { it.validate() }
+    private fun validateDistinctTypeNames() = nestedTypes.validateNoDuplicates({ it.name }) {
+        ValidationError.DuplicateTypeName(it.name)
     }
 
-    private fun validateReservedNames() {
-        reservedNames.forEach { it.validate() }
-    }
-
-    private fun requireDistinctFieldNumbers() {
-        fields.requireNoDuplicates({ it.number }) { "Duplicate field number in message $name: $it" }
-    }
-
-    private fun requireDistinctFieldNames() {
-        fields.requireNoDuplicates({ it.name }) { "Duplicate field name in message $name: $it" }
-    }
-
-    private fun requireDistinctTypeNames() {
-        nestedTypes.requireNoDuplicates({ it.name }) { "Duplicate nested type name in message $name: $it" }
-    }
-
-    private fun requireReservationsRespected() {
-        fields.forEach { field ->
-            require(!reservedNames.contains(field.name)) { "Field name ${field.name} is reserved in message $name" }
-            require(!reservedNumbers.any { it.contains(field.number.value) }) {
-                "Field number ${field.number.value} is reserved in message $name"
-            }
+    private fun validateReservationsRespected() = fields.merge { field ->
+        validate(!reservedNames.contains(field.name)) { ValidationError.ReservedFieldName(field.name) } +
+        validate(!reservedNumbers.any { it.contains(field.number.value) }) {
+            ValidationError.ReservedFieldNumber(field.number)
         }
     }
 }
@@ -92,16 +76,12 @@ data class Message(
 val Message.fields: List<Field> get() =
     (members.filterIsInstance<Field>() + members.filterIsInstance<OneOf>().flatMap { it.fields })
 
-
 sealed class Member {
     abstract val name: Identifier
 
-    fun validate() {
-        name.validate()
-        validateMember()
-    }
+    fun validate(): ValidationResult = name.validate() + validateMember()
 
-    protected abstract fun validateMember()
+    protected abstract fun validateMember(): ValidationResult
 }
 
 data class Field(
@@ -110,21 +90,17 @@ data class Field(
     val number: FieldNumber,
     val rule: FieldRule = FieldRule.Singular
 ) : Member() {
-    override fun validateMember() {
-        type.validate()
-        number.validate()
-    }
+    override fun validateMember(): ValidationResult = type.validate() + number.validate()
 }
 
 data class OneOf(
     override val name: Identifier,
     val fields: List<Field>
 ) : Member() {
-    override fun validateMember() {
-        require(fields.isNotEmpty()) { "OneOf must have at least one field" }
-        require(fields.all { it.rule != FieldRule.Repeated }) { "OneOf fields may not be repeated" }
-        fields.forEach { it.validate() }
-    }
+    override fun validateMember(): ValidationResult =
+        validate(fields.isNotEmpty()) { ValidationError.OneOfWithoutFields } +
+        fields.merge { validate(it.rule != FieldRule.Repeated) { ValidationError.RepeatedFieldInOneOf(it.name) } } +
+        fields.merge { it.validate() }
 }
 
 data class Enumeration(
@@ -134,57 +110,47 @@ data class Enumeration(
     val reservedNames: List<Identifier> = emptyList(),
     val reservedNumbers: List<IntRange> = emptyList()
 ) : Type() {
-    override fun validateType() {
-        requireValues()
-        validateValues()
-        requireDistinctNames()
-        requireDefaultValue()
-        if (!allowAlias)
-            requireDistinctNumbers()
-        validateReservedNames()
-        requireReservationsRespected()
-    }
+    override fun validateType() : ValidationResult =
+        validateValuesPresent() +
+        validateValues() +
+        validateDistinctNames() +
+        validateDefaultValue() +
+        validateDistinctNumbers() +
+        validateReservedNames() +
+        validateReservationsRespected()
 
-    private fun requireValues() {
-        require(values.isNotEmpty()) { "Enum $name must have at least one value" }
-    }
+    private fun validateValuesPresent() = validate(values.isNotEmpty()) { ValidationError.EnumContainsNoValues }
 
-    private fun validateValues() {
-        values.forEach { it.validate() }
-    }
+    private fun validateValues() = values.merge { it.validate() }
 
-    private fun requireDefaultValue() {
-        require(values.first().number == 0) { "Fist value of enum $name must have number 0" }
-    }
+    private fun validateDefaultValue() =
+        validate(values.first().number == 0) { ValidationError.DefaultEnumValueNotFirstValue }
 
-    private fun requireDistinctNames() {
-        values.requireNoDuplicates({ it.name }) { "Duplicate value name in enum $name: $it" }
-    }
+    private fun validateDistinctNames() =
+        values.validateNoDuplicates({ it.name }) { ValidationError.DuplicateEnumValueName(it.name) }
 
-    private fun requireDistinctNumbers() {
-        values.requireNoDuplicates({ it.number }) { "Duplicate value number in enum $name: $it" }
-    }
+    private fun validateDistinctNumbers() = if (allowAlias)
+        ValidationResult.OK
+    else
+        values.validateNoDuplicates({ it.number }) { ValidationError.DuplicateEnumValueNumber(it.number) }
 
-    private fun validateReservedNames() {
-        reservedNames.forEach { it.validate() }
-    }
+    private fun validateReservedNames() =
+        reservedNames.merge { it.validate() }
 
-    private fun requireReservationsRespected() {
-        values.forEach { value ->
-            require(!reservedNames.contains(value.name)) { "Field name ${value.name} is reserved in message $name" }
-            require(!reservedNumbers.any { it.contains(value.number) }) {
-                "Field number ${value.number} is reserved in message $name"
-            }
+    private fun validateReservationsRespected() = values.merge { value ->
+        validate(!reservedNames.contains(value.name)) { ValidationError.ReservedEnumValueName(value.name) } +
+        validate(!reservedNumbers.any { it.contains(value.number) }) {
+            ValidationError.ReservedEnumValueNumber(value.number)
         }
     }
 }
 
 sealed class FieldType {
-    abstract fun validate()
+    abstract fun validate() : ValidationResult
 
     sealed class Scalar<DecodedType: Any>(val name: kotlin.String) : FieldType() {
         override fun toString() = name
-        override fun validate() {}
+        override fun validate() = ValidationResult.OK
     }
 
     sealed class Integer32(name: kotlin.String) : Scalar<Int>(name)
@@ -210,9 +176,8 @@ sealed class FieldType {
      * A reference to a message or enum type.
      */
     data class Reference(val components: List<Identifier>) : FieldType() {
-        override fun validate() {
-            require(components.isNotEmpty()) { "Type reference must not be empty" }
-        }
+        override fun validate() =
+            validate(components.isNotEmpty()) { ValidationError.EmptyReference }
 
         override fun toString() = components.joinToString(".")
     }
