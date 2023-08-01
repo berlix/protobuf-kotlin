@@ -17,7 +17,9 @@ abstract class HybridEncoder : Encoder, CompositeEncoder {
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) =
         error("HybridEncoder does not support encodeEnum")
     override fun encodeFloat(value: Float) = error("HybridEncoder does not support encodeFloat")
-    override fun encodeInline(descriptor: SerialDescriptor): Encoder = error("HybridEncoder does not support encodeInline")
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder =
+        error("HybridEncoder does not support encodeInline")
+
     override fun encodeInt(value: Int) = error("HybridEncoder does not support encodeInt")
     override fun encodeLong(value: Long) = error("HybridEncoder does not support encodeLong")
     @ExperimentalSerializationApi override fun encodeNull() = error("HybridEncoder does not support encodeNull")

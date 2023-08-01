@@ -434,42 +434,44 @@ class SchemaGenerator(
         )
     }
 
-    private fun TypeContext.messageOfClass(descriptor: SerialDescriptor): FieldEncoding.Reference = putOrGet(descriptor) {
-        typeContext {
-            val numberIterator = fieldNumberIteratorFromClassElements(descriptor)
+    private fun TypeContext.messageOfClass(descriptor: SerialDescriptor): FieldEncoding.Reference =
+        putOrGet(descriptor) {
+            typeContext {
+                val numberIterator = fieldNumberIteratorFromClassElements(descriptor)
 
-            val fields = (0 until descriptor.elementsCount).map {
-                val number =
-                    descriptor.getElementAnnotations(it).filterIsInstance<ProtoNumber>().firstOrNull()?.number
-                        ?: numberIterator.next()
-                val fieldName = descriptor.getElementName(it)
-                field(
-                    Identifier(fieldName),
-                    FieldNumber(number),
-                    descriptor.getElementAnnotations(it),
-                    descriptor.getElementDescriptor(it)
+                val fields = (0 until descriptor.elementsCount).map {
+                    val number =
+                        descriptor.getElementAnnotations(it).filterIsInstance<ProtoNumber>().firstOrNull()?.number
+                            ?: numberIterator.next()
+                    val fieldName = descriptor.getElementName(it)
+                    field(
+                        Identifier(fieldName),
+                        FieldNumber(number),
+                        descriptor.getElementAnnotations(it),
+                        descriptor.getElementDescriptor(it)
+                    )
+                }
+
+                Message(
+                    Identifier(simpleTypeName(descriptor)),
+                    fields,
+                    localTypes,
+                    encoder =
+                    { output, isStandalone -> MessageEncoder(this@SchemaGenerator, fields, isStandalone, output) },
+                    decoder = { MessageDecoder(this@SchemaGenerator, fields, it) }
                 )
             }
+        }
 
+    private fun TypeContext.messageOfObject(descriptor: SerialDescriptor): FieldEncoding.Reference =
+        putOrGet(descriptor) {
             Message(
                 Identifier(simpleTypeName(descriptor)),
-                fields,
-                localTypes,
                 encoder =
-                    { output, isStandalone -> MessageEncoder(this@SchemaGenerator, fields, isStandalone, output) },
-                decoder = { MessageDecoder(this@SchemaGenerator, fields, it) }
+                    { output, isStandalone -> MessageEncoder(this@SchemaGenerator, emptyList(), isStandalone, output) },
+                decoder = { MessageDecoder(this@SchemaGenerator, emptyList(), it) }
             )
         }
-    }
-
-    private fun TypeContext.messageOfObject(descriptor: SerialDescriptor): FieldEncoding.Reference = putOrGet(descriptor) {
-        Message(
-            Identifier(simpleTypeName(descriptor)),
-            encoder =
-                { output, isStandalone -> MessageEncoder(this@SchemaGenerator, emptyList(), isStandalone, output) },
-            decoder = { MessageDecoder(this@SchemaGenerator, emptyList(), it) }
-        )
-    }
 
     @Suppress("RecursivePropertyAccessor")
     private val SerialDescriptor.actual: SerialDescriptor
