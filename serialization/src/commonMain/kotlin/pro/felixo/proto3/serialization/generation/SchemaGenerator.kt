@@ -41,8 +41,8 @@ import pro.felixo.proto3.serialization.encoding.SyntheticDecoder
 import pro.felixo.proto3.serialization.encoding.SyntheticEncoder
 import pro.felixo.proto3.serialization.encoding.ValueDecoder
 import pro.felixo.proto3.serialization.encoding.ValueEncoder
+import pro.felixo.proto3.serialization.util.FieldNumberIterator
 import pro.felixo.proto3.serialization.util.simpleTypeName
-import pro.felixo.proto3.util.FieldNumberIterator
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireValue
 import kotlin.reflect.KType

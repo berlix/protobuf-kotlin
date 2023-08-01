@@ -4,9 +4,9 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.serialization.ProtoNumber
-import pro.felixo.proto3.util.FieldNumberIterator
-import pro.felixo.proto3.util.NumberIterator
-import pro.felixo.proto3.util.requireNoDuplicates
+import pro.felixo.proto3.serialization.util.FieldNumberIterator
+import pro.felixo.proto3.serialization.util.NumberIterator
+import pro.felixo.proto3.serialization.util.requireNoDuplicates
 
 @OptIn(ExperimentalSerializationApi::class)
 fun numberIteratorFromEnumElements(descriptor: SerialDescriptor) = NumberIterator(
