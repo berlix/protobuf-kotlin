@@ -106,14 +106,14 @@ class SchemaGenerator(
                 ),
                 encoder = { output, isStandalone ->
                     PolymorphicEncoder(
-                        this@SchemaGenerator,
+                        serializersModule,
                         fields.toMap(),
                         isStandalone,
                         output
                     )
                 },
                 decoder = { values ->
-                    PolymorphicDecoder(this@SchemaGenerator, fields.associateBy { it.second.number }, values)
+                    PolymorphicDecoder(serializersModule, fields.associateBy { it.second.number }, values)
                 }
             )
         }
@@ -173,7 +173,7 @@ class SchemaGenerator(
     ): Field {
         val elementEncoder = { output: WireBuffer ->
             ValueEncoder(
-                this@SchemaGenerator,
+                serializersModule,
                 output,
                 type,
                 number.takeIf { !type.isPackable }
@@ -181,7 +181,7 @@ class SchemaGenerator(
         }
         val elementDecoder = { values: List<WireValue> ->
             ValueDecoder(
-                this@SchemaGenerator,
+                serializersModule,
                 values,
                 type
             )
@@ -191,8 +191,8 @@ class SchemaGenerator(
             type,
             number,
             FieldRule.Repeated,
-            { ListEncoder(this@SchemaGenerator, number, type.isPackable, it, elementEncoder) },
-            { ListDecoder(this@SchemaGenerator, type, it, elementDecoder) }
+            { ListEncoder(serializersModule, number, type.isPackable, it, elementEncoder) },
+            { ListDecoder(serializersModule, type, it, elementDecoder) }
         )
     }
 
@@ -218,11 +218,11 @@ class SchemaGenerator(
         }
 
         val elementEncoder = { output: WireBuffer ->
-            SyntheticEncoder(this@SchemaGenerator, output, innerField, number)
+            SyntheticEncoder(serializersModule, output, innerField, number)
         }
 
         val elementDecoder = { values: List<WireValue> ->
-            SyntheticDecoder(this@SchemaGenerator, values, innerField)
+            SyntheticDecoder(serializersModule, values, innerField)
         }
 
         return Field(
@@ -230,8 +230,8 @@ class SchemaGenerator(
             syntheticType,
             number,
             FieldRule.Repeated,
-            { ListEncoder(this@SchemaGenerator, number, false, it, elementEncoder) },
-            { ListDecoder(this@SchemaGenerator, syntheticType, it, elementDecoder) }
+            { ListEncoder(serializersModule, number, false, it, elementEncoder) },
+            { ListDecoder(serializersModule, syntheticType, it, elementDecoder) }
         )
     }
 
@@ -295,8 +295,8 @@ class SchemaGenerator(
                         },
                         number,
                         FieldRule.Optional,
-                        { SyntheticEncoder(this@SchemaGenerator, it, field, number) },
-                        { SyntheticDecoder(this@SchemaGenerator, it, field) }
+                        { SyntheticEncoder(serializersModule, it, field, number) },
+                        { SyntheticDecoder(serializersModule, it, field) }
                     )
                 } else
                     listField(name, number, descriptor.actual)
@@ -311,8 +311,8 @@ class SchemaGenerator(
                         },
                         number,
                         FieldRule.Optional,
-                        { SyntheticEncoder(this@SchemaGenerator, it, field, number) },
-                        { SyntheticDecoder(this@SchemaGenerator, it, field) }
+                        { SyntheticEncoder(serializersModule, it, field, number) },
+                        { SyntheticDecoder(serializersModule, it, field) }
                     )
                 } else
                     mapField(name, number, annotations, descriptor.actual)
@@ -380,8 +380,8 @@ class SchemaGenerator(
             entryType,
             number,
             FieldRule.Repeated,
-            encoder = { MapEncoder(this@SchemaGenerator, number, keyField, valueField, it) },
-            decoder = { MapDecoder(this@SchemaGenerator, keyField, valueField, it) }
+            encoder = { MapEncoder(serializersModule, number, keyField, valueField, it) },
+            decoder = { MapDecoder(serializersModule, keyField, valueField, it) }
         )
     }
 
@@ -461,8 +461,8 @@ class SchemaGenerator(
                     fields,
                     localTypes,
                     encoder =
-                    { output, isStandalone -> MessageEncoder(this@SchemaGenerator, fields, isStandalone, output) },
-                    decoder = { MessageDecoder(this@SchemaGenerator, fields, it) }
+                    { output, isStandalone -> MessageEncoder(serializersModule, fields, isStandalone, output) },
+                    decoder = { MessageDecoder(serializersModule, fields, it) }
                 )
             }
         }
@@ -472,8 +472,8 @@ class SchemaGenerator(
             Message(
                 Identifier(simpleTypeName(descriptor)),
                 encoder =
-                    { output, isStandalone -> MessageEncoder(this@SchemaGenerator, emptyList(), isStandalone, output) },
-                decoder = { MessageDecoder(this@SchemaGenerator, emptyList(), it) }
+                    { output, isStandalone -> MessageEncoder(serializersModule, emptyList(), isStandalone, output) },
+                decoder = { MessageDecoder(serializersModule, emptyList(), it) }
             )
         }
 
@@ -485,10 +485,10 @@ class SchemaGenerator(
         type: FieldEncoding,
         number: FieldNumber
     ): (WireBuffer) -> Encoder = {
-        ValueEncoder(this, it, type, number)
+        ValueEncoder(serializersModule, it, type, number)
     }
 
     private fun valueDecoder(type: FieldEncoding?): (List<WireValue>) -> Decoder = {
-        ValueDecoder(this, it, type)
+        ValueDecoder(serializersModule, it, type)
     }
 }

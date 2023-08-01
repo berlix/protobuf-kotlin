@@ -7,20 +7,15 @@ import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.FieldNumber
-import pro.felixo.proto3.serialization.generation.SchemaGenerator
 import pro.felixo.proto3.serialization.Field
 import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.decodeMessage
 
 class PolymorphicDecoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     fieldByDescriptor: Map<FieldNumber, Pair<SerialDescriptor, Field>>,
     wireValues: List<WireValue>
 ) : HybridDecoder() {
-
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
-
     private val values = mutableListOf<WireValue>()
     private val descriptor: SerialDescriptor
     private val field: Field
@@ -91,7 +86,7 @@ class PolymorphicDecoder(
         index: Int,
         deserializer: DeserializationStrategy<T>,
         previousValue: T?
-    ): T = deserializer.deserialize(ValueDecoder(schemaGenerator, values, field.type))
+    ): T = deserializer.deserialize(ValueDecoder(serializersModule, values, field.type))
 
     override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short =
         error("PolymorphicDecoder does not support Short elements")

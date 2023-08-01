@@ -6,7 +6,6 @@ import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.FieldNumber
-import pro.felixo.proto3.serialization.generation.SchemaGenerator
 import pro.felixo.proto3.serialization.Enumeration
 import pro.felixo.proto3.serialization.Message
 import pro.felixo.proto3.wire.Tag
@@ -16,14 +15,11 @@ import pro.felixo.proto3.wire.encodeValue
 
 @OptIn(ExperimentalSerializationApi::class)
 class ValueEncoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     private val output: WireBuffer,
     private val type: FieldEncoding,
     private val fieldNumber: FieldNumber? = null
 ) : Encoder {
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
-
     private fun writeTag() {
         if (fieldNumber != null) {
             val wireType = if (type is FieldEncoding.Scalar<*>)
@@ -42,7 +38,7 @@ class ValueEncoder(
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         writeTag()
         return if (type == FieldEncoding.Bytes)
-            ByteArrayEncoder(output, serializersModule)
+            ByteArrayEncoder(serializersModule, output)
         else {
             val message = (type as FieldEncoding.Reference).type as Message
             message.encoder(output, fieldNumber == null)

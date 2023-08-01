@@ -6,23 +6,18 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.serialization.generation.SchemaGenerator
 import pro.felixo.proto3.serialization.Field
 import pro.felixo.proto3.wire.WireValue
 
 class MapDecoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     private val keyField: Field,
     private val valueField: Field,
     private val entries: List<WireValue>
 ) : HybridDecoder() {
 
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
-
     private var currentEntryIndex = -1
     private var currentEntry: MessageDecoder? = null
-
 
     override fun endStructure(descriptor: SerialDescriptor) {}
 
@@ -36,7 +31,7 @@ class MapDecoder(
                     CompositeDecoder.DECODE_DONE
                 else {
                     currentEntry = MessageDecoder(
-                        schemaGenerator,
+                        serializersModule,
                         listOf(keyField, valueField),
                         listOf(entries[currentEntryIndex])
                     )

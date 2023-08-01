@@ -6,7 +6,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.FieldNumber
-import pro.felixo.proto3.serialization.generation.SchemaGenerator
 import pro.felixo.proto3.wire.Tag
 import pro.felixo.proto3.wire.WireBuffer
 import pro.felixo.proto3.wire.WireType
@@ -14,14 +13,12 @@ import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.encodeField
 
 class ListEncoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     private val fieldNumber: FieldNumber,
     private val packed: Boolean,
     private val output: WireBuffer,
     private val elementEncoder: (WireBuffer) -> Encoder
 ) : HybridEncoder() {
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
 
     private val packedBuffer by lazy { WireBuffer() }
 

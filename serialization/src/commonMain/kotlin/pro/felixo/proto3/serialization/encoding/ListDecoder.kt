@@ -6,19 +6,15 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.serialization.generation.SchemaGenerator
 import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.decodeValue
 
 class ListDecoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     private val elementType: FieldEncoding,
     private val input: List<WireValue>,
     private val elementDecoder: (List<WireValue>) -> Decoder
 ) : HybridDecoder() {
-
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
 
     private var currentInputIndex = 0
     private var currentElement: WireValue? = null

@@ -9,7 +9,10 @@ import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.serialization.util.castItems
 import pro.felixo.proto3.wire.WireValue
 
-class ByteArrayDecoder(values: List<WireValue>, override val serializersModule: SerializersModule) : CompositeDecoder {
+class ByteArrayDecoder(
+    override val serializersModule: SerializersModule,
+    values: List<WireValue>
+) : CompositeDecoder {
 
     private val bytes = concatLenValues(values.castItems()).value.readBytes()
     private var position = -1

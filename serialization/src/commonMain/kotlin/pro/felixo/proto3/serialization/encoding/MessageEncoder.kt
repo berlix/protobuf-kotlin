@@ -5,7 +5,6 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.serialization.generation.SchemaGenerator
 import pro.felixo.proto3.serialization.Field
 import pro.felixo.proto3.wire.Tag
 import pro.felixo.proto3.wire.WireBuffer
@@ -15,14 +14,11 @@ import pro.felixo.proto3.wire.encodeValue
 
 @OptIn(ExperimentalSerializationApi::class)
 class MessageEncoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     private val fieldByElementIndex: List<Field>,
     private val isStandalone: Boolean,
     private val output: WireBuffer
 ) : HybridEncoder() {
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
-
     private val buffer = if (!isStandalone) WireBuffer() else output
 
     override fun endStructure(descriptor: SerialDescriptor) {

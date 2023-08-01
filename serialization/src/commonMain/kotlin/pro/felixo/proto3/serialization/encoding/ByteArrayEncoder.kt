@@ -11,8 +11,8 @@ import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.encodeValue
 
 class ByteArrayEncoder(
-    private val output: WireBuffer,
-    override val serializersModule: SerializersModule
+    override val serializersModule: SerializersModule,
+    private val output: WireBuffer
 ) : CompositeEncoder {
 
     private val buffer = WireBuffer()

@@ -16,15 +16,11 @@ import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.encodeValue
 
 class SyntheticEncoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     private val output: WireBuffer,
     private val field: Field,
     private val fieldNumber: FieldNumber
 ) : Encoder, CompositeEncoder {
-
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
-
     private val buffer = WireBuffer()
     private val fieldEncoder by lazy { field.encoder(buffer) }
     private lateinit var fieldCompositeEncoder: CompositeEncoder

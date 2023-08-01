@@ -8,21 +8,16 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldRule
-import pro.felixo.proto3.serialization.generation.SchemaGenerator
 import pro.felixo.proto3.serialization.Field
 import pro.felixo.proto3.serialization.util.castItems
 import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.decodeMessage
 
 class MessageDecoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     private val fieldByElementIndex: List<Field>,
     wireValues: List<WireValue>
 ) : HybridDecoder() {
-
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
-
     private val values = mutableMapOf<FieldNumber, MutableList<WireValue>>()
 
     init {

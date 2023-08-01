@@ -6,7 +6,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.proto3.FieldNumber
-import pro.felixo.proto3.serialization.generation.SchemaGenerator
 import pro.felixo.proto3.serialization.Field
 import pro.felixo.proto3.wire.Tag
 import pro.felixo.proto3.wire.WireBuffer
@@ -15,15 +14,12 @@ import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.encodeField
 
 class MapEncoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     private val fieldNumber: FieldNumber,
     private val keyField: Field,
     private val valueField: Field,
     private val output: WireBuffer,
 ) : HybridEncoder() {
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
-
     private val fieldNumbers = arrayOf(keyField.number, valueField.number)
 
     private var currentEntryBuffer: WireBuffer? = null

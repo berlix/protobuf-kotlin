@@ -5,7 +5,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.serialization.generation.SchemaGenerator
 import pro.felixo.proto3.serialization.Enumeration
 import pro.felixo.proto3.serialization.Message
 import pro.felixo.proto3.serialization.util.castItems
@@ -13,16 +12,13 @@ import pro.felixo.proto3.wire.WireValue
 
 @OptIn(ExperimentalSerializationApi::class)
 class ValueDecoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     private val values: List<WireValue>,
     private val type: FieldEncoding?
 ) : Decoder {
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
-
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
         if (type == FieldEncoding.Bytes)
-            ByteArrayDecoder(values, serializersModule)
+            ByteArrayDecoder(serializersModule, values)
         else {
             val message = (type as FieldEncoding.Reference).type as Message
             message.decoder(values)
@@ -40,7 +36,7 @@ class ValueDecoder(
     override fun decodeNull(): Nothing? = null
 
     override fun decodeInline(descriptor: SerialDescriptor): Decoder =
-        ValueDecoder(schemaGenerator, values, type)
+        ValueDecoder(serializersModule, values, type)
 
     override fun decodeBoolean(): Boolean {
         require(type != null && type is FieldEncoding.Bool) { "Cannot decode Boolean from type $type" }

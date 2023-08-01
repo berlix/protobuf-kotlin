@@ -5,20 +5,15 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.serialization.generation.SchemaGenerator
 import pro.felixo.proto3.serialization.Field
 import pro.felixo.proto3.wire.WireValue
 import pro.felixo.proto3.wire.decodeMessage
 
 class SyntheticDecoder(
-    private val schemaGenerator: SchemaGenerator,
+    override val serializersModule: SerializersModule,
     wireValues: List<WireValue>,
     private val field: Field
 ) : Decoder {
-
-    override val serializersModule: SerializersModule
-        get() = schemaGenerator.serializersModule
-
     private val values = mutableListOf<WireValue>()
 
     init {
