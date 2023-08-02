@@ -1,14 +1,20 @@
 package pro.felixo.proto3.serialization.testutil
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
 import pro.felixo.proto3.schemadocument.SchemaDocumentReader
+import pro.felixo.proto3.schemadocument.validation.ValidationResult
+import pro.felixo.proto3.schemadocument.validation.validate
 
 fun schemaOf(proto3: String) = SchemaDocumentReader().readSchema(
     "syntax=\"proto3\";$proto3"
-)
+).also {
+    assertThat(validate(it)).isEqualTo(ValidationResult.OK)
+}
 
 /**
  * Adapted from kotlinx.serialization.internal.ListLikeDescriptor:

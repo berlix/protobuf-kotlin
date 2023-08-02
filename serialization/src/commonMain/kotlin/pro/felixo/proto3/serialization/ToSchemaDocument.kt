@@ -1,5 +1,6 @@
 package pro.felixo.proto3.serialization
 
+import pro.felixo.proto3.EnumValue
 import pro.felixo.proto3.schemadocument.FieldType
 import pro.felixo.proto3.schemadocument.SchemaDocument
 import pro.felixo.proto3.serialization.encoding.FieldEncoding
@@ -22,7 +23,11 @@ fun Message.toDocumentMessage() = pro.felixo.proto3.schemadocument.Message(
 
 fun Enumeration.toDocumentEnumeration() = pro.felixo.proto3.schemadocument.Enumeration(
     name,
-    values
+    values.sortedWith { a: EnumValue, b: EnumValue ->
+        if (a.number == 0 && b.number != 0) -1
+        else if (b.number == 0 && a.number != 0) 1
+        else 0
+    }
 )
 
 fun Member.toDocumentMember(): pro.felixo.proto3.schemadocument.Member = when (this) {

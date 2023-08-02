@@ -68,9 +68,9 @@ class SchemaGeneratorEnumTest : SchemaGeneratorBaseTest() {
             }
 
             enum EnumClassWithCustomNumbers {
+              C = 0;
               A = 5;
               B = 1;
-              C = 0;
               D = 2;
             }
             """

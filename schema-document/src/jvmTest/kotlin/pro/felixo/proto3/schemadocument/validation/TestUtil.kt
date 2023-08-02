@@ -3,7 +3,6 @@ package pro.felixo.proto3.schemadocument.validation
 import assertk.Assert
 import assertk.assertions.containsExactlyInAnyOrder
 import pro.felixo.proto3.Identifier
-import pro.felixo.proto3.schemadocument.FieldType
 import pro.felixo.proto3.schemadocument.SchemaElement
 
 val testScope = ValidationScope(
