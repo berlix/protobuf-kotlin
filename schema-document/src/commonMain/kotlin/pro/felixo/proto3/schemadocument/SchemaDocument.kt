@@ -5,12 +5,16 @@ import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.Identifier
 
+interface SchemaElement {
+    val elementType: String
+    val elementName: String
+}
+
 data class SchemaDocument(
     val types: List<Type> = emptyList()
-) {
-    fun validate(): ValidationResult =
-        types.validateNoDuplicates({ it.name }) { ValidationError.DuplicateTypeName(it.name) } +
-        types.map { it.validate() }
+) : SchemaElement {
+    override val elementType = "schema"
+    override val elementName: String = "root"
 
     override fun toString(): String {
         val out = StringBuilder()
@@ -19,12 +23,10 @@ data class SchemaDocument(
     }
 }
 
-sealed class Type {
+sealed class Type : SchemaElement {
     abstract val name: Identifier
 
-    fun validate(): ValidationResult = name.validate() + validateType()
-
-    protected abstract fun validateType(): ValidationResult
+    override val elementName: String get() = name.toString()
 
     override fun toString(): String {
         val out = StringBuilder()
@@ -40,48 +42,15 @@ data class Message(
     val reservedNames: List<Identifier> = emptyList(),
     val reservedNumbers: List<IntRange> = emptyList()
 ) : Type() {
-    override fun validateType(): ValidationResult =
-        validateMembers() +
-                validateNestedTypes() +
-                validateReservedNames() +
-                validateDistinctFieldNames() +
-                validateDistinctFieldNumbers() +
-                validateDistinctTypeNames() +
-                validateReservationsRespected()
-
-    private fun validateMembers() = members.merge { it.validate() }
-    private fun validateNestedTypes() = nestedTypes.merge { it.validate() }
-    private fun validateReservedNames() = reservedNames.merge { it.validate() }
-
-    private fun validateDistinctFieldNumbers() = fields.validateNoDuplicates({ it.number }) {
-        ValidationError.DuplicateFieldNumber(it.number)
-    }
-
-    private fun validateDistinctFieldNames() = fields.validateNoDuplicates({ it.name }) {
-        ValidationError.DuplicateFieldName(it.name)
-    }
-
-    private fun validateDistinctTypeNames() = nestedTypes.validateNoDuplicates({ it.name }) {
-        ValidationError.DuplicateTypeName(it.name)
-    }
-
-    private fun validateReservationsRespected() = fields.merge { field ->
-        validate(!reservedNames.contains(field.name)) { ValidationError.ReservedFieldName(field.name) } +
-        validate(!reservedNumbers.any { it.contains(field.number.value) }) {
-            ValidationError.ReservedFieldNumber(field.number)
-        }
-    }
+    override val elementType = "message"
 }
 
 val Message.fields: List<Field> get() =
     (members.filterIsInstance<Field>() + members.filterIsInstance<OneOf>().flatMap { it.fields })
 
-sealed class Member {
+sealed class Member : SchemaElement {
     abstract val name: Identifier
-
-    fun validate(): ValidationResult = name.validate() + validateMember()
-
-    protected abstract fun validateMember(): ValidationResult
+    override val elementName: String get() = name.toString()
 }
 
 data class Field(
@@ -90,17 +59,14 @@ data class Field(
     val number: FieldNumber,
     val rule: FieldRule = FieldRule.Singular
 ) : Member() {
-    override fun validateMember(): ValidationResult = type.validate() + number.validate()
+    override val elementType = "field"
 }
 
 data class OneOf(
     override val name: Identifier,
     val fields: List<Field>
 ) : Member() {
-    override fun validateMember(): ValidationResult =
-        validate(fields.isNotEmpty()) { ValidationError.OneOfWithoutFields } +
-        fields.merge { validate(it.rule != FieldRule.Repeated) { ValidationError.RepeatedFieldInOneOf(it.name) } } +
-        fields.merge { it.validate() }
+    override val elementType = "oneof"
 }
 
 data class Enumeration(
@@ -110,47 +76,12 @@ data class Enumeration(
     val reservedNames: List<Identifier> = emptyList(),
     val reservedNumbers: List<IntRange> = emptyList()
 ) : Type() {
-    override fun validateType() : ValidationResult =
-        validateValuesPresent() +
-        validateValues() +
-        validateDistinctNames() +
-        validateDefaultValue() +
-        validateDistinctNumbers() +
-        validateReservedNames() +
-        validateReservationsRespected()
-
-    private fun validateValuesPresent() = validate(values.isNotEmpty()) { ValidationError.EnumContainsNoValues }
-
-    private fun validateValues() = values.merge { it.validate() }
-
-    private fun validateDefaultValue() =
-        validate(values.first().number == 0) { ValidationError.DefaultEnumValueNotFirstValue }
-
-    private fun validateDistinctNames() =
-        values.validateNoDuplicates({ it.name }) { ValidationError.DuplicateEnumValueName(it.name) }
-
-    private fun validateDistinctNumbers() = if (allowAlias)
-        ValidationResult.OK
-    else
-        values.validateNoDuplicates({ it.number }) { ValidationError.DuplicateEnumValueNumber(it.number) }
-
-    private fun validateReservedNames() =
-        reservedNames.merge { it.validate() }
-
-    private fun validateReservationsRespected() = values.merge { value ->
-        validate(!reservedNames.contains(value.name)) { ValidationError.ReservedEnumValueName(value.name) } +
-        validate(!reservedNumbers.any { it.contains(value.number) }) {
-            ValidationError.ReservedEnumValueNumber(value.number)
-        }
-    }
+    override val elementType = "enum"
 }
 
 sealed class FieldType {
-    abstract fun validate() : ValidationResult
-
     sealed class Scalar<DecodedType: Any>(val name: kotlin.String) : FieldType() {
         override fun toString() = name
-        override fun validate() = ValidationResult.OK
     }
 
     sealed class Integer32(name: kotlin.String) : Scalar<Int>(name)
@@ -176,9 +107,6 @@ sealed class FieldType {
      * A reference to a message or enum type.
      */
     data class Reference(val components: List<Identifier>) : FieldType() {
-        override fun validate() =
-            validate(components.isNotEmpty()) { ValidationError.EmptyReference }
-
         override fun toString() = components.joinToString(".")
     }
 }
