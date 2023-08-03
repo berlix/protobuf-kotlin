@@ -60,7 +60,7 @@ sealed class Type {
     abstract val name: Identifier
 }
 
-data class Message(
+class Message(
     override val name: Identifier,
     val members: List<Member> = emptyList(),
     val nestedTypes: List<Type> = emptyList(),
@@ -75,7 +75,7 @@ sealed interface Member {
     val name: Identifier
 }
 
-data class Field(
+class Field(
     override val name: Identifier,
     val type: FieldEncoding,
     val number: FieldNumber,
@@ -84,12 +84,12 @@ data class Field(
     val decoder: ((List<WireValue>) -> Decoder)
 ) : Member
 
-data class OneOf(
+class OneOf(
     override val name: Identifier,
     val fields: List<Field>
 ) : Member
 
-data class Enumeration(
+class Enumeration(
     override val name: Identifier,
     val values: List<EnumValue>
 ) : Type() {

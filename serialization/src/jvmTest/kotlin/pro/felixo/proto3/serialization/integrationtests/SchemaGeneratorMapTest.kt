@@ -124,23 +124,26 @@ class SchemaGeneratorMapTest : SchemaGeneratorBaseTest() {
         verify(
             ClassWithMapOfReferences.serializer().descriptor,
             """
+            message ClassWithMapOfReferences {
+              message MapEntry {
+                ClassWithEnum key = 1;
+                SimpleClass value = 2;
+              }
+              repeated MapEntry map = 1;
+            }
+            
             message ClassWithEnum {
               optional EnumClass enum = 1;
             }
-            message ClassWithMapOfReferences {
-                repeated MapEntry map = 1;
-                message MapEntry {
-                    ClassWithEnum key = 1;
-                    SimpleClass value = 2;
-                }
-            }
+            
             enum EnumClass {
               A = 0;
               B = 1;
               C = 2;
             }
+            
             message SimpleClass {
-                int32 value = 1;
+              int32 value = 1;
             }
             """
         )

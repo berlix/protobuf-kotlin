@@ -85,10 +85,10 @@ class SchemaGeneratorBasicsTest : SchemaGeneratorBaseTest() {
             ClassWithCustomFieldNumbers.serializer().descriptor,
             """
             message ClassWithCustomFieldNumbers {
-                int32 int = 5;
                 string string = 1;
-                bool bool = 8;
                 optional int64 long = 2;
+                int32 int = 5;
+                bool bool = 8;
             } 
             """
         )
@@ -586,11 +586,11 @@ class SchemaGeneratorBasicsTest : SchemaGeneratorBaseTest() {
         verify(
             ClassAWithCycle.serializer().descriptor,
             """
-            message ClassAWithCycle {
-                optional ClassBWithCycle b = 1;
-            }
             message ClassBWithCycle {
                 optional ClassAWithCycle a = 1;
+            }
+            message ClassAWithCycle {
+                optional ClassBWithCycle b = 1;
             }
             """
         )

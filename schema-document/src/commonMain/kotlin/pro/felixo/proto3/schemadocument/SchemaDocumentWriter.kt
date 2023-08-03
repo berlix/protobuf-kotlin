@@ -13,7 +13,7 @@ class SchemaDocumentWriter(
     fun write(schema: SchemaDocument) {
         line("""syntax = "proto3";""")
         line()
-        schema.types.sortedBy { it.name }.forEach {
+        schema.types.forEach {
             write(it)
             line()
         }
@@ -29,15 +29,10 @@ class SchemaDocumentWriter(
     private fun writeMessage(message: Message) {
         line("message ${message.name} {")
         indent {
-            message.nestedTypes.sortedBy { it.name }.forEach { write(it) }
+            message.nestedTypes.forEach { write(it) }
             writeMessageReservedNumbers(message.reservedNumbers)
             writeReservedNames(message.reservedNames)
-            message.members.sortedBy { member ->
-                when (member) {
-                    is Field -> member.number
-                    is OneOf -> member.fields.minOf { it.number }
-                }
-            }.forEach { writeMember(it) }
+            message.members.forEach { writeMember(it) }
         }
         line("}")
     }
@@ -57,7 +52,7 @@ class SchemaDocumentWriter(
     private fun writeOneOf(oneOf: OneOf) {
         line("oneof ${oneOf.name} {")
         indent {
-            oneOf.fields.sortedBy { it.number }.forEach { writeField(it) }
+            oneOf.fields.forEach { writeField(it) }
         }
         line("}")
     }

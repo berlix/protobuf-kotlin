@@ -171,11 +171,13 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
             ClassWithListOfSealedClass.serializer().descriptor,
             """
             message ClassWithListOfSealedClass {
-                repeated SealedTopClass list = 1;
+              repeated SealedTopClass list = 1;
             }
-
-            message SealedLevel2Class {
+            
+            message SealedTopClass {
               oneof subtypes {
+                SealedLevel2LeafClassA sealedLevel2LeafClassA = 2;
+                SealedLevel2LeafClassB sealedLevel2LeafClassB = 3;
                 SealedLevel3LeafClass sealedLevel3LeafClass = 4;
               }
             }
@@ -188,16 +190,14 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
               SealedLevel2Class intermediate = 1;
             }
             
-            message SealedLevel3LeafClass {
-              SealedTopClass top = 1;
-            }
-
-            message SealedTopClass {
+            message SealedLevel2Class {
               oneof subtypes {
-                SealedLevel2LeafClassA sealedLevel2LeafClassA = 2;
-                SealedLevel2LeafClassB sealedLevel2LeafClassB = 3;
                 SealedLevel3LeafClass sealedLevel3LeafClass = 4;
               }
+            }
+            
+            message SealedLevel3LeafClass {
+              SealedTopClass top = 1;
             }
             """
         )

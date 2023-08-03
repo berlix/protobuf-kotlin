@@ -4,21 +4,42 @@ import pro.felixo.proto3.EnumValue
 import pro.felixo.proto3.schemadocument.FieldType
 import pro.felixo.proto3.schemadocument.SchemaDocument
 import pro.felixo.proto3.serialization.encoding.FieldEncoding
+import pro.felixo.proto3.serialization.util.topologicalIndex
 
-fun EncodingSchema.toSchemaDocument(): SchemaDocument =
-    SchemaDocument(
-        types.values.sortedBy { it.name }.map { it.toDocumentType() }
+fun EncodingSchema.toSchemaDocument(): SchemaDocument {
+    val typeOrdering = topologicalIndex(types.values.sortedBy { it.name }) { typeDependencies(it) }
+    return SchemaDocument(
+        types.values.sortedBy { typeOrdering[it] }.map { it.toDocumentType(typeOrdering) }
     )
+}
 
-fun Type.toDocumentType(): pro.felixo.proto3.schemadocument.Type = when (this) {
-    is Message -> toDocumentMessage()
+private fun typeDependencies(type: Type): List<Type> = when (type) {
+    is Message -> (
+        type.fields.sortedBy { it.number }.mapNotNull { fieldDependency(it) } +
+        type.nestedTypes.sortedBy { it.name }.flatMap { typeDependencies(it) }
+    )
+    is Enumeration -> emptyList()
+}
+
+fun fieldDependency(field: Field): Type? = when (field.type) {
+    is FieldEncoding.Reference -> field.type.type
+    else -> null
+}
+
+fun Type.toDocumentType(typeOrdering: Map<Type, Int>): pro.felixo.proto3.schemadocument.Type = when (this) {
+    is Message -> toDocumentMessage(typeOrdering)
     is Enumeration -> toDocumentEnumeration()
 }
 
-fun Message.toDocumentMessage() = pro.felixo.proto3.schemadocument.Message(
+fun Message.toDocumentMessage(typeOrdering: Map<Type, Int>) = pro.felixo.proto3.schemadocument.Message(
     name,
-    members.map { it.toDocumentMember() },
-    nestedTypes.sortedBy { it.name }.map { it.toDocumentType() }
+    members.sortedBy { member ->
+        when (member) {
+            is Field -> member.number
+            is OneOf -> member.fields.minOf { it.number }
+        }
+    }.map { it.toDocumentMember() },
+    nestedTypes.sortedBy { typeOrdering[it] }.map { it.toDocumentType(typeOrdering) }
 )
 
 fun Enumeration.toDocumentEnumeration() = pro.felixo.proto3.schemadocument.Enumeration(

@@ -28,8 +28,10 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest() {
             listOf(SealedTopClass.serializer().descriptor),
             serializersModule = module,
             expectedSchema = """
-                message SealedLevel2Class {
+                message SealedTopClass {
                   oneof subtypes {
+                    SealedLevel2LeafClassA sealedLevel2LeafClassA = 2;
+                    SealedLevel2LeafClassB sealedLevel2LeafClassB = 3;
                     SealedLevel3LeafClass sealedLevel3LeafClass = 4;
                   }
                 }
@@ -42,16 +44,14 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest() {
                   SealedLevel2Class intermediate = 1;
                 }
                 
-                message SealedLevel3LeafClass {
-                  SealedTopClass top = 1;
-                }
-                
-                message SealedTopClass {
+                message SealedLevel2Class {
                   oneof subtypes {
-                    SealedLevel2LeafClassA sealedLevel2LeafClassA = 2;
-                    SealedLevel2LeafClassB sealedLevel2LeafClassB = 3;
                     SealedLevel3LeafClass sealedLevel3LeafClass = 4;
                   }
+                }
+                
+                message SealedLevel3LeafClass {
+                  SealedTopClass top = 1;
                 }
                 """
         )
@@ -83,16 +83,14 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest() {
             typesFromSerializersModule = listOf(typeOf<NonSealedInterface>()),
             serializersModule = module,
             expectedSchema = """
+                message NonSealedLevel3LeafClass {
+                  NonSealedInterface top = 1;
+                }
+                
                 message NonSealedInterface {
                   oneof subtypes {
                     NonSealedLevel2LeafClassA nonSealedLevel2LeafClassA = 2;
                     NonSealedLevel2LeafClassB nonSealedLevel2LeafClassB = 3;
-                    NonSealedLevel3LeafClass nonSealedLevel3LeafClass = 4;
-                  }
-                }
-
-                message NonSealedLevel2Class {
-                  oneof subtypes {
                     NonSealedLevel3LeafClass nonSealedLevel3LeafClass = 4;
                   }
                 }
@@ -105,9 +103,11 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest() {
                   NonSealedLevel2Class intermediate = 1;
                 }
                 
-                message NonSealedLevel3LeafClass {
-                  NonSealedInterface top = 1;
-                }                
+                message NonSealedLevel2Class {
+                  oneof subtypes {
+                    NonSealedLevel3LeafClass nonSealedLevel3LeafClass = 4;
+                  }
+                }
                 """
         )
         verifyConversion(

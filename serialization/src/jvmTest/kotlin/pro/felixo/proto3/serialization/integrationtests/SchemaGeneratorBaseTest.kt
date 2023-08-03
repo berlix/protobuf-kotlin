@@ -43,7 +43,12 @@ abstract class SchemaGeneratorBaseTest {
             typesFromSerializersModule,
             serializersModule
         )
+
         val schemaDocument = schema.toSchemaDocument()
+
+        println("Expected schema:\n$expectedSchemaDocument\n")
+        println("Actual schema:\n$schemaDocument")
+
         assertThat(validate(schemaDocument)).isEqualTo(ValidationResult.OK)
         assertThat(schemaDocument).isEqualTo(expectedSchemaDocument)
     }
