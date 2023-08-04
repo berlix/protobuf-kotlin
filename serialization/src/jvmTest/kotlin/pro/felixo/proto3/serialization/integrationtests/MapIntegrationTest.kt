@@ -1,13 +1,10 @@
 package pro.felixo.proto3.serialization.integrationtests
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import org.junit.Test
-import pro.felixo.proto3.serialization.testutil.ClassWithEnum
-import pro.felixo.proto3.serialization.testutil.ClassWithMapOfReferences
-import pro.felixo.proto3.serialization.testutil.ClassWithMapOfScalars
-import pro.felixo.proto3.serialization.testutil.ClassWithMapWithCustomEntryPropertyNames
-import pro.felixo.proto3.serialization.testutil.ClassWithNestedMaps
-import pro.felixo.proto3.serialization.testutil.ClassWithNullableMap
+import pro.felixo.proto3.serialization.ProtoMapEntry
+import pro.felixo.proto3.serialization.testutil.ClassWithNullableEnumClassMember
 import pro.felixo.proto3.serialization.testutil.EnumClass
 import pro.felixo.proto3.serialization.testutil.SimpleClass
 import kotlin.reflect.typeOf
@@ -126,13 +123,13 @@ class MapIntegrationTest : BaseIntegrationTest() {
             """
             message ClassWithMapOfReferences {
               message MapEntry {
-                ClassWithEnum key = 1;
+                ClassWithNullableEnumClassMember key = 1;
                 SimpleClass value = 2;
               }
               repeated MapEntry map = 1;
             }
             
-            message ClassWithEnum {
+            message ClassWithNullableEnumClassMember {
               optional EnumClass enum = 1;
             }
             
@@ -149,14 +146,14 @@ class MapIntegrationTest : BaseIntegrationTest() {
         )
         verifyConversion(ClassWithMapOfReferences(emptyMap()), "")
         verifyConversion(
-            ClassWithMapOfReferences(mapOf(ClassWithEnum(EnumClass.A) to SimpleClass(5))),
+            ClassWithMapOfReferences(mapOf(ClassWithNullableEnumClassMember(EnumClass.A) to SimpleClass(5))),
             """1: { 1: { 1: 0 } 2: { 1: 5 } }"""
         )
         verifyConversion(
             ClassWithMapOfReferences(
                 mapOf(
-                    ClassWithEnum(EnumClass.A) to SimpleClass(5),
-                    ClassWithEnum(EnumClass.B) to SimpleClass(-1),
+                    ClassWithNullableEnumClassMember(EnumClass.A) to SimpleClass(5),
+                    ClassWithNullableEnumClassMember(EnumClass.B) to SimpleClass(-1),
                 )
             ),
             """1: { 1: { 1: 0 } 2: { 1: 5 } } 1: { 1: { 1: 1 } 2: { 1: -1 } }"""
@@ -166,4 +163,30 @@ class MapIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `does not create schema with synthetic top-level message for map`() =
         verifyFailure(serializer(typeOf<Map<String, Int>>()).descriptor)
+
+    @Serializable
+    data class ClassWithMapOfScalars(
+        val map: Map<String, Int>
+    )
+
+    @Serializable
+    data class ClassWithNullableMap(
+        val map: Map<String, Int>?
+    )
+
+    @Serializable
+    data class ClassWithNestedMaps(
+        val map: Map<Map<String, Int>, Map<String, Int>>
+    )
+
+    @Serializable
+    data class ClassWithMapWithCustomEntryPropertyNames(
+        @ProtoMapEntry("customKey", "customValue")
+        val map: Map<Int, Int>
+    )
+
+    @Serializable
+    data class ClassWithMapOfReferences(
+        val map: Map<ClassWithNullableEnumClassMember, SimpleClass>
+    )
 }

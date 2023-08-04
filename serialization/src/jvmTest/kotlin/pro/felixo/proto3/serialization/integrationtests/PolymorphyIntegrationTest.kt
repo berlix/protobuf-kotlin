@@ -1,11 +1,8 @@
 package pro.felixo.proto3.serialization.integrationtests
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.serialization.testutil.NonSealedInterface
-import pro.felixo.proto3.serialization.testutil.NonSealedLevel2Class
-import pro.felixo.proto3.serialization.testutil.NonSealedLevel2LeafClassA
-import pro.felixo.proto3.serialization.testutil.NonSealedLevel2LeafClassB
-import pro.felixo.proto3.serialization.testutil.NonSealedLevel3LeafClass
+import pro.felixo.proto3.serialization.ProtoNumber
 import pro.felixo.proto3.serialization.testutil.SealedLevel2Class
 import pro.felixo.proto3.serialization.testutil.SealedLevel2LeafClassA
 import pro.felixo.proto3.serialization.testutil.SealedLevel2LeafClassB
@@ -131,4 +128,27 @@ class PolymorphyIntegrationTest : BaseIntegrationTest() {
             """4: {1: {2: {1: 40}}}"""
         )
     }
+
+    interface NonSealedInterface
+
+    @Serializable
+    @ProtoNumber(2)
+    data class NonSealedLevel2LeafClassA(
+        val int: Int
+    ) : NonSealedInterface
+
+    @Serializable
+    @ProtoNumber(3)
+    data class NonSealedLevel2LeafClassB(
+        val intermediate: NonSealedLevel2Class
+    ) : NonSealedInterface
+
+    @Serializable
+    abstract class NonSealedLevel2Class: NonSealedInterface
+
+    @Serializable
+    @ProtoNumber(4)
+    data class NonSealedLevel3LeafClass(
+        val top: NonSealedInterface
+    ) : NonSealedLevel2Class()
 }

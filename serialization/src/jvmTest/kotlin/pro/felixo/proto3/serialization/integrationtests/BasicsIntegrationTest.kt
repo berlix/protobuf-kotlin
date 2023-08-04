@@ -1,25 +1,25 @@
 package pro.felixo.proto3.serialization.integrationtests
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.serializer
-import pro.felixo.proto3.serialization.testutil.ClassAWithCycle
-import pro.felixo.proto3.serialization.testutil.ClassAWithReference
-import pro.felixo.proto3.serialization.testutil.ClassBWithCycle
-import pro.felixo.proto3.serialization.testutil.ClassBWithReference
-import pro.felixo.proto3.serialization.testutil.ClassWithCustomFieldNumbers
-import pro.felixo.proto3.serialization.testutil.ClassWithCustomSerialName
-import pro.felixo.proto3.serialization.testutil.ClassWithPropertyWithCustomByteArraySerializer
-import pro.felixo.proto3.serialization.testutil.ClassWithPropertyWithCustomSerialName
-import pro.felixo.proto3.serialization.testutil.ClassWithPropertyWithCustomSerializer
-import pro.felixo.proto3.serialization.testutil.ClassWithSelfReference
-import pro.felixo.proto3.serialization.testutil.ClassWithValueClassProperty
+import pro.felixo.proto3.serialization.IntegerType
+import pro.felixo.proto3.serialization.ProtoIntegerType
+import pro.felixo.proto3.serialization.ProtoNumber
 import pro.felixo.proto3.serialization.testutil.EmptyClass
-import pro.felixo.proto3.serialization.testutil.Object
-import pro.felixo.proto3.serialization.testutil.Scalars
-import pro.felixo.proto3.serialization.testutil.StringIntValueClass
-import pro.felixo.proto3.serialization.testutil.UnsignedInts
+import pro.felixo.proto3.serialization.testutil.ListDescriptor
 import kotlin.reflect.typeOf
 import kotlin.test.Test
+
+typealias StringInt = @Serializable(with = BasicsIntegrationTest.StringIntSerializer::class) Int
 
 class BasicsIntegrationTest : BaseIntegrationTest() {
     @Test
@@ -709,4 +709,319 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `does not create synthetic top-level message for nullable ByteArray`() =
         verifyFailure(serializer(typeOf<ByteArray?>()).descriptor)
+
+    @Serializable
+    data class Scalars(
+        val boolean: Boolean,
+        val booleanNullable: Boolean?,
+        val byte: Byte,
+        val byteNullable: Byte?,
+        val short: Short,
+        val shortNullable: Short?,
+
+        val int32: Int,
+        val int32Nullable: Int?,
+        @ProtoIntegerType(IntegerType.Default)
+        val defaultInt32: Int,
+        @ProtoIntegerType(IntegerType.Default)
+        val defaultInt32Nullable: Int?,
+        @ProtoIntegerType(IntegerType.Signed)
+        val sint32: Int,
+        @ProtoIntegerType(IntegerType.Signed)
+        val sint32Nullable: Int?,
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val uint32: Int,
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val uint32Nullable: Int?,
+        @ProtoIntegerType(IntegerType.Fixed)
+        val fixedInt32: Int,
+        @ProtoIntegerType(IntegerType.Fixed)
+        val fixedInt32Nullable: Int?,
+        @ProtoIntegerType(IntegerType.SignedFixed)
+        val signedFixedInt32: Int,
+        @ProtoIntegerType(IntegerType.SignedFixed)
+        val signedFixedInt32Nullable: Int?,
+
+        val int64: Long,
+        val int64Nullable: Long?,
+        @ProtoIntegerType(IntegerType.Default)
+        val defaultInt64: Long,
+        @ProtoIntegerType(IntegerType.Default)
+        val defaultInt64Nullable: Long?,
+        @ProtoIntegerType(IntegerType.Signed)
+        val sint64: Long,
+        @ProtoIntegerType(IntegerType.Signed)
+        val sint64Nullable: Long?,
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val uint64: Long,
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val uint64Nullable: Long?,
+        @ProtoIntegerType(IntegerType.Fixed)
+        val fixedInt64: Long,
+        @ProtoIntegerType(IntegerType.Fixed)
+        val fixedInt64Nullable: Long?,
+        @ProtoIntegerType(IntegerType.SignedFixed)
+        val signedFixedInt64: Long,
+        @ProtoIntegerType(IntegerType.SignedFixed)
+        val signedFixedInt64Nullable: Long?,
+
+        val float: Float,
+        val floatNullable: Float?,
+        val double: Double,
+        val doubleNullable: Double?,
+        val char: Char,
+        val charNullable: Char?,
+        val string: String,
+        val stringNullable: String?,
+        val bytes: ByteArray,
+        val bytesNullable: ByteArray?,
+    ) {
+        @Suppress("CyclomaticComplexMethod")
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Scalars
+
+            if (boolean != other.boolean) return false
+            if (booleanNullable != other.booleanNullable) return false
+            if (byte != other.byte) return false
+            if (byteNullable != other.byteNullable) return false
+            if (short != other.short) return false
+            if (shortNullable != other.shortNullable) return false
+            if (int32 != other.int32) return false
+            if (int32Nullable != other.int32Nullable) return false
+            if (defaultInt32 != other.defaultInt32) return false
+            if (defaultInt32Nullable != other.defaultInt32Nullable) return false
+            if (sint32 != other.sint32) return false
+            if (sint32Nullable != other.sint32Nullable) return false
+            if (uint32 != other.uint32) return false
+            if (uint32Nullable != other.uint32Nullable) return false
+            if (fixedInt32 != other.fixedInt32) return false
+            if (fixedInt32Nullable != other.fixedInt32Nullable) return false
+            if (signedFixedInt32 != other.signedFixedInt32) return false
+            if (signedFixedInt32Nullable != other.signedFixedInt32Nullable) return false
+            if (int64 != other.int64) return false
+            if (int64Nullable != other.int64Nullable) return false
+            if (defaultInt64 != other.defaultInt64) return false
+            if (defaultInt64Nullable != other.defaultInt64Nullable) return false
+            if (sint64 != other.sint64) return false
+            if (sint64Nullable != other.sint64Nullable) return false
+            if (uint64 != other.uint64) return false
+            if (uint64Nullable != other.uint64Nullable) return false
+            if (fixedInt64 != other.fixedInt64) return false
+            if (fixedInt64Nullable != other.fixedInt64Nullable) return false
+            if (signedFixedInt64 != other.signedFixedInt64) return false
+            if (signedFixedInt64Nullable != other.signedFixedInt64Nullable) return false
+            if (float != other.float) return false
+            if (floatNullable != other.floatNullable) return false
+            if (double != other.double) return false
+            if (doubleNullable != other.doubleNullable) return false
+            if (char != other.char) return false
+            if (charNullable != other.charNullable) return false
+            if (string != other.string) return false
+            if (stringNullable != other.stringNullable) return false
+            if (!bytes.contentEquals(other.bytes)) return false
+            if (bytesNullable != null) {
+                if (other.bytesNullable == null) return false
+                if (!bytesNullable.contentEquals(other.bytesNullable)) return false
+            } else if (other.bytesNullable != null) return false
+
+            return true
+        }
+
+        @Suppress("CyclomaticComplexMethod")
+        override fun hashCode(): Int {
+            var result = boolean.hashCode()
+            result = 31 * result + (booleanNullable?.hashCode() ?: 0)
+            result = 31 * result + byte
+            result = 31 * result + (byteNullable ?: 0)
+            result = 31 * result + short
+            result = 31 * result + (shortNullable ?: 0)
+            result = 31 * result + int32
+            result = 31 * result + (int32Nullable ?: 0)
+            result = 31 * result + defaultInt32
+            result = 31 * result + (defaultInt32Nullable ?: 0)
+            result = 31 * result + sint32
+            result = 31 * result + (sint32Nullable ?: 0)
+            result = 31 * result + uint32
+            result = 31 * result + (uint32Nullable ?: 0)
+            result = 31 * result + fixedInt32
+            result = 31 * result + (fixedInt32Nullable ?: 0)
+            result = 31 * result + signedFixedInt32
+            result = 31 * result + (signedFixedInt32Nullable ?: 0)
+            result = 31 * result + int64.hashCode()
+            result = 31 * result + (int64Nullable?.hashCode() ?: 0)
+            result = 31 * result + defaultInt64.hashCode()
+            result = 31 * result + (defaultInt64Nullable?.hashCode() ?: 0)
+            result = 31 * result + sint64.hashCode()
+            result = 31 * result + (sint64Nullable?.hashCode() ?: 0)
+            result = 31 * result + uint64.hashCode()
+            result = 31 * result + (uint64Nullable?.hashCode() ?: 0)
+            result = 31 * result + fixedInt64.hashCode()
+            result = 31 * result + (fixedInt64Nullable?.hashCode() ?: 0)
+            result = 31 * result + signedFixedInt64.hashCode()
+            result = 31 * result + (signedFixedInt64Nullable?.hashCode() ?: 0)
+            result = 31 * result + float.hashCode()
+            result = 31 * result + (floatNullable?.hashCode() ?: 0)
+            result = 31 * result + double.hashCode()
+            result = 31 * result + (doubleNullable?.hashCode() ?: 0)
+            result = 31 * result + char.hashCode()
+            result = 31 * result + (charNullable?.hashCode() ?: 0)
+            result = 31 * result + string.hashCode()
+            result = 31 * result + (stringNullable?.hashCode() ?: 0)
+            result = 31 * result + bytes.contentHashCode()
+            result = 31 * result + (bytesNullable?.contentHashCode() ?: 0)
+            return result
+        }
+    }
+
+    @Serializable
+    data class UnsignedInts(
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val ubyte: UByte,
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val ubyteNullable: UByte?,
+
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val ushort: UShort,
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val ushortNullable: UShort?,
+
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val uint32: UInt,
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val uint32Nullable: UInt?,
+
+        @ProtoIntegerType(IntegerType.Fixed)
+        val fixedUint32: UInt,
+        @ProtoIntegerType(IntegerType.Fixed)
+        val fixedUint32Nullable: UInt?,
+
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val uint64: ULong,
+        @ProtoIntegerType(IntegerType.Unsigned)
+        val uint64Nullable: ULong?,
+
+        @ProtoIntegerType(IntegerType.Fixed)
+        val fixedUint64: ULong,
+        @ProtoIntegerType(IntegerType.Fixed)
+        val fixedUint64Nullable: ULong?,
+
+        @ProtoIntegerType(IntegerType.Default)
+        val int32: UInt,
+    )
+
+    @Serializable
+    data class ClassWithCustomFieldNumbers(
+        @ProtoNumber(5)
+        val int: Int,
+        val string: String,
+        @ProtoNumber(8)
+        val bool: Boolean,
+        val long: Long?
+    )
+
+    @Serializable
+    data class ClassAWithReference(
+        val ref: EmptyClass
+    )
+
+    @Serializable
+    data class ClassBWithReference(
+        val ref: EmptyClass
+    )
+
+    @Serializable
+    object Object {
+        const val property: Int = 5
+    }
+
+    @Serializable
+    data class ClassWithSelfReference(
+        val ref: ClassWithSelfReference?
+    )
+
+    @Serializable
+    data class ClassAWithCycle(
+        val b: ClassBWithCycle?
+    )
+
+    @Serializable
+    data class ClassBWithCycle(
+        val a: ClassAWithCycle?
+    )
+
+    @Serializable
+    @SerialName("CustomName")
+    class ClassWithCustomSerialName {
+        override fun equals(other: Any?): Boolean = other != null && this::class == other::class
+        override fun hashCode(): Int = 1
+    }
+
+    @Serializable
+    data class ClassWithPropertyWithCustomSerialName(
+        @SerialName("customName")
+        val int: Int
+    )
+
+    @Serializable
+    data class ClassWithPropertyWithCustomSerializer(
+        @Serializable(StringIntSerializer::class)
+        val int: Int
+    )
+
+    @Serializable
+    @OptIn(ExperimentalSerializationApi::class)
+    data class ClassWithPropertyWithCustomByteArraySerializer(
+        @Serializable(BooleanAsByteArraySerializer::class)
+        val boolBytes: Boolean
+    )
+
+    @Serializable
+    data class ClassWithValueClassProperty(
+        val stringInt: StringIntValueClass
+    )
+
+    @JvmInline
+    @Serializable(with = StringIntValueClassSerializer::class)
+    value class StringIntValueClass(val value: Int)
+
+    class StringIntValueClassSerializer : KSerializer<StringIntValueClass> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("StringIntValueClass", PrimitiveKind.STRING)
+
+        override fun deserialize(decoder: Decoder): StringIntValueClass =
+            StringIntValueClass(decoder.decodeString().toInt())
+
+        override fun serialize(encoder: Encoder, value: StringIntValueClass) = encoder.encodeString("${value.value}")
+    }
+
+    class StringIntSerializer : KSerializer<StringInt> {
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("StringInt", PrimitiveKind.STRING)
+        override fun deserialize(decoder: Decoder): Int = decoder.decodeString().toInt()
+        override fun serialize(encoder: Encoder, value: Int) = encoder.encodeString("$value")
+    }
+
+    @ExperimentalSerializationApi
+    class BooleanAsByteArraySerializer : KSerializer<Boolean> {
+        private val elementDescriptor = Byte.serializer().descriptor
+
+        override val descriptor: SerialDescriptor =
+            ListDescriptor("BooleanAsByteArraySerializer", elementDescriptor)
+
+        override fun deserialize(decoder: Decoder): Boolean = decoder.beginStructure(descriptor).run {
+            require(decodeElementIndex(descriptor) == 0)
+            val value = decodeByteElement(elementDescriptor, 0)
+            endStructure(descriptor)
+            value
+        } == (-1).toByte()
+
+        override fun serialize(encoder: Encoder, value: Boolean) {
+            encoder.beginStructure(descriptor).apply {
+                encodeByteElement(elementDescriptor, 0, if (value) -1 else 0)
+                endStructure(descriptor)
+            }
+        }
+    }
 }

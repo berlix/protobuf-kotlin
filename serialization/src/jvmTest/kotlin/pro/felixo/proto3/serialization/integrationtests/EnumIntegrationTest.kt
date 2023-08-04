@@ -1,14 +1,11 @@
 package pro.felixo.proto3.serialization.integrationtests
 
-import pro.felixo.proto3.serialization.testutil.ClassWithEnumClassMember
-import pro.felixo.proto3.serialization.testutil.ClassWithEnumClassWithCustomNumbersMember
-import pro.felixo.proto3.serialization.testutil.ClassWithEnumClassWithCustomSerialNameMember
-import pro.felixo.proto3.serialization.testutil.ClassWithEnumClassWithValueWithCustomSerialNameMember
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import pro.felixo.proto3.serialization.ProtoDefaultEnumValue
+import pro.felixo.proto3.serialization.ProtoNumber
 import pro.felixo.proto3.serialization.testutil.ClassWithNullableEnumClassMember
 import pro.felixo.proto3.serialization.testutil.EnumClass
-import pro.felixo.proto3.serialization.testutil.EnumClassWithCustomNumbers
-import pro.felixo.proto3.serialization.testutil.EnumClassWithCustomSerialName
-import pro.felixo.proto3.serialization.testutil.EnumClassWithValueWithCustomSerialName
 import kotlin.test.Test
 
 class EnumIntegrationTest : BaseIntegrationTest() {
@@ -129,4 +126,40 @@ class EnumIntegrationTest : BaseIntegrationTest() {
             ""
         )
     }
+
+    @Serializable
+    data class ClassWithEnumClassMember(val enum: EnumClass)
+
+    @Serializable
+    enum class EnumClassWithCustomNumbers {
+        @ProtoNumber(5)
+        A,
+        B,
+        @ProtoDefaultEnumValue
+        C,
+        D
+    }
+
+    @Serializable
+    data class ClassWithEnumClassWithCustomNumbersMember(val enum: EnumClassWithCustomNumbers)
+
+    @Serializable
+    @SerialName("CustomName")
+    enum class EnumClassWithCustomSerialName {
+        @ProtoDefaultEnumValue
+        A
+    }
+
+    @Serializable
+    data class ClassWithEnumClassWithCustomSerialNameMember(val enum: EnumClassWithCustomSerialName)
+
+    @Serializable
+    enum class EnumClassWithValueWithCustomSerialName {
+        @ProtoDefaultEnumValue
+        @SerialName("CUSTOM_NAME")
+        A
+    }
+
+    @Serializable
+    data class ClassWithEnumClassWithValueWithCustomSerialNameMember(val enum: EnumClassWithValueWithCustomSerialName)
 }

@@ -1,22 +1,12 @@
 package pro.felixo.proto3.serialization.integrationtests
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import org.junit.Test
-import pro.felixo.proto3.serialization.testutil.ClassWithListOfBytes
-import pro.felixo.proto3.serialization.testutil.ClassWithListOfDouble
-import pro.felixo.proto3.serialization.testutil.ClassWithListOfEmptyClass
-import pro.felixo.proto3.serialization.testutil.ClassWithListOfFloat
-import pro.felixo.proto3.serialization.testutil.ClassWithListOfNullableScalar
-import pro.felixo.proto3.serialization.testutil.ClassWithListOfInt
-import pro.felixo.proto3.serialization.testutil.ClassWithListOfSealedClass
-import pro.felixo.proto3.serialization.testutil.ClassWithListOfSimpleClass
-import pro.felixo.proto3.serialization.testutil.ClassWithListOfString
-import pro.felixo.proto3.serialization.testutil.ClassWithListOfUInt
-import pro.felixo.proto3.serialization.testutil.ClassWithNestedLists
-import pro.felixo.proto3.serialization.testutil.ClassWithNullableList
 import pro.felixo.proto3.serialization.testutil.EmptyClass
 import pro.felixo.proto3.serialization.testutil.SealedLevel2LeafClassA
 import pro.felixo.proto3.serialization.testutil.SealedLevel3LeafClass
+import pro.felixo.proto3.serialization.testutil.SealedTopClass
 import pro.felixo.proto3.serialization.testutil.SimpleClass
 import kotlin.reflect.typeOf
 
@@ -298,4 +288,98 @@ class ListIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `does not create schema with synthetic top-level message for list`() =
         verifyFailure(serializer(typeOf<List<String>>()).descriptor)
+
+    @Serializable
+    data class ClassWithListOfInt(
+        val list: List<Int>
+    )
+
+    @Serializable
+    data class ClassWithListOfUInt(
+        val list: List<UInt>
+    )
+
+    @Serializable
+    data class ClassWithListOfFloat(
+        val list: List<Float>
+    )
+
+    @Serializable
+    data class ClassWithListOfDouble(
+        val list: List<Double>
+    )
+
+    @Serializable
+    data class ClassWithListOfString(
+        val list: List<String>
+    )
+
+    @Serializable
+    data class ClassWithListOfBytes(
+        val list: List<ByteArray>
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ClassWithListOfBytes
+
+            return list.contentEquals(other.list)
+        }
+
+        override fun hashCode(): Int = list.contentHashCode()
+    }
+
+    @Serializable
+    data class ClassWithNullableList(
+        val list: List<Int>?
+    )
+
+    @Serializable
+    data class ClassWithListOfNullableScalar(
+        val list: List<Int?>
+    )
+
+    @Serializable
+    data class ClassWithNestedLists(
+        val list: List<List<List<ByteArray>>>
+    ) {
+        override fun equals(other: Any?): Boolean =
+            other is ClassWithNestedLists && list.contentEquals(other.list) { l1, r1 ->
+                l1.contentEquals(r1) { l2, r2 ->
+                    l2.contentEquals(r2)
+                }
+            }
+
+        override fun hashCode(): Int = list.contentHashCode { outer-> outer.contentHashCode { it.contentHashCode() } }
+    }
+
+    @Serializable
+    data class ClassWithListOfEmptyClass(
+        val list: List<EmptyClass>
+    )
+
+    @Serializable
+    data class ClassWithListOfSimpleClass(
+        val list: List<SimpleClass>
+    )
+
+    @Serializable
+    data class ClassWithListOfSealedClass(
+        val list: List<SealedTopClass>
+    )
+
+    companion object {
+        private fun List<ByteArray>.contentEquals(other: List<ByteArray>) =
+            contentEquals(other) { l, r -> l.contentEquals(r) }
+
+        private fun List<ByteArray>.contentHashCode() =
+            fold(0) { acc, e -> acc * 31 + e.contentHashCode() }
+
+        private fun <T> List<T>.contentEquals(other: List<T>, elementEquals: (T, T) -> Boolean) =
+            size == other.size && zip(other).all { (l, r) -> elementEquals(l, r) }
+
+        private fun <T> List<T>.contentHashCode(elementHashCode: (T) -> Int) =
+            fold(0) { acc, e -> acc * 31 + elementHashCode(e) }
+    }
 }
