@@ -17,7 +17,7 @@ import pro.felixo.proto3.serialization.testutil.schemaOf
 import pro.felixo.proto3.serialization.toSchemaDocument
 import kotlin.reflect.KType
 
-abstract class SchemaGeneratorBaseTest {
+abstract class BaseIntegrationTest {
     protected val protoscopeConverter = ProtoscopeConverter(ProtoscopeTokenizer())
     protected lateinit var schema: EncodingSchema
 

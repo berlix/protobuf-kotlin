@@ -11,7 +11,7 @@ import pro.felixo.proto3.serialization.testutil.EnumClassWithCustomSerialName
 import pro.felixo.proto3.serialization.testutil.EnumClassWithValueWithCustomSerialName
 import kotlin.test.Test
 
-class SchemaGeneratorEnumTest : SchemaGeneratorBaseTest() {
+class EnumIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates enum`() {
         verify(
@@ -84,7 +84,7 @@ class SchemaGeneratorEnumTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates enum class with custom serial name`() {
+    fun `creates enum with custom serial name`() {
         verify(
             ClassWithEnumClassWithCustomSerialNameMember.serializer().descriptor,
             """
@@ -103,7 +103,7 @@ class SchemaGeneratorEnumTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates enum class with value with custom serial name`() {
+    fun `creates enum with value with custom serial name`() {
         verify(
             ClassWithEnumClassWithValueWithCustomSerialNameMember.serializer().descriptor,
             """

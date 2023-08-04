@@ -20,10 +20,10 @@ import pro.felixo.proto3.serialization.testutil.SealedLevel3LeafClass
 import pro.felixo.proto3.serialization.testutil.SimpleClass
 import kotlin.reflect.typeOf
 
-class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
+class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
-    fun `creates schema for class with list of int`() {
+    fun `creates message for class with list of int`() {
         verify(
             ClassWithListOfInt.serializer().descriptor,
             """
@@ -40,7 +40,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with list of UInt`() {
+    fun `creates message for class with list of UInt`() {
         verify(
             ClassWithListOfUInt.serializer().descriptor,
             """
@@ -57,7 +57,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with list of float`() {
+    fun `creates message for class with list of float`() {
         verify(
             ClassWithListOfFloat.serializer().descriptor,
             """
@@ -74,7 +74,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with list of double`() {
+    fun `creates message for class with list of double`() {
         verify(
             ClassWithListOfDouble.serializer().descriptor,
             """
@@ -91,7 +91,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with list of string`() {
+    fun `creates message for class with list of string`() {
         verify(
             ClassWithListOfString.serializer().descriptor,
             """
@@ -107,7 +107,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with list of bytes`() {
+    fun `creates message for class with list of bytes`() {
         verify(
             ClassWithListOfBytes.serializer().descriptor,
             """
@@ -126,7 +126,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with list of empty class`() {
+    fun `creates message for class with list of empty class`() {
         verify(
             ClassWithListOfEmptyClass.serializer().descriptor,
             """
@@ -145,7 +145,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with list of simple class`() {
+    fun `creates message for class with list of simple class`() {
         verify(
             ClassWithListOfSimpleClass.serializer().descriptor,
             """
@@ -166,7 +166,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with list of sealed class`() {
+    fun `creates message for class with list of sealed class`() {
         verify(
             ClassWithListOfSealedClass.serializer().descriptor,
             """
@@ -219,7 +219,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with nullable list`() {
+    fun `creates message for class with nullable list`() {
         verify(
             ClassWithNullableList.serializer().descriptor,
             """
@@ -237,7 +237,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with list of nullables`() {
+    fun `creates message for class with list of nullables`() {
         verify(
             ClassWithListOfNullableScalar.serializer().descriptor,
             """
@@ -256,7 +256,7 @@ class SchemaGeneratorListTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with nested lists`() {
+    fun `creates message for class with nested lists`() {
         verify(
             ClassWithNestedLists.serializer().descriptor,
             """

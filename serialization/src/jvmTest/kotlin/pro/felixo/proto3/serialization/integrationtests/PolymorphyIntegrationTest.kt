@@ -14,7 +14,7 @@ import pro.felixo.proto3.serialization.testutil.SealedTopClass
 import kotlin.reflect.typeOf
 import kotlin.test.Test
 
-class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest() {
+class PolymorphyIntegrationTest : BaseIntegrationTest() {
     private val module = SerializersModule {
         polymorphic(NonSealedLevel2Class::class, NonSealedLevel3LeafClass::class, NonSealedLevel3LeafClass.serializer())
         polymorphic(NonSealedInterface::class, NonSealedLevel2LeafClassA::class, NonSealedLevel2LeafClassA.serializer())
@@ -23,7 +23,7 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates sealed class hierarchy`() {
+    fun `creates messages for sealed class hierarchy`() {
         verifySchema(
             listOf(SealedTopClass.serializer().descriptor),
             serializersModule = module,
@@ -78,7 +78,7 @@ class SchemaGeneratorPolymorphyTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates non-sealed polymorphic class hierarchy`() {
+    fun `creates messages for non-sealed polymorphic class hierarchy`() {
         verifySchema(
             typesFromSerializersModule = listOf(typeOf<NonSealedInterface>()),
             serializersModule = module,

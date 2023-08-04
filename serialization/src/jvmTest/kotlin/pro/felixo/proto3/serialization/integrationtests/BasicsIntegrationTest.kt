@@ -21,7 +21,7 @@ import pro.felixo.proto3.serialization.testutil.UnsignedInts
 import kotlin.reflect.typeOf
 import kotlin.test.Test
 
-class SchemaGeneratorBasicsTest : SchemaGeneratorBaseTest() {
+class BasicsIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates empty schema`() {
         verify(emptyList(), "")

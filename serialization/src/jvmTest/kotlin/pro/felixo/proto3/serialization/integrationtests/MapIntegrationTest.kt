@@ -12,10 +12,10 @@ import pro.felixo.proto3.serialization.testutil.EnumClass
 import pro.felixo.proto3.serialization.testutil.SimpleClass
 import kotlin.reflect.typeOf
 
-class SchemaGeneratorMapTest : SchemaGeneratorBaseTest() {
+class MapIntegrationTest : BaseIntegrationTest() {
 
     @Test
-    fun `creates schema for class with map of scalars`() {
+    fun `creates message for class with map of scalars`() {
         verify(
             ClassWithMapOfScalars.serializer().descriptor,
             """
@@ -37,7 +37,7 @@ class SchemaGeneratorMapTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with nullable map`() {
+    fun `creates message for class with nullable map`() {
         verify(
             ClassWithNullableMap.serializer().descriptor,
             """
@@ -63,7 +63,7 @@ class SchemaGeneratorMapTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with nested maps`() {
+    fun `creates message for class with nested maps`() {
         verify(
             ClassWithNestedMaps.serializer().descriptor,
             """
@@ -98,7 +98,7 @@ class SchemaGeneratorMapTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with map with custom entry property names`() {
+    fun `creates message for class with map with custom entry property names`() {
         verify(
             ClassWithMapWithCustomEntryPropertyNames.serializer().descriptor,
             """
@@ -120,7 +120,7 @@ class SchemaGeneratorMapTest : SchemaGeneratorBaseTest() {
     }
 
     @Test
-    fun `creates schema for class with map of references`() {
+    fun `creates message for class with map of references`() {
         verify(
             ClassWithMapOfReferences.serializer().descriptor,
             """

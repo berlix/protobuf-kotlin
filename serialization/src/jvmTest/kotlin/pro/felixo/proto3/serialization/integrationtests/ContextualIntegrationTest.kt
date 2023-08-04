@@ -9,7 +9,7 @@ import pro.felixo.proto3.serialization.testutil.SerializableClassWithContextualS
 import pro.felixo.proto3.serialization.testutil.SerializableClassWithContextualSerializerSerializer
 import kotlin.test.Test
 
-class SchemaGeneratorContextualTest : SchemaGeneratorBaseTest() {
+class ContextualIntegrationTest : BaseIntegrationTest() {
 
     private val module = SerializersModule {
         contextual(ClassWithContextualSerializer::class, ClassWithContextualSerializerSerializer())
