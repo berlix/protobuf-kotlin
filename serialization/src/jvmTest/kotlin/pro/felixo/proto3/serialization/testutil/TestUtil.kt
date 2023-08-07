@@ -16,40 +16,22 @@ fun schemaOf(proto3: String) = SchemaDocumentReader().readSchema(
     assertThat(validate(it)).isEqualTo(ValidationResult.OK)
 }
 
-/**
- * Adapted from kotlinx.serialization.internal.ListLikeDescriptor:
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license
- */
-@ExperimentalSerializationApi
-class ListDescriptor(override val serialName: String, val elementDescriptor: SerialDescriptor) : SerialDescriptor {
+@OptIn(ExperimentalSerializationApi::class)
+data class ListDescriptor(override val serialName: String, val elementDescriptor: SerialDescriptor) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.LIST
     override val elementsCount: Int = 1
 
     override fun getElementName(index: Int): String = index.toString()
     override fun getElementIndex(name: String): Int =
-        name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
+        requireNotNull(name.toIntOrNull()) { "$name is not a well-formed list index" }
 
-    override fun isElementOptional(index: Int): Boolean {
-        require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}
-        return false
-    }
-
-    override fun getElementAnnotations(index: Int): List<Annotation> {
-        require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}
-        return emptyList()
-    }
+    override fun isElementOptional(index: Int): Boolean = false
+    override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
-        require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}
+        require(index == 0) { "$serialName: expected index 0, got $index" }
         return elementDescriptor
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ListDescriptor) return false
-        return elementDescriptor == other.elementDescriptor && serialName == other.serialName
-    }
-
-    override fun hashCode(): Int = elementDescriptor.hashCode() * 31 + serialName.hashCode()
     override fun toString(): String = "$serialName($elementDescriptor)"
 }

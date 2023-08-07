@@ -972,7 +972,6 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
     )
 
     @Serializable
-    @OptIn(ExperimentalSerializationApi::class)
     data class ClassWithPropertyWithCustomByteArraySerializer(
         @Serializable(BooleanAsByteArraySerializer::class)
         val boolBytes: Boolean
@@ -1003,7 +1002,6 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
         override fun serialize(encoder: Encoder, value: Int) = encoder.encodeString("$value")
     }
 
-    @ExperimentalSerializationApi
     class BooleanAsByteArraySerializer : KSerializer<Boolean> {
         private val elementDescriptor = Byte.serializer().descriptor
 
