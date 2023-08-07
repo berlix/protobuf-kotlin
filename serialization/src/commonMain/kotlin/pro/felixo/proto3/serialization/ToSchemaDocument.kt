@@ -18,7 +18,7 @@ private fun typeDependencies(type: Type): List<Type> = when (type) {
         type.fields.sortedBy { it.number }.mapNotNull { fieldDependency(it) } +
         type.nestedTypes.sortedBy { it.name }.flatMap { typeDependencies(it) }
     )
-    is Enumeration -> emptyList()
+    is Enum -> emptyList()
 }
 
 fun fieldDependency(field: Field): Type? = when (field.type) {
@@ -28,7 +28,7 @@ fun fieldDependency(field: Field): Type? = when (field.type) {
 
 fun Type.toDocumentType(typeOrdering: Map<Type, Int>): pro.felixo.proto3.schemadocument.Type = when (this) {
     is Message -> toDocumentMessage(typeOrdering)
-    is Enumeration -> toDocumentEnumeration()
+    is Enum -> toDocumentEnum()
 }
 
 fun Message.toDocumentMessage(typeOrdering: Map<Type, Int>) = pro.felixo.proto3.schemadocument.Message(
@@ -42,7 +42,7 @@ fun Message.toDocumentMessage(typeOrdering: Map<Type, Int>) = pro.felixo.proto3.
     nestedTypes.sortedBy { typeOrdering[it] }.map { it.toDocumentType(typeOrdering) }
 )
 
-fun Enumeration.toDocumentEnumeration() = pro.felixo.proto3.schemadocument.Enumeration(
+fun Enum.toDocumentEnum() = pro.felixo.proto3.schemadocument.Enum(
     name,
     values.sortedWith { a: EnumValue, b: EnumValue ->
         if (a.number == 0 && b.number != 0) -1

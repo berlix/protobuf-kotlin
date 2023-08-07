@@ -89,7 +89,7 @@ class OneOf(
     val fields: List<Field>
 ) : Member
 
-class Enumeration(
+class Enum(
     override val name: Identifier,
     val values: List<EnumValue>
 ) : Type() {

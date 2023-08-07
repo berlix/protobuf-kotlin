@@ -77,7 +77,7 @@ class SchemaDocumentReader(private val tokenizer: SchemaTokenizer = SchemaTokeni
         )
     }
 
-    private fun readEnum(tokens: Iterator<Token>): Enumeration {
+    private fun readEnum(tokens: Iterator<Token>): Enum {
         val name = Identifier(tokens.expect<Token.Identifier>().text)
         tokens.expect<Token.OpenBrace>()
 
@@ -94,7 +94,7 @@ class SchemaDocumentReader(private val tokenizer: SchemaTokenizer = SchemaTokeni
                 else -> error("Unexpected token in enum $name: $token")
             }
         }
-        return Enumeration(
+        return Enum(
             name,
             values,
             allowAlias,

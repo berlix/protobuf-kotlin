@@ -5,7 +5,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.proto3.serialization.Enumeration
+import pro.felixo.proto3.serialization.Enum
 import pro.felixo.proto3.serialization.Message
 import pro.felixo.proto3.serialization.util.castItems
 import pro.felixo.proto3.wire.WireValue
@@ -25,7 +25,7 @@ class ValueDecoder(
         }
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-        val enum = (type as FieldEncoding.Reference).type as Enumeration
+        val enum = (type as FieldEncoding.Reference).type as Enum
         return enum.decode(decodeLast(values, FieldEncoding.Int32) ?: 0)
     }
 

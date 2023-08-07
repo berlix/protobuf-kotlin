@@ -10,7 +10,7 @@ val MAXIMAL_SCHEMA = SchemaDocument(
         Message(
             Identifier("EmptyMessage")
         ),
-        Enumeration(
+        Enum(
             Identifier("MaximalEnum"),
             listOf(
                 EnumValue(Identifier("A"), 1),
@@ -59,7 +59,7 @@ val MAXIMAL_SCHEMA = SchemaDocument(
                 ),
             ),
             listOf(
-                Enumeration(
+                Enum(
                     Identifier("NestedEnum"),
                     listOf(
                         EnumValue(Identifier("X"), 0)
@@ -79,7 +79,7 @@ val MAXIMAL_SCHEMA = SchemaDocument(
             listOf(Identifier("x"), Identifier("y")),
             listOf(10..10, 20..30, 40..Int.MAX_VALUE)
         ),
-        Enumeration(
+        Enum(
             Identifier("MinimalEnum"),
             listOf(EnumValue(Identifier("Value"), 0))
         ),

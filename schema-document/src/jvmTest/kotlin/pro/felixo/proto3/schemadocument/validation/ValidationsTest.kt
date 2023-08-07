@@ -5,7 +5,7 @@ import pro.felixo.proto3.EnumValue
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.Identifier
-import pro.felixo.proto3.schemadocument.Enumeration
+import pro.felixo.proto3.schemadocument.Enum
 import pro.felixo.proto3.schemadocument.Field
 import pro.felixo.proto3.schemadocument.FieldType
 import pro.felixo.proto3.schemadocument.Message
@@ -94,7 +94,7 @@ class ValidationsTest {
     @Test
     fun `validates enums`() {
         assertValidation(
-            Enumeration(
+            Enum(
                 invalidIdentifier,
                 emptyList(),
                 reservedNames = listOf(invalidIdentifier2)
@@ -108,7 +108,7 @@ class ValidationsTest {
         }
 
         assertValidation(
-            Enumeration(
+            Enum(
                 validIdentifier,
                 listOf(
                     EnumValue(invalidIdentifier, 1),
@@ -139,7 +139,7 @@ class ValidationsTest {
         }
 
         assertValidation(
-            Enumeration(
+            Enum(
                 validIdentifier,
                 listOf(
                     EnumValue(validIdentifier, 0),
@@ -153,7 +153,7 @@ class ValidationsTest {
         ) { emptyArray() }
 
         assertValidation(
-            Enumeration(
+            Enum(
                 validIdentifier,
                 listOf(EnumValue(validIdentifier, 0))
             )
@@ -161,7 +161,7 @@ class ValidationsTest {
     }
 
     private fun assertValidation(
-        enum: Enumeration,
+        enum: Enum,
         errors: (ValidationScope) -> Array<ValidationError>
     ) = assertThat(testScope.validate(enum)).isEquivalentTo(resultOf(*errors(testScope.sub(enum))))
 

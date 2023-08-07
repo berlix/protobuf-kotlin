@@ -4,7 +4,7 @@ import pro.felixo.proto3.EnumValue
 import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.Identifier
-import pro.felixo.proto3.schemadocument.Enumeration
+import pro.felixo.proto3.schemadocument.Enum
 import pro.felixo.proto3.schemadocument.Field
 import pro.felixo.proto3.schemadocument.FieldType
 import pro.felixo.proto3.schemadocument.Member
@@ -24,7 +24,7 @@ fun validate(schema: SchemaDocument): ValidationResult = rootValidationScope(sch
 fun ValidationScope.validate(type: Type): ValidationResult = validationScope(type) {
     validate(type.name) + when (type) {
         is Message -> validate(type)
-        is Enumeration -> validate(type)
+        is Enum -> validate(type)
     }
 }
 
@@ -87,7 +87,7 @@ private fun ValidationScope.validate(field: Field): ValidationResult {
     return validate(field.type) + validate(field.number)
 }
 
-private fun ValidationScope.validate(enum: Enumeration) : ValidationResult {
+private fun ValidationScope.validate(enum: Enum) : ValidationResult {
     fun validateValuesPresent() = validate(enum.values.isNotEmpty()) {
         ValidationError.EnumContainsNoValues(this)
     }

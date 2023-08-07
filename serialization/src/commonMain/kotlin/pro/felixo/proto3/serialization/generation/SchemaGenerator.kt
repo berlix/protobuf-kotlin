@@ -19,7 +19,7 @@ import pro.felixo.proto3.FieldNumber
 import pro.felixo.proto3.FieldRule
 import pro.felixo.proto3.Identifier
 import pro.felixo.proto3.serialization.EncodingSchema
-import pro.felixo.proto3.serialization.Enumeration
+import pro.felixo.proto3.serialization.Enum
 import pro.felixo.proto3.serialization.Field
 import pro.felixo.proto3.serialization.IntegerType
 import pro.felixo.proto3.serialization.Message
@@ -432,7 +432,7 @@ class SchemaGenerator(
             EnumValue(Identifier(descriptor.getElementName(index)), number)
         }
 
-        Enumeration(
+        Enum(
             Identifier(simpleTypeName(descriptor)),
             values
         )

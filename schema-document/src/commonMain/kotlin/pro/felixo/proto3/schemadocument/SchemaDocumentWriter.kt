@@ -22,7 +22,7 @@ class SchemaDocumentWriter(
     fun write(type: Type) {
         when (type) {
             is Message -> writeMessage(type)
-            is Enumeration -> writeEnum(type)
+            is Enum -> writeEnum(type)
         }
     }
 
@@ -61,7 +61,7 @@ class SchemaDocumentWriter(
         line("${rulePrefix(field.rule)}${field.type} ${field.name} = ${field.number};")
     }
 
-    private fun writeEnum(enum: Enumeration) {
+    private fun writeEnum(enum: Enum) {
         line("enum ${enum.name} {")
         indent {
             if (enum.allowAlias)

@@ -69,7 +69,7 @@ data class OneOf(
     override val elementType = "oneof"
 }
 
-data class Enumeration(
+data class Enum(
     override val name: Identifier,
     val values: List<EnumValue>,
     val allowAlias: Boolean = false,
