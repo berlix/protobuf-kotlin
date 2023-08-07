@@ -1,4 +1,4 @@
-rootProject.name = "proto3-kotlin"
+rootProject.name = "protobuf-kotlin"
 
 include("common")
 include("schema-document")
