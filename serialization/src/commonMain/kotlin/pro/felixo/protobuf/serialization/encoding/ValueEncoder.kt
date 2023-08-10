@@ -10,7 +10,7 @@ import pro.felixo.protobuf.serialization.Enum
 import pro.felixo.protobuf.serialization.Message
 import pro.felixo.protobuf.wire.Tag
 import pro.felixo.protobuf.wire.WireBuffer
-import pro.felixo.protobuf.wire.WireType
+import pro.felixo.protobuf.wire.WireValue
 import pro.felixo.protobuf.wire.encodeValue
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -18,31 +18,12 @@ class ValueEncoder(
     override val serializersModule: SerializersModule,
     private val output: WireBuffer,
     private val encoding: FieldEncoding,
+    private val encodeZeroValue: Boolean,
     private val fieldNumber: FieldNumber? = null
 ) : Encoder {
-    private fun writeTag() {
-        if (fieldNumber != null) {
-            val wireType = when (encoding) {
-                is FieldEncoding.Scalar<*> -> encoding.wireType
-                is FieldEncoding.Reference -> when (encoding.type) {
-                    is Enum -> WireType.VarInt
-                    is Message -> WireType.Len
-                }
-            }
-
-            output.writeVarInt(Tag.of(fieldNumber, wireType).value)
-        }
-    }
-
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        writeTag()
-        return if (encoding == FieldEncoding.Bytes)
-            ByteArrayEncoder(serializersModule, output)
-        else {
-            val message = (encoding as FieldEncoding.Reference).type as Message
-            message.encoder(output, fieldNumber == null)
-        }
-    }
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder =
+        ((encoding as FieldEncoding.Reference).type as Message)
+            .encoder(output, fieldNumber, encodeZeroValue)
 
     @ExperimentalSerializationApi
     override fun encodeNull() {
@@ -52,68 +33,64 @@ class ValueEncoder(
     @ExperimentalSerializationApi
     override fun encodeInline(descriptor: SerialDescriptor): Encoder = this
 
-    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
-        writeTag()
-        val enum = (encoding as FieldEncoding.Reference).type as Enum
-        output.writeVarInt(enum.encode(index))
-    }
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = write(
+        ((encoding as FieldEncoding.Reference).type as Enum).encode(index, encodeZeroValue)
+    )
 
-    override fun encodeBoolean(value: Boolean) {
-        writeTag()
-        encoding as FieldEncoding.Bool
-        output.encodeValue(encoding.encode(value))
-    }
+    override fun encodeBoolean(value: Boolean) = write(
+        (encoding as FieldEncoding.Bool).encode(value, encodeZeroValue)
+    )
 
-    override fun encodeByte(value: Byte) {
-        writeTag()
-        encoding as FieldEncoding.Integer32
-        output.encodeValue(encoding.encode(if (encoding.isUnsigned) value.toUByte().toInt() else value.toInt()))
-    }
+    override fun encodeByte(value: Byte) = write(
+        (encoding as FieldEncoding.Integer32)
+            .encode(if (encoding.isUnsigned) value.toUByte().toInt() else value.toInt(), encodeZeroValue)
+    )
 
-    override fun encodeChar(value: Char) {
-        writeTag()
-        encoding as FieldEncoding.Integer32
-        output.encodeValue(encoding.encode(value.code))
-    }
+    override fun encodeChar(value: Char) = write(
+        (encoding as FieldEncoding.Integer32).encode(value.code, encodeZeroValue)
+    )
 
-    override fun encodeDouble(value: Double) {
-        writeTag()
-        encoding as FieldEncoding.Double
-        output.encodeValue(encoding.encode(value))
-    }
+    override fun encodeDouble(value: Double) = write(
+        (encoding as FieldEncoding.Double).encode(value, encodeZeroValue)
+    )
 
-    override fun encodeFloat(value: Float) {
-        writeTag()
-        encoding as FieldEncoding.Float
-        output.encodeValue(encoding.encode(value))
-    }
+    override fun encodeFloat(value: Float) = write(
+        (encoding as FieldEncoding.Float).encode(value, encodeZeroValue)
+    )
 
-    override fun encodeInt(value: Int) {
-        writeTag()
-        encoding as FieldEncoding.Integer32
-        output.encodeValue(
-            if (encoding.isUnsigned)
-                encoding.encode(value, -1)
+    override fun encodeInt(value: Int) = write(
+        (encoding as FieldEncoding.Integer32).run {
+            if (isUnsigned)
+                encode(value, -1, encodeZeroValue)
             else
-                encoding.encode(value)
+                encode(value, encodeZeroValue)
+        }
+    )
+
+    override fun encodeLong(value: Long) = write(
+        (encoding as FieldEncoding.Integer64).encode(value, encodeZeroValue)
+    )
+
+    override fun encodeShort(value: Short) = write(
+        (encoding as FieldEncoding.Integer32).encode(
+            if (encoding.isUnsigned) value.toUShort().toInt() else value.toInt(),
+            encodeZeroValue
         )
+    )
+
+    override fun encodeString(value: String) = write(
+        (encoding as FieldEncoding.String).encode(value, encodeZeroValue)
+    )
+
+    private fun write(wireValue: WireValue?) {
+        if (wireValue != null) {
+            writeTag()
+            output.encodeValue(wireValue)
+        }
     }
 
-    override fun encodeLong(value: Long) {
-        writeTag()
-        encoding as FieldEncoding.Integer64
-        output.encodeValue(encoding.encode(value))
-    }
-
-    override fun encodeShort(value: Short) {
-        writeTag()
-        encoding as FieldEncoding.Integer32
-        output.encodeValue(encoding.encode(if (encoding.isUnsigned) value.toUShort().toInt() else value.toInt()))
-    }
-
-    override fun encodeString(value: String) {
-        writeTag()
-        encoding as FieldEncoding.String
-        output.encodeValue(encoding.encode(value))
+    private fun writeTag() {
+        if (fieldNumber != null)
+            output.writeVarInt(Tag.of(fieldNumber, encoding.wireType).value)
     }
 }

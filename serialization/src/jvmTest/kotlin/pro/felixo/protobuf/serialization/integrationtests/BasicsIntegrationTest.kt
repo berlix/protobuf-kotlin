@@ -108,9 +108,7 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message with scalar properties`() {
-        givenSchema(
-            Scalars.serializer().descriptor
-        )
+        givenSchema(Scalars.serializer().descriptor, encodeZeroValues = true)
         verifySchema(
             """
                 message Scalars {
@@ -395,7 +393,9 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
                 40: {}
                 """
         )
-        verifyDecode(
+
+        givenSchema(Scalars.serializer().descriptor, encodeZeroValues = false)
+        verifyConversion(
             Scalars(
                 false,
                 null,
@@ -440,13 +440,77 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
             ),
             ""
         )
+        verifyEncode(
+            Scalars(
+                boolean = false,
+                booleanNullable = false,
+                byte = 0,
+                byteNullable = 0,
+                short = 0,
+                shortNullable = 0,
+                int32 = 0,
+                int32Nullable = 0,
+                defaultInt32 = 0,
+                defaultInt32Nullable = 0,
+                sint32 = 0,
+                sint32Nullable = 0,
+                uint32 = 0,
+                uint32Nullable = 0,
+                fixedInt32 = 0,
+                fixedInt32Nullable = 0,
+                signedFixedInt32 = 0,
+                signedFixedInt32Nullable = 0,
+                int64 = 0,
+                int64Nullable = 0,
+                defaultInt64 = 0,
+                defaultInt64Nullable = 0,
+                sint64 = 0,
+                sint64Nullable = 0,
+                uint64 = 0,
+                uint64Nullable = 0,
+                fixedInt64 = 0,
+                fixedInt64Nullable = 0,
+                signedFixedInt64 = 0,
+                signedFixedInt64Nullable = 0,
+                float = 0f,
+                floatNullable = 0f,
+                double = 0.0,
+                doubleNullable = 0.0,
+                char = '\u0000',
+                charNullable = '\u0000',
+                string = "",
+                stringNullable = "",
+                bytes = byteArrayOf(),
+                bytesNullable = byteArrayOf()
+            ),
+            """
+                2: false
+                4: 0
+                6: 0
+                8: 0
+                10: 0
+                12: 0z
+                14: 0
+                16: 0i32
+                18: 0i32
+                20: 0
+                22: 0
+                24: 0z
+                26: 0
+                28: 0i64
+                30: 0i64
+                32: 0.0i32
+                34: 0.0
+                36: 0
+                38: {}
+                40: {}
+            """
+        )
     }
 
     @Test
     fun `creates message with unsigned ints`() {
-        givenSchema(
-            UnsignedInts.serializer().descriptor
-        )
+        givenSchema(UnsignedInts.serializer().descriptor, encodeZeroValues = true)
         verifySchema(
             """
             message UnsignedInts {
@@ -524,13 +588,56 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
                 13: -1 # UInt 0xffffffff encoded as signed int32
                 """
         )
+
+        givenSchema(UnsignedInts.serializer().descriptor, encodeZeroValues = false)
+        verifyEncode(
+            UnsignedInts(
+                UByte.MIN_VALUE,
+                null,
+                UShort.MIN_VALUE,
+                null,
+                UInt.MIN_VALUE,
+                null,
+                UInt.MIN_VALUE,
+                null,
+                ULong.MIN_VALUE,
+                null,
+                ULong.MIN_VALUE,
+                null,
+                UInt.MIN_VALUE
+            ),
+            ""
+        )
+        verifyEncode(
+            UnsignedInts(
+                UByte.MIN_VALUE,
+                UByte.MIN_VALUE,
+                UShort.MIN_VALUE,
+                UShort.MIN_VALUE,
+                UInt.MIN_VALUE,
+                UInt.MIN_VALUE,
+                UInt.MIN_VALUE,
+                UInt.MIN_VALUE,
+                ULong.MIN_VALUE,
+                ULong.MIN_VALUE,
+                ULong.MIN_VALUE,
+                ULong.MIN_VALUE,
+                UInt.MIN_VALUE
+            ),
+            """
+                2: 0
+                4: 0
+                6: 0
+                8: 0i32
+                10: 0
+                12: 0i64
+                """
+        )
     }
 
     @Test
     fun `creates message referring to other message`() {
-        givenSchema(
-            ClassAWithReference.serializer().descriptor
-        )
+        givenSchema(ClassAWithReference.serializer().descriptor, encodeZeroValues = true)
         verifySchema(
             """
             message ClassAWithReference {
@@ -545,6 +652,11 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
             1: {}
             """
         )
+        givenSchema(ClassAWithReference.serializer().descriptor, encodeZeroValues = false)
+        verifyEncode(
+            ClassAWithReference(EmptyClass()),
+            ""
+        )
     }
 
     @Test
@@ -553,7 +665,8 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
             listOf(
                 ClassAWithReference.serializer().descriptor,
                 ClassBWithReference.serializer().descriptor
-            )
+            ),
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -583,7 +696,8 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates self-referential message`() {
         givenSchema(
-            ClassWithSelfReference.serializer().descriptor
+            ClassWithSelfReference.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -605,7 +719,8 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates messages with cyclical references`() {
         givenSchema(
-            ClassAWithCycle.serializer().descriptor
+            ClassAWithCycle.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """

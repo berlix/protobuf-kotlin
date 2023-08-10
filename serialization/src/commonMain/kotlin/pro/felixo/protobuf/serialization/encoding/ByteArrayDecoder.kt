@@ -12,7 +12,7 @@ import pro.felixo.protobuf.wire.WireValue
 class ByteArrayDecoder(
     override val serializersModule: SerializersModule,
     values: List<WireValue>
-) : CompositeDecoder {
+) : HybridDecoder() {
 
     private val bytes = concatLenValues(values.castItems()).value.readBytes()
     private var position = -1

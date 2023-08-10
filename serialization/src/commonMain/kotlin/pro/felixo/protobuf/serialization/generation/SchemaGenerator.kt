@@ -28,6 +28,8 @@ import pro.felixo.protobuf.serialization.ProtoDefaultEnumValue
 import pro.felixo.protobuf.serialization.ProtoIntegerType
 import pro.felixo.protobuf.serialization.ProtoMapEntry
 import pro.felixo.protobuf.serialization.ProtoNumber
+import pro.felixo.protobuf.serialization.encoding.ByteArrayDecoder
+import pro.felixo.protobuf.serialization.encoding.ByteArrayEncoder
 import pro.felixo.protobuf.serialization.encoding.FieldEncoding
 import pro.felixo.protobuf.serialization.encoding.ListDecoder
 import pro.felixo.protobuf.serialization.encoding.ListEncoder
@@ -51,7 +53,8 @@ import kotlin.reflect.KType
 class SchemaGenerator(
     descriptors: List<SerialDescriptor> = emptyList(),
     typesFromSerializersModule: List<KType> = emptyList(),
-    private val serializersModule: SerializersModule = EmptySerializersModule()
+    private val serializersModule: SerializersModule = EmptySerializersModule(),
+    private val encodeZeroValues: Boolean = false
 ) {
     private val rootTypes = TypeContext()
 
@@ -64,7 +67,10 @@ class SchemaGenerator(
         }
     }
 
-    fun schema(): EncodingSchema = EncodingSchema(serializersModule, rootTypes.localTypesByName)
+    fun schema(): EncodingSchema = EncodingSchema(
+        serializersModule,
+        rootTypes.localTypesByName
+    )
 
     private fun TypeContext.namedType(descriptor: SerialDescriptor): FieldEncoding.Reference = when (descriptor.kind) {
         PolymorphicKind.OPEN -> messageOfOpenPolymorphicClass(descriptor)
@@ -107,11 +113,11 @@ class SchemaGenerator(
                         fields.map { it.second }
                     )
                 ),
-                encoder = { output, isStandalone ->
+                encoder = { output, fieldNumber, _ ->
                     PolymorphicEncoder(
                         serializersModule,
                         fields.toMap(),
-                        isStandalone,
+                        fieldNumber,
                         output
                     )
                 },
@@ -135,7 +141,7 @@ class SchemaGenerator(
             ),
             subTypeRef,
             number,
-            encoder = valueEncoder(subTypeRef, number),
+            encoder = valueEncoder(subTypeRef, number, false),
             decoder = valueDecoder(subTypeRef)
         )
     }
@@ -174,21 +180,22 @@ class SchemaGenerator(
         number: FieldNumber,
         type: FieldEncoding
     ): Field {
-        val elementEncoder = { output: WireBuffer ->
-            ValueEncoder(
-                serializersModule,
-                output,
-                type,
-                number.takeIf { !type.isPackable }
-            )
-        }
-        val elementDecoder = { values: List<WireValue> ->
-            ValueDecoder(
-                serializersModule,
-                values,
-                type
-            )
-        }
+        val elementEncoder = if (type is FieldEncoding.Bytes)
+            { output: WireBuffer -> ByteArrayEncoder(serializersModule, output, number, encodeZeroValue = true) }
+        else
+            { output: WireBuffer ->
+                ValueEncoder(
+                    serializersModule,
+                    output,
+                    type,
+                    encodeZeroValue = true,
+                    number.takeIf { !type.isPackable }
+                )
+            }
+        val elementDecoder = if (type is FieldEncoding.Bytes)
+            { values: List<WireValue> -> ByteArrayDecoder(serializersModule, values) }
+        else
+            { values: List<WireValue> -> ValueDecoder(serializersModule, values, type) }
         return Field(
             name,
             type,
@@ -247,7 +254,7 @@ class SchemaGenerator(
                 syntheticMessageName,
                 listOf(field()),
                 localTypes,
-                encoder = { _, _ -> error("Synthetic messages don't have encoders") },
+                encoder = { _, _, _ -> error("Synthetic messages don't have encoders") },
                 decoder = { error("Synthetic messages don't have decoders") }
             )
         }
@@ -262,12 +269,13 @@ class SchemaGenerator(
         when (val kind = descriptor.actual.kind) {
             is PrimitiveKind -> {
                 val type = scalar(annotations, kind)
+                val rule = descriptor.nullableToOptional()
                 Field(
                     name,
                     type,
                     number,
-                    descriptor.nullableToOptional(),
-                    valueEncoder(type, number),
+                    rule,
+                    valueEncoder(type, number, rule != FieldRule.Singular),
                     valueDecoder(type)
                 )
             }
@@ -280,16 +288,24 @@ class SchemaGenerator(
                         ?: error("No contextual serializer found for ${descriptor.serialName}")
                 )
             StructureKind.LIST ->
-                if (descriptor.actual.getElementDescriptor(0).kind == PrimitiveKind.BYTE)
+                if (descriptor.actual.getElementDescriptor(0).kind == PrimitiveKind.BYTE) {
+                    val rule = descriptor.nullableToOptional()
                     Field(
                         name,
                         FieldEncoding.Bytes,
                         number,
-                        descriptor.nullableToOptional(),
-                        valueEncoder(FieldEncoding.Bytes, number),
-                        valueDecoder(FieldEncoding.Bytes)
+                        rule,
+                        {
+                            ByteArrayEncoder(
+                                serializersModule,
+                                it,
+                                number,
+                                encodeZeroValues || rule != FieldRule.Singular
+                            )
+                        },
+                        { ByteArrayDecoder(serializersModule, it) }
                     )
-                else if (descriptor.isNullable) {
+                } else if (descriptor.isNullable) {
                     val field = listField(Identifier("list"), FieldNumber(1), descriptor.actual)
                     Field(
                         name,
@@ -321,12 +337,13 @@ class SchemaGenerator(
                     mapField(name, number, annotations, descriptor.actual)
             StructureKind.CLASS, StructureKind.OBJECT, SerialKind.ENUM, is PolymorphicKind -> {
                 val type = rootTypes.namedType(descriptor)
+                val rule = descriptor.nullableToOptional()
                 Field(
                     name,
                     type,
                     number,
-                    descriptor.nullableToOptional(),
-                    valueEncoder(type, number),
+                    rule,
+                    valueEncoder(type, number, rule != FieldRule.Singular),
                     valueDecoder(type)
                 )
             }
@@ -373,7 +390,7 @@ class SchemaGenerator(
                         ).also { valueField = it },
                     ),
                     localTypes,
-                    encoder = { _, _ -> error("Map entry messages don't have encoders") },
+                    encoder = { _, _, _ -> error("Map entry messages don't have encoders") },
                     decoder = { error("Map entry messages don't have decoders") }
                 )
             }
@@ -464,7 +481,16 @@ class SchemaGenerator(
                     fields,
                     localTypes,
                     encoder =
-                    { output, isStandalone -> MessageEncoder(serializersModule, fields, isStandalone, output) },
+                    { output, fieldNumber, encodeZeroValue ->
+                        MessageEncoder(
+                            serializersModule,
+                            fields,
+                            fieldNumber,
+                            output,
+                            encodeZeroValue,
+                            encodeZeroValues
+                        )
+                    },
                     decoder = { MessageDecoder(serializersModule, fields, it) }
                 )
             }
@@ -475,7 +501,16 @@ class SchemaGenerator(
             Message(
                 Identifier(simpleTypeName(descriptor)),
                 encoder =
-                    { output, isStandalone -> MessageEncoder(serializersModule, emptyList(), isStandalone, output) },
+                { output, isStandalone, encodeZeroValue ->
+                    MessageEncoder(
+                        serializersModule,
+                        emptyList(),
+                        isStandalone,
+                        output,
+                        encodeZeroValue,
+                        encodeZeroValues
+                    )
+                },
                 decoder = { MessageDecoder(serializersModule, emptyList(), it) }
             )
         }
@@ -486,9 +521,10 @@ class SchemaGenerator(
 
     private fun valueEncoder(
         type: FieldEncoding,
-        number: FieldNumber
+        number: FieldNumber,
+        encodeZeroValue: Boolean
     ): (WireBuffer) -> Encoder = {
-        ValueEncoder(serializersModule, it, type, number)
+        ValueEncoder(serializersModule, it, type, encodeZeroValue || encodeZeroValues, number)
     }
 
     private fun valueDecoder(type: FieldEncoding?): (List<WireValue>) -> Decoder = {

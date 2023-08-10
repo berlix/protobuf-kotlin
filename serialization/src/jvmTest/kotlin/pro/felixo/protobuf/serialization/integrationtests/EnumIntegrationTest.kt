@@ -12,7 +12,8 @@ class EnumIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates enum`() {
         givenSchema(
-            ClassWithEnumClassMember.serializer().descriptor
+            ClassWithEnumClassMember.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -32,12 +33,20 @@ class EnumIntegrationTest : BaseIntegrationTest() {
         verifyConversion(ClassWithEnumClassMember(EnumClass.C), "1: 2")
         verifyDecode(ClassWithEnumClassMember(EnumClass.A), "1: 5")
         verifyDecode(ClassWithEnumClassMember(EnumClass.A), "")
+
+        givenSchema(
+            ClassWithEnumClassMember.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithEnumClassMember(EnumClass.A), "")
+        verifyEncode(ClassWithEnumClassMember(EnumClass.B), "1: 1")
     }
 
     @Test
     fun `creates nullable enum`() {
         givenSchema(
-            ClassWithNullableEnumClassMember.serializer().descriptor
+            ClassWithNullableEnumClassMember.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -57,12 +66,21 @@ class EnumIntegrationTest : BaseIntegrationTest() {
         verifyConversion(ClassWithNullableEnumClassMember(EnumClass.B), "1: 1")
         verifyConversion(ClassWithNullableEnumClassMember(EnumClass.C), "1: 2")
         verifyDecode(ClassWithNullableEnumClassMember(EnumClass.A), "1: 5")
+
+        givenSchema(
+            ClassWithNullableEnumClassMember.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithNullableEnumClassMember(null), "")
+        verifyEncode(ClassWithNullableEnumClassMember(EnumClass.A), "1: 0")
+        verifyEncode(ClassWithNullableEnumClassMember(EnumClass.B), "1: 1")
     }
 
     @Test
     fun `creates enum with custom numbers`() {
         givenSchema(
-            ClassWithEnumClassWithCustomNumbersMember.serializer().descriptor
+            ClassWithEnumClassWithCustomNumbersMember.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -84,12 +102,20 @@ class EnumIntegrationTest : BaseIntegrationTest() {
         verifyConversion(ClassWithEnumClassWithCustomNumbersMember(EnumClassWithCustomNumbers.D), "1: 2")
         verifyDecode(ClassWithEnumClassWithCustomNumbersMember(EnumClassWithCustomNumbers.C), "1: 7")
         verifyDecode(ClassWithEnumClassWithCustomNumbersMember(EnumClassWithCustomNumbers.C), "")
+
+        givenSchema(
+            ClassWithEnumClassWithCustomNumbersMember.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithEnumClassWithCustomNumbersMember(EnumClassWithCustomNumbers.B), "1: 1")
+        verifyEncode(ClassWithEnumClassWithCustomNumbersMember(EnumClassWithCustomNumbers.C), "")
     }
 
     @Test
     fun `creates enum with custom serial name`() {
         givenSchema(
-            ClassWithEnumClassWithCustomSerialNameMember.serializer().descriptor
+            ClassWithEnumClassWithCustomSerialNameMember.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -110,7 +136,8 @@ class EnumIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates enum with value with custom serial name`() {
         givenSchema(
-            ClassWithEnumClassWithValueWithCustomSerialNameMember.serializer().descriptor
+            ClassWithEnumClassWithValueWithCustomSerialNameMember.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """

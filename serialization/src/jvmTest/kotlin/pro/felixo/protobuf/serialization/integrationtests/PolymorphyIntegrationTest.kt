@@ -23,7 +23,8 @@ class PolymorphyIntegrationTest : BaseIntegrationTest() {
     fun `creates messages for sealed class hierarchy`() {
         givenSchema(
             listOf(SealedTopClass.serializer().descriptor),
-            serializersModule = module
+            serializersModule = module,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -59,8 +60,8 @@ class PolymorphyIntegrationTest : BaseIntegrationTest() {
             """1: 42"""
         )
         verifyConversion<SealedTopClass>(
-            SealedLevel2LeafClassA(42),
-            """2: {1: 42}"""
+            SealedLevel2LeafClassA(0),
+            """2: {1: 0}"""
         )
         verifyConversion<SealedTopClass>(
             SealedLevel2LeafClassB(SealedLevel3LeafClass(SealedLevel2LeafClassA(41))),
@@ -71,8 +72,18 @@ class PolymorphyIntegrationTest : BaseIntegrationTest() {
             """4: {1: {2: {1: 40}}}"""
         )
         verifyConversion<SealedTopClass>(
-            SealedLevel3LeafClass(SealedLevel2LeafClassA(40)),
-            """4: {1: {2: {1: 40}}}"""
+            SealedLevel3LeafClass(SealedLevel2LeafClassA(0)),
+            """4: {1: {2: {1: 0}}}"""
+        )
+
+        givenSchema(
+            listOf(SealedTopClass.serializer().descriptor),
+            serializersModule = module,
+            encodeZeroValues = false
+        )
+        verifyEncode<SealedTopClass>(
+            SealedLevel2LeafClassA(0),
+            """2: {}"""
         )
     }
 
@@ -80,7 +91,8 @@ class PolymorphyIntegrationTest : BaseIntegrationTest() {
     fun `creates messages for non-sealed polymorphic class hierarchy`() {
         givenSchema(
             typesFromSerializersModule = listOf(typeOf<NonSealedInterface>()),
-            serializersModule = module
+            serializersModule = module,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -116,8 +128,8 @@ class PolymorphyIntegrationTest : BaseIntegrationTest() {
             """1: 42"""
         )
         verifyConversion<NonSealedInterface>(
-            NonSealedLevel2LeafClassA(42),
-            """2: {1: 42}"""
+            NonSealedLevel2LeafClassA(0),
+            """2: {1: 0}"""
         )
         verifyConversion<NonSealedInterface>(
             NonSealedLevel2LeafClassB(NonSealedLevel3LeafClass(NonSealedLevel2LeafClassA(41))),
@@ -130,6 +142,16 @@ class PolymorphyIntegrationTest : BaseIntegrationTest() {
         verifyConversion<NonSealedInterface>(
             NonSealedLevel3LeafClass(NonSealedLevel2LeafClassA(40)),
             """4: {1: {2: {1: 40}}}"""
+        )
+
+        givenSchema(
+            typesFromSerializersModule = listOf(typeOf<NonSealedInterface>()),
+            serializersModule = module,
+            encodeZeroValues = false
+        )
+        verifyEncode<NonSealedInterface>(
+            NonSealedLevel2LeafClassA(0),
+            """2: {}"""
         )
     }
 

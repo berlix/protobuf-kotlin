@@ -5,23 +5,26 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
+import pro.felixo.protobuf.FieldNumber
 import pro.felixo.protobuf.serialization.Field
+import pro.felixo.protobuf.wire.Tag
 import pro.felixo.protobuf.wire.WireBuffer
+import pro.felixo.protobuf.wire.WireType
 import pro.felixo.protobuf.wire.WireValue
-import pro.felixo.protobuf.wire.encodeValue
+import pro.felixo.protobuf.wire.encodeField
 
 @OptIn(ExperimentalSerializationApi::class)
 class PolymorphicEncoder(
     override val serializersModule: SerializersModule,
     private val fieldByDescriptor: Map<SerialDescriptor, Field>,
-    private val isStandalone: Boolean,
-    private val output: WireBuffer
+    private val fieldNumber: FieldNumber?,
+    private val output: WireBuffer,
 ) : HybridEncoder() {
-    private val buffer = if (!isStandalone) WireBuffer() else output
+    private val buffer = if (fieldNumber != null) WireBuffer() else output
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (!isStandalone)
-            output.encodeValue(WireValue.Len(buffer))
+        if (fieldNumber != null)
+            output.encodeField(Tag.of(fieldNumber, WireType.Len), WireValue.Len(buffer))
     }
 
     @ExperimentalSerializationApi
@@ -43,7 +46,7 @@ class PolymorphicEncoder(
         val field = fieldByDescriptor[serializer.descriptor]
             ?: error("Descriptor ${serializer.descriptor.serialName} not a known subtype of ${descriptor.serialName}")
         serializer.serialize(
-            ValueEncoder(serializersModule, buffer, field.type, field.number),
+            ValueEncoder(serializersModule, buffer, field.type, true, field.number),
             value
         )
     }

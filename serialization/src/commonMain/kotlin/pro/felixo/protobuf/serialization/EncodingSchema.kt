@@ -15,6 +15,7 @@ import pro.felixo.protobuf.Identifier
 import pro.felixo.protobuf.serialization.encoding.HybridDecoder
 import pro.felixo.protobuf.serialization.encoding.HybridEncoder
 import pro.felixo.protobuf.serialization.encoding.FieldEncoding
+import pro.felixo.protobuf.serialization.encoding.varInt
 import pro.felixo.protobuf.serialization.generation.SchemaGenerator
 import pro.felixo.protobuf.serialization.util.simpleTypeName
 import pro.felixo.protobuf.wire.WireBuffer
@@ -30,7 +31,7 @@ class EncodingSchema internal constructor(
         val output = WireBuffer()
         val simpleTypeName = simpleTypeName(serializer.descriptor)
         val message = types[simpleTypeName] as? Message ?: error("Not a message type: $simpleTypeName")
-        val encoder = message.encoder(output, true)
+        val encoder = message.encoder(output, null, true)
         serializer.serialize(encoder, value)
         return output.getBytes()
     }
@@ -47,7 +48,9 @@ class EncodingSchema internal constructor(
             descriptors: List<SerialDescriptor> = emptyList(),
             typesFromSerializersModule: List<KType> = emptyList(),
             serializersModule: SerializersModule = EmptySerializersModule(),
-        ): EncodingSchema = SchemaGenerator(descriptors, typesFromSerializersModule, serializersModule).schema()
+            encodeZeroValues: Boolean = false
+        ): EncodingSchema =
+            SchemaGenerator(descriptors, typesFromSerializersModule, serializersModule, encodeZeroValues).schema()
     }
 }
 
@@ -59,7 +62,7 @@ class Message(
     override val name: Identifier,
     val members: List<Member> = emptyList(),
     val nestedTypes: List<Type> = emptyList(),
-    val encoder: (output: WireBuffer, isStandalone: Boolean) -> HybridEncoder,
+    val encoder: (output: WireBuffer, fieldNumber: FieldNumber?, encodeZeroValue: Boolean) -> HybridEncoder,
     val decoder: (value: List<WireValue>) -> HybridDecoder
 ) : Type() {
     val fields: List<Field> =
@@ -93,5 +96,8 @@ class Enum(
     private val defaultElementIndex: Int = numberByElementIndex.indexOf(0)
 
     fun decode(number: Int): Int = elementIndexByNumber[number] ?: defaultElementIndex
-    fun encode(elementIndex: Int): Int = numberByElementIndex[elementIndex]
+    fun encode(elementIndex: Int, encodeZeroValue: Boolean): WireValue.VarInt? = varInt(
+        numberByElementIndex[elementIndex],
+        encodeZeroValue
+    )
 }

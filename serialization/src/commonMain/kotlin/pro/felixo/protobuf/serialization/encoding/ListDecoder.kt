@@ -44,7 +44,7 @@ class ListDecoder(
             when (input[currentInputIndex]) {
                 is WireValue.Len -> {
                     val len = input[currentInputIndex] as WireValue.Len
-                    currentElement = len.value.decodeValue((elementType as FieldEncoding.Scalar<*>).wireType)
+                    currentElement = len.value.decodeValue(elementType.wireType)
                     if (currentElement == null) {
                         currentInputIndex++
                         decodeElementIndexPackable()

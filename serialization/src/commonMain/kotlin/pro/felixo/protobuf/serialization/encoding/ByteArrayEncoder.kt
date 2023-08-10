@@ -3,17 +3,21 @@ package pro.felixo.protobuf.serialization.encoding
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
+import pro.felixo.protobuf.FieldNumber
+import pro.felixo.protobuf.wire.Tag
 import pro.felixo.protobuf.wire.WireBuffer
+import pro.felixo.protobuf.wire.WireType
 import pro.felixo.protobuf.wire.WireValue
-import pro.felixo.protobuf.wire.encodeValue
+import pro.felixo.protobuf.wire.encodeField
 
 class ByteArrayEncoder(
     override val serializersModule: SerializersModule,
-    private val output: WireBuffer
-) : CompositeEncoder {
+    private val output: WireBuffer,
+    private val fieldNumber: FieldNumber,
+    private val encodeZeroValue: Boolean
+) : HybridEncoder() {
 
     private val buffer = WireBuffer()
 
@@ -22,7 +26,10 @@ class ByteArrayEncoder(
         buffer.writeByte(value)
     }
 
-    override fun endStructure(descriptor: SerialDescriptor) = output.encodeValue(WireValue.Len(buffer))
+    override fun endStructure(descriptor: SerialDescriptor) {
+        if (encodeZeroValue || buffer.length > 0)
+            output.encodeField(Tag.of(fieldNumber, WireType.Len), WireValue.Len(buffer))
+    }
 
     override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) = error("Unsupported")
     override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) = error("Unsupported")

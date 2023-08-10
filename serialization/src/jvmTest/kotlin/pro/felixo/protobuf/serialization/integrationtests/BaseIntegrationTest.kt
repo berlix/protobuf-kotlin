@@ -62,7 +62,6 @@ abstract class BaseIntegrationTest {
 
     protected inline fun <reified T> verifyConversion(value: T, protoscope: String, serializer: KSerializer<T>) {
         val bytes = protoscopeConverter.convert(protoscope)
-        println("Protoscope: ${bytes.hex()}")
         verifyEncode(value, bytes, serializer)
         verifyDecode(value, bytes, serializer)
     }
@@ -76,8 +75,15 @@ abstract class BaseIntegrationTest {
     protected inline fun <reified T> verifyDecode(value: T, bytes: ByteArray, serializer: KSerializer<T>) =
         assertThat(schema.decodeFromByteArray(serializer, bytes)).isEqualTo(value)
 
+    protected inline fun <reified T> verifyEncode(value: T, protoscope: String) =
+        verifyEncode(value, protoscope, serializer())
+
+    protected inline fun <reified T> verifyEncode(value: T, protoscope: String, serializer: KSerializer<T>) =
+        verifyEncode(value, protoscopeConverter.convert(protoscope), serializer)
+
     protected inline fun <reified T> verifyEncode(value: T, bytes: ByteArray, serializer: KSerializer<T>) {
         val encoded = schema.encodeToByteArray(serializer, value)
+        println("Protoscope: ${bytes.hex()}")
         println("Encoded:    ${encoded.hex()}")
         assertThat(encoded).isEqualTo(bytes)
     }

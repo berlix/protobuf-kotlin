@@ -15,7 +15,8 @@ class ListIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates message for class with list of int`() {
         givenSchema(
-            ClassWithListOfInt.serializer().descriptor
+            ClassWithListOfInt.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -25,10 +26,18 @@ class ListIntegrationTest : BaseIntegrationTest() {
             """
         )
         verifyConversion(ClassWithListOfInt(emptyList()), "")
+        verifyConversion(ClassWithListOfInt(listOf(0)), "1: { 0 }")
         verifyConversion(ClassWithListOfInt(listOf(-1)), "1: { -1 }")
         verifyConversion(ClassWithListOfInt(listOf(1, 2, 3)), "1: { 1 2 3 }")
+        verifyDecode(ClassWithListOfInt(emptyList()), "1: {}")
         verifyDecode(ClassWithListOfInt(listOf(1, 2, 3)), "1: 1 1: 2 1: 3")
         verifyDecode(ClassWithListOfInt(listOf(1, 2, 3)), "1: { 1 2 } 1: { 3 }")
+
+        givenSchema(
+            ClassWithListOfInt.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfInt(listOf(0)), "1: { 0 }")
     }
 
     @Test
@@ -44,10 +53,18 @@ class ListIntegrationTest : BaseIntegrationTest() {
             """
         )
         verifyConversion(ClassWithListOfUInt(emptyList()), "")
+        verifyConversion(ClassWithListOfUInt(listOf(0u)), "1: { 0 }")
         verifyConversion(ClassWithListOfUInt(listOf(1u)), "1: { 1 }")
         verifyConversion(ClassWithListOfUInt(listOf(1u, 2u, 3u)), "1: { 1 2 3 }")
+        verifyDecode(ClassWithListOfUInt(emptyList()), "1: {}")
         verifyDecode(ClassWithListOfUInt(listOf(1u, 2u, 3u)), "1: 1 1: 2 1: 3")
         verifyDecode(ClassWithListOfUInt(listOf(1u, 2u, 3u)), "1: { 1 2 } 1: { 3 }")
+
+        givenSchema(
+            ClassWithListOfUInt.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfUInt(listOf(0u)), "1: { 0 }")
     }
 
     @Test
@@ -63,10 +80,18 @@ class ListIntegrationTest : BaseIntegrationTest() {
             """
         )
         verifyConversion(ClassWithListOfFloat(emptyList()), "")
+        verifyConversion(ClassWithListOfFloat(listOf(0f)), "1: { 0.0i32 }")
         verifyConversion(ClassWithListOfFloat(listOf(-1.5f)), "1: { -1.5i32 }")
         verifyConversion(ClassWithListOfFloat(listOf(1.0f, 2.5f, 3.0f)), "1: { 1.0i32 2.5i32 3.0i32 }")
+        verifyDecode(ClassWithListOfFloat(emptyList()), "1: {}")
         verifyDecode(ClassWithListOfFloat(listOf(1.0f, 2.5f, 3.0f)), "1: 1.0i32 1: 2.5i32 1: 3.0i32")
         verifyDecode(ClassWithListOfFloat(listOf(1.0f, 2.5f, 3.0f)), "1: { 1.0i32 2.5i32 } 1: { 3.0i32 }")
+
+        givenSchema(
+            ClassWithListOfFloat.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfFloat(listOf(0f)), "1: { 0.0i32 }")
     }
 
     @Test
@@ -82,16 +107,25 @@ class ListIntegrationTest : BaseIntegrationTest() {
             """
         )
         verifyConversion(ClassWithListOfDouble(emptyList()), "")
+        verifyConversion(ClassWithListOfDouble(listOf(0.0)), "1: { 0.0 }")
         verifyConversion(ClassWithListOfDouble(listOf(-1.5)), "1: { -1.5 }")
         verifyConversion(ClassWithListOfDouble(listOf(1.0, 2.5, 3.0)), "1: { 1.0 2.5 3.0 }")
+        verifyDecode(ClassWithListOfDouble(emptyList()), "1: {}")
         verifyDecode(ClassWithListOfDouble(listOf(1.0, 2.5, 3.0)), "1: 1.0 1: 2.5 1: 3.0")
         verifyDecode(ClassWithListOfDouble(listOf(1.0, 2.5, 3.0)), "1: { 1.0 2.5 } 1: { 3.0 }")
+
+        givenSchema(
+            ClassWithListOfDouble.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfDouble(listOf(0.0)), "1: { 0.0 }")
     }
 
     @Test
     fun `creates message for class with list of string`() {
         givenSchema(
-            ClassWithListOfString.serializer().descriptor
+            ClassWithListOfString.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -104,12 +138,19 @@ class ListIntegrationTest : BaseIntegrationTest() {
         verifyConversion(ClassWithListOfString(listOf("")), """1: {}""")
         verifyConversion(ClassWithListOfString(listOf("a")), """1: { "a" }""")
         verifyConversion(ClassWithListOfString(listOf("a", "b", "c")), """1: { "a" } 1: { "b" } 1: { "c" }""")
+
+        givenSchema(
+            ClassWithListOfString.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfString(listOf("")), """1: {}""")
     }
 
     @Test
     fun `creates message for class with list of bytes`() {
         givenSchema(
-            ClassWithListOfBytes.serializer().descriptor
+            ClassWithListOfBytes.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -125,12 +166,19 @@ class ListIntegrationTest : BaseIntegrationTest() {
             ClassWithListOfBytes(listOf(byteArrayOf(1), byteArrayOf(2), byteArrayOf(3))),
             """1: { `01` } 1: { `02` } 1: { `03` }"""
         )
+
+        givenSchema(
+            ClassWithListOfBytes.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfBytes(listOf(byteArrayOf())), """1: {}""")
     }
 
     @Test
     fun `creates message for class with list of empty class`() {
         givenSchema(
-            ClassWithListOfEmptyClass.serializer().descriptor
+            ClassWithListOfEmptyClass.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -146,12 +194,19 @@ class ListIntegrationTest : BaseIntegrationTest() {
             ClassWithListOfEmptyClass(listOf(EmptyClass(), EmptyClass(), EmptyClass())),
             "1: {} 1: {} 1: {}"
         )
+
+        givenSchema(
+            ClassWithListOfEmptyClass.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfEmptyClass(listOf(EmptyClass())), "1: {}")
     }
 
     @Test
     fun `creates message for class with list of simple class`() {
         givenSchema(
-            ClassWithListOfSimpleClass.serializer().descriptor
+            ClassWithListOfSimpleClass.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -164,11 +219,18 @@ class ListIntegrationTest : BaseIntegrationTest() {
             """
         )
         verifyConversion(ClassWithListOfSimpleClass(emptyList()), "")
+        verifyConversion(ClassWithListOfSimpleClass(listOf(SimpleClass(0))), "1: { 1: 0 }")
         verifyConversion(ClassWithListOfSimpleClass(listOf(SimpleClass(5))), "1: { 1: 5 }")
         verifyConversion(
             ClassWithListOfSimpleClass(listOf(SimpleClass(1), SimpleClass(2), SimpleClass(3))),
             "1: { 1: 1 } 1: { 1: 2 } 1: { 1: 3 }"
         )
+
+        givenSchema(
+            ClassWithListOfSimpleClass.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfSimpleClass(listOf(SimpleClass(0))), "1: {}")
     }
 
     @Test
@@ -229,7 +291,8 @@ class ListIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates message for class with nullable list`() {
         givenSchema(
-            ClassWithNullableList.serializer().descriptor
+            ClassWithNullableList.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -244,12 +307,19 @@ class ListIntegrationTest : BaseIntegrationTest() {
         verifyConversion(ClassWithNullableList(null), "")
         verifyConversion(ClassWithNullableList(emptyList()), "1: {}")
         verifyConversion(ClassWithNullableList(listOf(5, 6)), "1: { 1: { 5 6 } }")
+
+        givenSchema(
+            ClassWithNullableList.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithNullableList(emptyList()), "1: {}")
     }
 
     @Test
-    fun `creates message for class with list of nullables`() {
+    fun `creates message for class with list of nullable scalar`() {
         givenSchema(
-            ClassWithListOfNullableScalar.serializer().descriptor
+            ClassWithListOfNullableScalar.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -263,14 +333,23 @@ class ListIntegrationTest : BaseIntegrationTest() {
         )
         verifyConversion(ClassWithListOfNullableScalar(emptyList()), "")
         verifyConversion(ClassWithListOfNullableScalar(listOf(null)), "1: {}")
+        verifyConversion(ClassWithListOfNullableScalar(listOf(0)), "1: { 1: 0 }")
         verifyConversion(ClassWithListOfNullableScalar(listOf(5, 6)), "1: { 1: 5 } 1: { 1: 6 }")
         verifyConversion(ClassWithListOfNullableScalar(listOf(null, 7, null)), "1: {} 1: { 1: 7 } 1: {}")
+
+        givenSchema(
+            ClassWithListOfNullableScalar.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfNullableScalar(listOf(null)), "1: {}")
+        verifyEncode(ClassWithListOfNullableScalar(listOf(0)), "1: { 1: 0 }")
     }
 
     @Test
     fun `creates message for class with nested lists`() {
         givenSchema(
-            ClassWithNestedLists.serializer().descriptor
+            ClassWithNestedLists.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -306,6 +385,19 @@ class ListIntegrationTest : BaseIntegrationTest() {
                 )
             ),
             "1: { 1: { 1: { `090809` } } } 1: { 1: { 1: { `0706` } 1: { `05` } } 1: { 1: { `02` } } }"
+        )
+
+        givenSchema(
+            ClassWithNestedLists.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyConversion(ClassWithNestedLists(emptyList()), "")
+        verifyConversion(ClassWithNestedLists(listOf(emptyList())), "1: {}")
+        verifyConversion(ClassWithNestedLists(listOf(listOf(emptyList()))), "1: { 1: {} }")
+        verifyConversion(ClassWithNestedLists(listOf(listOf(listOf(byteArrayOf())))), "1: { 1: { 1: {} } }")
+        verifyConversion(
+            ClassWithNestedLists(listOf(listOf(listOf(byteArrayOf(0))))),
+            "1: { 1: { 1: { `00` } } }"
         )
     }
 

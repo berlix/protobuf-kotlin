@@ -49,3 +49,5 @@ class FieldNumberIterator(reserved: List<Int>) {
 
     fun next(): Int = intIterator.next()
 }
+
+inline fun <T> Boolean.then(value: () -> T): T? = if (this) value() else null

@@ -14,7 +14,8 @@ class MapIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates message for class with map of scalars`() {
         givenSchema(
-            ClassWithMapOfScalars.serializer().descriptor
+            ClassWithMapOfScalars.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -28,17 +29,25 @@ class MapIntegrationTest : BaseIntegrationTest() {
             """
         )
         verifyConversion(ClassWithMapOfScalars(emptyMap()), "")
+        verifyConversion(ClassWithMapOfScalars(mapOf("" to 0)), """1: { 1: { "" } 2: 0 }""")
         verifyConversion(ClassWithMapOfScalars(mapOf("key" to 5)), """1: { 1: { "key" } 2: 5 }""")
         verifyConversion(
             ClassWithMapOfScalars(mapOf("key" to 5, "key2" to 6)),
             """1: { 1: { "key" } 2: 5 } 1: { 1: { "key2" } 2: 6 }"""
         )
+
+        givenSchema(
+            ClassWithMapOfScalars.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithMapOfScalars(mapOf("" to 0)), """1: {}""")
     }
 
     @Test
     fun `creates message for class with nullable map`() {
         givenSchema(
-            ClassWithNullableMap.serializer().descriptor
+            ClassWithNullableMap.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -56,11 +65,19 @@ class MapIntegrationTest : BaseIntegrationTest() {
         )
         verifyConversion(ClassWithNullableMap(null), "")
         verifyConversion(ClassWithNullableMap(emptyMap()), "1: {}")
+        verifyConversion(ClassWithNullableMap(mapOf("" to 0)), """1: { 1: { 1: { "" } 2: 0 } }""")
         verifyConversion(ClassWithNullableMap(mapOf("key" to 5)), """1: { 1: { 1: { "key" } 2: 5 } }""")
         verifyConversion(
             ClassWithNullableMap(mapOf("key" to 5, "key2" to 6)),
             """1: { 1: { 1: { "key" } 2: 5 } 1: { 1: { "key2" } 2: 6 } }"""
         )
+
+        givenSchema(
+            ClassWithNullableMap.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithNullableMap(emptyMap()), "1: {}")
+        verifyEncode(ClassWithNullableMap(mapOf("" to 0)), """1: { 1: {} }""")
     }
 
     @Test
@@ -127,7 +144,8 @@ class MapIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates message for class with map of references`() {
         givenSchema(
-            ClassWithMapOfReferences.serializer().descriptor
+            ClassWithMapOfReferences.serializer().descriptor,
+            encodeZeroValues = true
         )
         verifySchema(
             """
@@ -156,8 +174,12 @@ class MapIntegrationTest : BaseIntegrationTest() {
         )
         verifyConversion(ClassWithMapOfReferences(emptyMap()), "")
         verifyConversion(
-            ClassWithMapOfReferences(mapOf(ClassWithNullableEnumClassMember(EnumClass.A) to SimpleClass(5))),
-            """1: { 1: { 1: 0 } 2: { 1: 5 } }"""
+            ClassWithMapOfReferences(mapOf(ClassWithNullableEnumClassMember(EnumClass.A) to SimpleClass(0))),
+            """1: { 1: { 1: 0 } 2: { 1: 0 } }"""
+        )
+        verifyConversion(
+            ClassWithMapOfReferences(mapOf(ClassWithNullableEnumClassMember(EnumClass.B) to SimpleClass(5))),
+            """1: { 1: { 1: 1 } 2: { 1: 5 } }"""
         )
         verifyConversion(
             ClassWithMapOfReferences(
@@ -167,6 +189,15 @@ class MapIntegrationTest : BaseIntegrationTest() {
                 )
             ),
             """1: { 1: { 1: 0 } 2: { 1: 5 } } 1: { 1: { 1: 1 } 2: { 1: -1 } }"""
+        )
+
+        givenSchema(
+            ClassWithMapOfReferences.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(
+            ClassWithMapOfReferences(mapOf(ClassWithNullableEnumClassMember(null) to SimpleClass(0))),
+            """1: {}"""
         )
     }
 
