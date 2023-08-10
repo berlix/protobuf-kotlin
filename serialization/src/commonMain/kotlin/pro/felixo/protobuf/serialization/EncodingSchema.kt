@@ -47,12 +47,7 @@ class EncodingSchema internal constructor(
             descriptors: List<SerialDescriptor> = emptyList(),
             typesFromSerializersModule: List<KType> = emptyList(),
             serializersModule: SerializersModule = EmptySerializersModule(),
-        ): EncodingSchema {
-            val schemaGenerator = SchemaGenerator(serializersModule)
-            descriptors.forEach { schemaGenerator.add(it) }
-            typesFromSerializersModule.forEach { schemaGenerator.addFromSerializersModule(it) }
-            return schemaGenerator.schema()
-        }
+        ): EncodingSchema = SchemaGenerator(descriptors, typesFromSerializersModule, serializersModule).schema()
     }
 }
 

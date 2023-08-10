@@ -49,19 +49,22 @@ import kotlin.reflect.KType
 
 @OptIn(ExperimentalSerializationApi::class)
 class SchemaGenerator(
-    val serializersModule: SerializersModule = EmptySerializersModule()
+    descriptors: List<SerialDescriptor> = emptyList(),
+    typesFromSerializersModule: List<KType> = emptyList(),
+    private val serializersModule: SerializersModule = EmptySerializersModule()
 ) {
     private val rootTypes = TypeContext()
 
-    fun schema(): EncodingSchema = EncodingSchema(serializersModule, rootTypes.localTypesByName)
-
-    fun add(descriptor: SerialDescriptor) = rootTypes.namedType(descriptor)
-
-    fun addFromSerializersModule(type: KType) {
-        rootTypes.namedType(
-            serializersModule.serializerOrNull(type)?.descriptor ?: error("No serializer in module found for $type")
-        )
+    init {
+        descriptors.forEach { rootTypes.namedType(it) }
+        typesFromSerializersModule.forEach { type ->
+            rootTypes.namedType(
+                serializersModule.serializerOrNull(type)?.descriptor ?: error("No serializer in module found for $type")
+            )
+        }
     }
+
+    fun schema(): EncodingSchema = EncodingSchema(serializersModule, rootTypes.localTypesByName)
 
     private fun TypeContext.namedType(descriptor: SerialDescriptor): FieldEncoding.Reference = when (descriptor.kind) {
         PolymorphicKind.OPEN -> messageOfOpenPolymorphicClass(descriptor)
