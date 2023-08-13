@@ -21,36 +21,38 @@ class PolymorphyIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates messages for sealed class hierarchy`() {
-        verifySchema(
+        givenSchema(
             listOf(SealedTopClass.serializer().descriptor),
-            serializersModule = module,
-            expectedSchema = """
-                message SealedTopClass {
-                  oneof subtypes {
-                    SealedLevel2LeafClassA sealedLevel2LeafClassA = 2;
-                    SealedLevel2LeafClassB sealedLevel2LeafClassB = 3;
-                    SealedLevel3LeafClass sealedLevel3LeafClass = 4;
-                  }
-                }
-                
-                message SealedLevel2LeafClassA {
-                  int32 int = 1;
-                }
-                
-                message SealedLevel2LeafClassB {
-                  SealedLevel2Class intermediate = 1;
-                }
-                
-                message SealedLevel2Class {
-                  oneof subtypes {
-                    SealedLevel3LeafClass sealedLevel3LeafClass = 4;
-                  }
-                }
-                
-                message SealedLevel3LeafClass {
-                  SealedTopClass top = 1;
-                }
-                """
+            serializersModule = module
+        )
+        verifySchema(
+            """
+            message SealedTopClass {
+              oneof subtypes {
+                SealedLevel2LeafClassA sealedLevel2LeafClassA = 2;
+                SealedLevel2LeafClassB sealedLevel2LeafClassB = 3;
+                SealedLevel3LeafClass sealedLevel3LeafClass = 4;
+              }
+            }
+            
+            message SealedLevel2LeafClassA {
+              int32 int = 1;
+            }
+            
+            message SealedLevel2LeafClassB {
+              SealedLevel2Class intermediate = 1;
+            }
+            
+            message SealedLevel2Class {
+              oneof subtypes {
+                SealedLevel3LeafClass sealedLevel3LeafClass = 4;
+              }
+            }
+            
+            message SealedLevel3LeafClass {
+              SealedTopClass top = 1;
+            }
+            """
         )
         verifyConversion(
             SealedLevel2LeafClassA(42),
@@ -76,36 +78,38 @@ class PolymorphyIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates messages for non-sealed polymorphic class hierarchy`() {
-        verifySchema(
+        givenSchema(
             typesFromSerializersModule = listOf(typeOf<NonSealedInterface>()),
-            serializersModule = module,
-            expectedSchema = """
-                message NonSealedLevel3LeafClass {
-                  NonSealedInterface top = 1;
-                }
-                
-                message NonSealedInterface {
-                  oneof subtypes {
-                    NonSealedLevel2LeafClassA nonSealedLevel2LeafClassA = 2;
-                    NonSealedLevel2LeafClassB nonSealedLevel2LeafClassB = 3;
-                    NonSealedLevel3LeafClass nonSealedLevel3LeafClass = 4;
-                  }
-                }
-                
-                message NonSealedLevel2LeafClassA {
-                  int32 int = 1;
-                }
-                
-                message NonSealedLevel2LeafClassB {
-                  NonSealedLevel2Class intermediate = 1;
-                }
-                
-                message NonSealedLevel2Class {
-                  oneof subtypes {
-                    NonSealedLevel3LeafClass nonSealedLevel3LeafClass = 4;
-                  }
-                }
-                """
+            serializersModule = module
+        )
+        verifySchema(
+            """
+            message NonSealedLevel3LeafClass {
+              NonSealedInterface top = 1;
+            }
+            
+            message NonSealedInterface {
+              oneof subtypes {
+                NonSealedLevel2LeafClassA nonSealedLevel2LeafClassA = 2;
+                NonSealedLevel2LeafClassB nonSealedLevel2LeafClassB = 3;
+                NonSealedLevel3LeafClass nonSealedLevel3LeafClass = 4;
+              }
+            }
+            
+            message NonSealedLevel2LeafClassA {
+              int32 int = 1;
+            }
+            
+            message NonSealedLevel2LeafClassB {
+              NonSealedLevel2Class intermediate = 1;
+            }
+            
+            message NonSealedLevel2Class {
+              oneof subtypes {
+                NonSealedLevel3LeafClass nonSealedLevel3LeafClass = 4;
+              }
+            }
+            """
         )
         verifyConversion(
             NonSealedLevel2LeafClassA(42),

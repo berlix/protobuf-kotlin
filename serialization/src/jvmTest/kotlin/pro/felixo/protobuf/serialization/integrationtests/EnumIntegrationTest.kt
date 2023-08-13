@@ -11,8 +11,10 @@ import kotlin.test.Test
 class EnumIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates enum`() {
-        verify(
-            ClassWithEnumClassMember.serializer().descriptor,
+        givenSchema(
+            ClassWithEnumClassMember.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithEnumClassMember {
               EnumClass enum = 1;
@@ -34,8 +36,10 @@ class EnumIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates nullable enum`() {
-        verify(
-            ClassWithNullableEnumClassMember.serializer().descriptor,
+        givenSchema(
+            ClassWithNullableEnumClassMember.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithNullableEnumClassMember {
               optional EnumClass enum = 1;
@@ -57,8 +61,10 @@ class EnumIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates enum with custom numbers`() {
-        verify(
-            ClassWithEnumClassWithCustomNumbersMember.serializer().descriptor,
+        givenSchema(
+            ClassWithEnumClassWithCustomNumbersMember.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithEnumClassWithCustomNumbersMember {
                 EnumClassWithCustomNumbers enum = 1;
@@ -82,8 +88,10 @@ class EnumIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates enum with custom serial name`() {
-        verify(
-            ClassWithEnumClassWithCustomSerialNameMember.serializer().descriptor,
+        givenSchema(
+            ClassWithEnumClassWithCustomSerialNameMember.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithEnumClassWithCustomSerialNameMember {
                 CustomName enum = 1;
@@ -101,8 +109,10 @@ class EnumIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates enum with value with custom serial name`() {
-        verify(
-            ClassWithEnumClassWithValueWithCustomSerialNameMember.serializer().descriptor,
+        givenSchema(
+            ClassWithEnumClassWithValueWithCustomSerialNameMember.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithEnumClassWithValueWithCustomSerialNameMember {
                 EnumClassWithValueWithCustomSerialName enum = 1;

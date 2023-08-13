@@ -14,13 +14,15 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with list of int`() {
-        verify(
-            ClassWithListOfInt.serializer().descriptor,
+        givenSchema(
+            ClassWithListOfInt.serializer().descriptor
+        )
+        verifySchema(
             """
-                message ClassWithListOfInt {
-                    repeated int32 list = 1;
-                }
-                """
+            message ClassWithListOfInt {
+                repeated int32 list = 1;
+            }
+            """
         )
         verifyConversion(ClassWithListOfInt(emptyList()), "")
         verifyConversion(ClassWithListOfInt(listOf(-1)), "1: { -1 }")
@@ -31,13 +33,15 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with list of UInt`() {
-        verify(
-            ClassWithListOfUInt.serializer().descriptor,
+        givenSchema(
+            ClassWithListOfUInt.serializer().descriptor
+        )
+        verifySchema(
             """
-                message ClassWithListOfUInt {
-                    repeated int32 list = 1;
-                }
-                """
+            message ClassWithListOfUInt {
+                repeated int32 list = 1;
+            }
+            """
         )
         verifyConversion(ClassWithListOfUInt(emptyList()), "")
         verifyConversion(ClassWithListOfUInt(listOf(1u)), "1: { 1 }")
@@ -48,13 +52,15 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with list of float`() {
-        verify(
-            ClassWithListOfFloat.serializer().descriptor,
+        givenSchema(
+            ClassWithListOfFloat.serializer().descriptor
+        )
+        verifySchema(
             """
-                message ClassWithListOfFloat {
-                    repeated float list = 1;
-                }
-                """
+            message ClassWithListOfFloat {
+                repeated float list = 1;
+            }
+            """
         )
         verifyConversion(ClassWithListOfFloat(emptyList()), "")
         verifyConversion(ClassWithListOfFloat(listOf(-1.5f)), "1: { -1.5i32 }")
@@ -65,13 +71,15 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with list of double`() {
-        verify(
-            ClassWithListOfDouble.serializer().descriptor,
+        givenSchema(
+            ClassWithListOfDouble.serializer().descriptor
+        )
+        verifySchema(
             """
-                message ClassWithListOfDouble {
-                    repeated double list = 1;
-                }
-                """
+            message ClassWithListOfDouble {
+                repeated double list = 1;
+            }
+            """
         )
         verifyConversion(ClassWithListOfDouble(emptyList()), "")
         verifyConversion(ClassWithListOfDouble(listOf(-1.5)), "1: { -1.5 }")
@@ -82,13 +90,15 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with list of string`() {
-        verify(
-            ClassWithListOfString.serializer().descriptor,
+        givenSchema(
+            ClassWithListOfString.serializer().descriptor
+        )
+        verifySchema(
             """
-                message ClassWithListOfString {
-                    repeated string list = 1;
-                }
-                """
+            message ClassWithListOfString {
+                repeated string list = 1;
+            }
+            """
         )
         verifyConversion(ClassWithListOfString(emptyList()), "")
         verifyConversion(ClassWithListOfString(listOf("")), """1: {}""")
@@ -98,13 +108,15 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with list of bytes`() {
-        verify(
-            ClassWithListOfBytes.serializer().descriptor,
+        givenSchema(
+            ClassWithListOfBytes.serializer().descriptor
+        )
+        verifySchema(
             """
-                message ClassWithListOfBytes {
-                    repeated bytes list = 1;
-                }
-                """
+            message ClassWithListOfBytes {
+                repeated bytes list = 1;
+            }
+            """
         )
         verifyConversion(ClassWithListOfBytes(emptyList()), "")
         verifyConversion(ClassWithListOfBytes(listOf(byteArrayOf())), """1: {}""")
@@ -117,8 +129,10 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with list of empty class`() {
-        verify(
-            ClassWithListOfEmptyClass.serializer().descriptor,
+        givenSchema(
+            ClassWithListOfEmptyClass.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithListOfEmptyClass {
                 repeated EmptyClass list = 1;
@@ -136,8 +150,10 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with list of simple class`() {
-        verify(
-            ClassWithListOfSimpleClass.serializer().descriptor,
+        givenSchema(
+            ClassWithListOfSimpleClass.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithListOfSimpleClass {
                 repeated SimpleClass list = 1;
@@ -157,8 +173,10 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with list of sealed class`() {
-        verify(
-            ClassWithListOfSealedClass.serializer().descriptor,
+        givenSchema(
+            ClassWithListOfSealedClass.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithListOfSealedClass {
               repeated SealedTopClass list = 1;
@@ -210,8 +228,10 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with nullable list`() {
-        verify(
-            ClassWithNullableList.serializer().descriptor,
+        givenSchema(
+            ClassWithNullableList.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithNullableList {
                 optional ListValue list = 1;
@@ -228,8 +248,10 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with list of nullables`() {
-        verify(
-            ClassWithListOfNullableScalar.serializer().descriptor,
+        givenSchema(
+            ClassWithListOfNullableScalar.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithListOfNullableScalar {
                 repeated ListItem list = 1;
@@ -247,8 +269,10 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with nested lists`() {
-        verify(
-            ClassWithNestedLists.serializer().descriptor,
+        givenSchema(
+            ClassWithNestedLists.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithNestedLists {
                 repeated ListItem list = 1;
@@ -286,8 +310,10 @@ class ListIntegrationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `does not create schema with synthetic top-level message for list`() =
-        verifyFailure(serializer(typeOf<List<String>>()).descriptor)
+    fun `does not create schema with synthetic top-level message for list`() {
+        givenSchema(serializer(typeOf<List<String>>()).descriptor)
+        verifySchemaGenerationFails()
+    }
 
     @Serializable
     data class ClassWithListOfInt(

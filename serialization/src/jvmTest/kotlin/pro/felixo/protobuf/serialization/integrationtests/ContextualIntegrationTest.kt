@@ -23,14 +23,16 @@ class ContextualIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with contextual property`() {
-        verifySchema(
+        givenSchema(
             listOf(ClassWithContextualProperty.serializer().descriptor),
-            serializersModule = module,
-            expectedSchema = """
-                message ClassWithContextualProperty {
-                    string int = 1;
-                }
-                """
+            serializersModule = module
+        )
+        verifySchema(
+            """
+            message ClassWithContextualProperty {
+                string int = 1;
+            }
+            """
         )
         verifyConversion(
             ClassWithContextualProperty(ClassWithContextualSerializer(42)),
@@ -40,14 +42,16 @@ class ContextualIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with contextual and serializable property`() {
-        verifySchema(
+        givenSchema(
             listOf(ClassWithContextualAndSerializableProperty.serializer().descriptor),
-            serializersModule = module,
-            expectedSchema = """
-                message ClassWithContextualAndSerializableProperty {
-                    string int = 1;
-                }
-                """
+            serializersModule = module
+        )
+        verifySchema(
+            """
+            message ClassWithContextualAndSerializableProperty {
+                string int = 1;
+            }
+            """
         )
         verifyConversion(
             ClassWithContextualAndSerializableProperty(

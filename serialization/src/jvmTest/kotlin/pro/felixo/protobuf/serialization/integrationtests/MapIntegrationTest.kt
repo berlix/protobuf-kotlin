@@ -13,8 +13,10 @@ class MapIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with map of scalars`() {
-        verify(
-            ClassWithMapOfScalars.serializer().descriptor,
+        givenSchema(
+            ClassWithMapOfScalars.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithMapOfScalars {
                 repeated MapEntry map = 1;
@@ -35,8 +37,10 @@ class MapIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with nullable map`() {
-        verify(
-            ClassWithNullableMap.serializer().descriptor,
+        givenSchema(
+            ClassWithNullableMap.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithNullableMap {
                 optional MapValue map = 1;
@@ -61,8 +65,10 @@ class MapIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with nested maps`() {
-        verify(
-            ClassWithNestedMaps.serializer().descriptor,
+        givenSchema(
+            ClassWithNestedMaps.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithNestedMaps {
                 repeated MapEntry map = 1;
@@ -96,8 +102,10 @@ class MapIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with map with custom entry property names`() {
-        verify(
-            ClassWithMapWithCustomEntryPropertyNames.serializer().descriptor,
+        givenSchema(
+            ClassWithMapWithCustomEntryPropertyNames.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithMapWithCustomEntryPropertyNames {
                 repeated MapEntry map = 1;
@@ -118,8 +126,10 @@ class MapIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message for class with map of references`() {
-        verify(
-            ClassWithMapOfReferences.serializer().descriptor,
+        givenSchema(
+            ClassWithMapOfReferences.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithMapOfReferences {
               message MapEntry {
@@ -161,8 +171,10 @@ class MapIntegrationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `does not create schema with synthetic top-level message for map`() =
-        verifyFailure(serializer(typeOf<Map<String, Int>>()).descriptor)
+    fun `does not create schema with synthetic top-level message for map`() {
+        givenSchema(serializer(typeOf<Map<String, Int>>()).descriptor)
+        verifySchemaGenerationFails()
+    }
 
     @Serializable
     data class ClassWithMapOfScalars(

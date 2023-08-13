@@ -23,24 +23,29 @@ typealias StringInt = @Serializable(with = BasicsIntegrationTest.StringIntSerial
 class BasicsIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates empty schema`() {
-        verify(emptyList(), "")
+        givenSchema(emptyList())
+        verifySchema("")
     }
 
     @Test
     fun `creates message for empty class`() {
-        verify(
-            EmptyClass.serializer().descriptor,
+        givenSchema(
+            EmptyClass.serializer().descriptor
+        )
+        verifySchema(
             """
-                message EmptyClass {}
-                """
+            message EmptyClass {}
+            """
         )
         verifyConversion(EmptyClass(), "")
     }
 
     @Test
     fun `creates message for object`() {
-        verify(
-            Object.serializer().descriptor,
+        givenSchema(
+            Object.serializer().descriptor
+        )
+        verifySchema(
             """
             message Object {}
             """
@@ -50,29 +55,34 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `deduplicates duplicate types`() {
-        verify(
+        givenSchema(
             listOf(
                 EmptyClass.serializer().descriptor,
                 EmptyClass.serializer().descriptor
-            ),
+            )
+        )
+        verifySchema(
             """
             message EmptyClass {}
             """
+
         )
         verifyConversion(EmptyClass(), "")
     }
 
     @Test
     fun `creates multiple root messages`() {
-        verify(
+        givenSchema(
             listOf(
                 EmptyClass.serializer().descriptor,
                 Object.serializer().descriptor
-            ),
+            )
+        )
+        verifySchema(
             """
-                message EmptyClass {}
-                message Object {}
-                """
+            message EmptyClass {}
+            message Object {}
+            """
         )
         verifyConversion(EmptyClass(), "")
         verifyConversion(Object, "")
@@ -80,8 +90,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message with custom field numbers`() {
-        verify(
-            ClassWithCustomFieldNumbers.serializer().descriptor,
+        givenSchema(
+            ClassWithCustomFieldNumbers.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithCustomFieldNumbers {
                 string string = 1;
@@ -96,8 +108,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message with scalar properties`() {
-        verify(
-            Scalars.serializer().descriptor,
+        givenSchema(
+            Scalars.serializer().descriptor
+        )
+        verifySchema(
             """
                 message Scalars {
                     bool boolean = 1;
@@ -430,8 +444,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message with unsigned ints`() {
-        verify(
-            UnsignedInts.serializer().descriptor,
+        givenSchema(
+            UnsignedInts.serializer().descriptor
+        )
+        verifySchema(
             """
             message UnsignedInts {
                 uint32 ubyte = 1;
@@ -512,8 +528,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates message referring to other message`() {
-        verify(
-            ClassAWithReference.serializer().descriptor,
+        givenSchema(
+            ClassAWithReference.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassAWithReference {
                 EmptyClass ref = 1;
@@ -531,11 +549,13 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates messages referring to same other message`() {
-        verify(
+        givenSchema(
             listOf(
                 ClassAWithReference.serializer().descriptor,
                 ClassBWithReference.serializer().descriptor
-            ),
+            )
+        )
+        verifySchema(
             """
             message ClassAWithReference {
                 EmptyClass ref = 1;
@@ -562,8 +582,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates self-referential message`() {
-        verify(
-            ClassWithSelfReference.serializer().descriptor,
+        givenSchema(
+            ClassWithSelfReference.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithSelfReference {
                 optional ClassWithSelfReference ref = 1;
@@ -582,8 +604,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates messages with cyclical references`() {
-        verify(
-            ClassAWithCycle.serializer().descriptor,
+        givenSchema(
+            ClassAWithCycle.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassBWithCycle {
                 optional ClassAWithCycle a = 1;
@@ -607,8 +631,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates class with custom serial name`() {
-        verify(
-            ClassWithCustomSerialName.serializer().descriptor,
+        givenSchema(
+            ClassWithCustomSerialName.serializer().descriptor
+        )
+        verifySchema(
             """
             message CustomName {}
             """
@@ -621,8 +647,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates class with property with custom serial name`() {
-        verify(
-            ClassWithPropertyWithCustomSerialName.serializer().descriptor,
+        givenSchema(
+            ClassWithPropertyWithCustomSerialName.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithPropertyWithCustomSerialName {
                 int32 customName = 1;
@@ -639,8 +667,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates class with property with custom serializer`() {
-        verify(
-            ClassWithPropertyWithCustomSerializer.serializer().descriptor,
+        givenSchema(
+            ClassWithPropertyWithCustomSerializer.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithPropertyWithCustomSerializer {
                 string int = 1;
@@ -657,8 +687,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates class with custom serializer that encodes bytes`() {
-        verify(
-            ClassWithPropertyWithCustomByteArraySerializer.serializer().descriptor,
+        givenSchema(
+            ClassWithPropertyWithCustomByteArraySerializer.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithPropertyWithCustomByteArraySerializer {
                 bytes boolBytes = 1;
@@ -681,8 +713,10 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun `creates class with value class property`() {
-        verify(
-            ClassWithValueClassProperty.serializer().descriptor,
+        givenSchema(
+            ClassWithValueClassProperty.serializer().descriptor
+        )
+        verifySchema(
             """
             message ClassWithValueClassProperty {
                 string stringInt = 1;
@@ -698,16 +732,22 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `does not create synthetic top-level message from value class with custom serializer`() =
-        verifyFailure(StringIntValueClass.serializer().descriptor)
+    fun `does not create synthetic top-level message from value class with custom serializer`() {
+        givenSchema(StringIntValueClass.serializer().descriptor)
+        verifySchemaGenerationFails()
+    }
 
     @Test
-    fun `does not create synthetic top-level message for Int`() =
-        verifyFailure(Int.serializer().descriptor)
+    fun `does not create synthetic top-level message for Int`() {
+        givenSchema(Int.serializer().descriptor)
+        verifySchemaGenerationFails()
+    }
 
     @Test
-    fun `does not create synthetic top-level message for nullable ByteArray`() =
-        verifyFailure(serializer(typeOf<ByteArray?>()).descriptor)
+    fun `does not create synthetic top-level message for nullable ByteArray`() {
+        givenSchema(serializer(typeOf<ByteArray?>()).descriptor)
+        verifySchemaGenerationFails()
+    }
 
     @Serializable
     data class Scalars(
