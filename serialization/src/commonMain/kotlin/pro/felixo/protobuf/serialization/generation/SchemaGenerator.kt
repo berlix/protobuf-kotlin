@@ -41,8 +41,6 @@ import pro.felixo.protobuf.serialization.encoding.PolymorphicDecoder
 import pro.felixo.protobuf.serialization.encoding.PolymorphicEncoder
 import pro.felixo.protobuf.serialization.encoding.SyntheticDecoder
 import pro.felixo.protobuf.serialization.encoding.SyntheticEncoder
-import pro.felixo.protobuf.serialization.encoding.ValueDecoder
-import pro.felixo.protobuf.serialization.encoding.ValueEncoder
 import pro.felixo.protobuf.serialization.util.FieldNumberIterator
 import pro.felixo.protobuf.serialization.util.simpleTypeName
 import pro.felixo.protobuf.wire.WireBuffer
@@ -180,22 +178,15 @@ class SchemaGenerator(
         number: FieldNumber,
         type: FieldEncoding
     ): Field {
-        val elementEncoder = if (type is FieldEncoding.Bytes)
-            { output: WireBuffer -> ByteArrayEncoder(serializersModule, output, number, encodeZeroValue = true) }
-        else
-            { output: WireBuffer ->
-                ValueEncoder(
+        val elementEncoder = { output: WireBuffer ->
+                type.encoder(
                     serializersModule,
+                    number.takeIf { !type.isPackable },
                     output,
-                    type,
-                    encodeZeroValue = true,
-                    number.takeIf { !type.isPackable }
+                    encodeZeroValue = true
                 )
             }
-        val elementDecoder = if (type is FieldEncoding.Bytes)
-            { values: List<WireValue> -> ByteArrayDecoder(serializersModule, values) }
-        else
-            { values: List<WireValue> -> ValueDecoder(serializersModule, values, type) }
+        val elementDecoder = { values: List<WireValue> -> type.decoder(serializersModule, values) }
         return Field(
             name,
             type,
@@ -524,10 +515,10 @@ class SchemaGenerator(
         number: FieldNumber,
         encodeZeroValue: Boolean
     ): (WireBuffer) -> Encoder = {
-        ValueEncoder(serializersModule, it, type, encodeZeroValue || encodeZeroValues, number)
+        type.encoder(serializersModule, number, it, encodeZeroValue || encodeZeroValues)
     }
 
-    private fun valueDecoder(type: FieldEncoding?): (List<WireValue>) -> Decoder = {
-        ValueDecoder(serializersModule, it, type)
+    private fun valueDecoder(type: FieldEncoding): (List<WireValue>) -> Decoder = {
+        type.decoder(serializersModule, it)
     }
 }

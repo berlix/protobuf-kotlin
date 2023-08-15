@@ -2,10 +2,15 @@
 
 package pro.felixo.protobuf.serialization.encoding
 
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.modules.SerializersModule
+import pro.felixo.protobuf.FieldNumber
 import pro.felixo.protobuf.Identifier
 import pro.felixo.protobuf.serialization.Enum
 import pro.felixo.protobuf.serialization.Message
 import pro.felixo.protobuf.serialization.Type
+import pro.felixo.protobuf.wire.WireBuffer
 import pro.felixo.protobuf.wire.WireType
 import pro.felixo.protobuf.wire.WireValue
 import pro.felixo.protobuf.wire.decodeSInt32
@@ -16,6 +21,16 @@ import pro.felixo.protobuf.wire.encodeSInt64
 sealed class FieldEncoding {
     abstract val isPackable: Boolean
     abstract val wireType: WireType
+
+    open fun encoder(
+        serializersModule: SerializersModule,
+        fieldNumber: FieldNumber?,
+        output: WireBuffer,
+        encodeZeroValue: Boolean
+    ): Encoder = ValueEncoder(serializersModule, output, this, encodeZeroValue, fieldNumber)
+
+    open fun decoder(serializersModule: SerializersModule, input: List<WireValue>): Decoder =
+        ValueDecoder(serializersModule, input, this)
 
     sealed class Scalar<DecodedType: Any>(val name: kotlin.String) : FieldEncoding() {
         abstract fun encode(value: DecodedType, encodeZeroValue: Boolean): WireValue?
@@ -252,6 +267,16 @@ sealed class FieldEncoding {
         }
 
         override fun encode(value: ByteArray, encodeZeroValue: Boolean): WireValue? = len(value, encodeZeroValue)
+
+        override fun encoder(
+            serializersModule: SerializersModule,
+            fieldNumber: FieldNumber?,
+            output: WireBuffer,
+            encodeZeroValue: Boolean
+        ) = ByteArrayEncoder(serializersModule, output, requireNotNull(fieldNumber), encodeZeroValue)
+
+        override fun decoder(serializersModule: SerializersModule, input: List<WireValue>) =
+            ByteArrayDecoder(serializersModule, input)
     }
 
     class Reference : FieldEncoding() {
@@ -270,6 +295,22 @@ sealed class FieldEncoding {
         }
 
         override fun toString() = type.name.toString()
+
+        override fun encoder(
+            serializersModule: SerializersModule,
+            fieldNumber: FieldNumber?,
+            output: WireBuffer,
+            encodeZeroValue: Boolean
+        ): Encoder = when (val valType = type) {
+                is Enum -> ValueEncoder(serializersModule, output, this, encodeZeroValue, fieldNumber)
+                is Message -> valType.encoder(output, fieldNumber, encodeZeroValue)
+            }
+
+        override fun decoder(serializersModule: SerializersModule, input: List<WireValue>): Decoder =
+            when (val valType = type) {
+                is Enum -> ValueDecoder(serializersModule, input, this)
+                is Message -> valType.decoder(input)
+            }
 
         companion object {
             fun to(type: Type): Reference {

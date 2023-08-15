@@ -7,7 +7,6 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.protobuf.FieldNumber
 import pro.felixo.protobuf.serialization.Enum
-import pro.felixo.protobuf.serialization.Message
 import pro.felixo.protobuf.wire.Tag
 import pro.felixo.protobuf.wire.WireBuffer
 import pro.felixo.protobuf.wire.WireValue
@@ -22,8 +21,7 @@ class ValueEncoder(
     private val fieldNumber: FieldNumber? = null
 ) : Encoder {
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder =
-        ((encoding as FieldEncoding.Reference).type as Message)
-            .encoder(output, fieldNumber, encodeZeroValue)
+        error("ValueEncoder cannot encode structures.")
 
     @ExperimentalSerializationApi
     override fun encodeNull() {
