@@ -141,7 +141,7 @@ class SchemaGenerator(
             ),
             subTypeRef,
             number,
-            encoder = valueEncoder(subTypeRef, number, false),
+            encoder = valueEncoder(subTypeRef, number, true),
             decoder = valueDecoder(subTypeRef)
         )
     }

@@ -46,7 +46,7 @@ class PolymorphicEncoder(
         val field = fieldByDescriptor[serializer.descriptor]
             ?: error("Descriptor ${serializer.descriptor.serialName} not a known subtype of ${descriptor.serialName}")
         serializer.serialize(
-            ValueEncoder(serializersModule, buffer, field.type, true, field.number),
+            field.encoder(buffer),
             value
         )
     }

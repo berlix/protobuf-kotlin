@@ -86,7 +86,7 @@ class PolymorphicDecoder(
         index: Int,
         deserializer: DeserializationStrategy<T>,
         previousValue: T?
-    ): T = deserializer.deserialize(ValueDecoder(serializersModule, values, field.type))
+    ): T = deserializer.deserialize(field.decoder(values))
 
     override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short =
         error("PolymorphicDecoder does not support Short elements")
