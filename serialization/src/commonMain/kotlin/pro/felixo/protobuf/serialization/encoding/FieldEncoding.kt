@@ -279,51 +279,60 @@ sealed class FieldEncoding {
             ByteArrayDecoder(serializersModule, input)
     }
 
-    class Reference : FieldEncoding() {
+    sealed class Reference<T : Type> : FieldEncoding() {
         override val isPackable = false
 
-        lateinit var type: Type
-            private set
+        abstract val type: T
 
         val name: Identifier by lazy { type.name }
 
-        override val wireType: WireType by lazy {
-            when (type) {
-                is Message -> WireType.Len
-                is Enum -> WireType.VarInt
-            }
-        }
-
         override fun toString() = type.name.toString()
+    }
+
+    class MessageReference : Reference<Message>() {
+
+        override val wireType: WireType = WireType.Len
+
+        override lateinit var type: Message
+            private set
 
         override fun encoder(
             serializersModule: SerializersModule,
             fieldNumber: FieldNumber?,
             output: WireBuffer,
             encodeZeroValue: Boolean
-        ): Encoder = when (val valType = type) {
-                is Enum -> ValueEncoder(serializersModule, output, this, encodeZeroValue, fieldNumber)
-                is Message -> valType.encoder(output, fieldNumber, encodeZeroValue)
-            }
+        ): Encoder = type.encoder(output, fieldNumber, encodeZeroValue)
 
         override fun decoder(serializersModule: SerializersModule, input: List<WireValue>): Decoder =
-            when (val valType = type) {
-                is Enum -> ValueDecoder(serializersModule, input, this)
-                is Message -> valType.decoder(input)
-            }
+            type.decoder(input)
 
         companion object {
-            fun to(type: Type): Reference {
-                val ref = Reference()
+            fun to(type: Message): MessageReference {
+                val ref = MessageReference()
                 ref.type = type
                 return ref
             }
 
-            fun lazy(): Pair<Reference, (Type) -> Unit> {
-                val ref = Reference()
+            fun lazy(): Pair<MessageReference, (Message) -> Unit> {
+                val ref = MessageReference()
                 return ref to { ref.type = it }
             }
         }
+    }
+
+    class EnumReference(override val type: Enum) : Reference<Enum>() {
+
+        override val wireType: WireType = WireType.VarInt
+
+        override fun encoder(
+            serializersModule: SerializersModule,
+            fieldNumber: FieldNumber?,
+            output: WireBuffer,
+            encodeZeroValue: Boolean
+        ): Encoder = ValueEncoder(serializersModule, output, this, encodeZeroValue, fieldNumber)
+
+        override fun decoder(serializersModule: SerializersModule, input: List<WireValue>): Decoder =
+            ValueDecoder(serializersModule, input, this)
     }
 }
 

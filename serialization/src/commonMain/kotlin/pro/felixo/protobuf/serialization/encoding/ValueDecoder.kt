@@ -5,7 +5,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
-import pro.felixo.protobuf.serialization.Enum
 import pro.felixo.protobuf.serialization.util.castItems
 import pro.felixo.protobuf.wire.WireValue
 
@@ -18,10 +17,9 @@ class ValueDecoder(
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
         error("ValueDecoder cannot decode structures.")
 
-    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-        val enum = (type as FieldEncoding.Reference).type as Enum
-        return enum.decode(decodeLast(values, FieldEncoding.Int32) ?: 0)
-    }
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
+        (type as FieldEncoding.EnumReference).type
+            .decode(decodeLast(values, FieldEncoding.Int32) ?: 0)
 
     @ExperimentalSerializationApi
     override fun decodeNotNullMark(): Boolean = values.isNotEmpty()

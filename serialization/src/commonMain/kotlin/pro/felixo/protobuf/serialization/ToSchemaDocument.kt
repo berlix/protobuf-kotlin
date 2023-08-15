@@ -22,7 +22,7 @@ private fun typeDependencies(type: Type): List<Type> = when (type) {
 }
 
 fun fieldDependency(field: Field): Type? = when (field.encoding) {
-    is FieldEncoding.Reference -> field.encoding.type
+    is FieldEncoding.Reference<*> -> field.encoding.type
     else -> null
 }
 
@@ -84,5 +84,5 @@ private fun FieldEncoding.toDocumentFieldType() = when (this) {
     FieldEncoding.SInt64 -> FieldType.SInt64
     FieldEncoding.UInt64 -> FieldType.UInt64
     FieldEncoding.String -> FieldType.String
-    is FieldEncoding.Reference -> FieldType.Reference(listOf(name))
+    is FieldEncoding.Reference<*> -> FieldType.Reference(listOf(name))
 }

@@ -6,7 +6,6 @@ import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.protobuf.FieldNumber
-import pro.felixo.protobuf.serialization.Enum
 import pro.felixo.protobuf.wire.Tag
 import pro.felixo.protobuf.wire.WireBuffer
 import pro.felixo.protobuf.wire.WireValue
@@ -32,7 +31,7 @@ class ValueEncoder(
     override fun encodeInline(descriptor: SerialDescriptor): Encoder = this
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = write(
-        ((encoding as FieldEncoding.Reference).type as Enum).encode(index, encodeZeroValue)
+        (encoding as FieldEncoding.EnumReference).type.encode(index, encodeZeroValue)
     )
 
     override fun encodeBoolean(value: Boolean) = write(

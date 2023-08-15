@@ -70,7 +70,7 @@ class SchemaGenerator(
         rootTypes.localTypesByName
     )
 
-    private fun TypeContext.namedType(descriptor: SerialDescriptor): FieldEncoding.Reference = when (descriptor.kind) {
+    private fun TypeContext.namedType(descriptor: SerialDescriptor): FieldEncoding.Reference<*> = when (descriptor.kind) {
         PolymorphicKind.OPEN -> messageOfOpenPolymorphicClass(descriptor)
         PolymorphicKind.SEALED -> messageOfSealedPolymorphicClass(descriptor)
         SerialKind.CONTEXTUAL -> namedType(
@@ -97,7 +97,7 @@ class SchemaGenerator(
     private fun TypeContext.messageOfPolymorphicClass(
         descriptor: SerialDescriptor,
         subTypes: Iterable<SerialDescriptor>
-    ): FieldEncoding.Reference = putOrGet(descriptor) {
+    ): FieldEncoding.MessageReference = putOrGetMessage(descriptor) {
         typeContext {
             val numberIterator = fieldNumberIteratorFromSubTypes(subTypes)
 
@@ -239,7 +239,7 @@ class SchemaGenerator(
     private fun TypeContext.syntheticMessage(
         syntheticMessageName: Identifier,
         field: TypeContext.() -> Field
-    ): FieldEncoding.Reference = putOrGet(name = syntheticMessageName.value) {
+    ): FieldEncoding.MessageReference = putOrGetMessage(name = syntheticMessageName.value) {
         typeContext {
             Message(
                 syntheticMessageName,
@@ -362,7 +362,7 @@ class SchemaGenerator(
         val entryTypeName = "${name.value.replaceFirstChar { it.uppercase() }}Entry"
         lateinit var keyField: Field
         lateinit var valueField: Field
-        val entryType = putOrGet(name = entryTypeName) {
+        val entryType = putOrGetMessage(name = entryTypeName) {
             typeContext {
                 Message(
                     Identifier(entryTypeName),
@@ -428,7 +428,7 @@ class SchemaGenerator(
     private fun integerType(annotations: List<Annotation>) =
         annotations.filterIsInstance<ProtoIntegerType>().firstOrNull()?.type ?: IntegerType.Default
 
-    private fun TypeContext.enum(descriptor: SerialDescriptor): FieldEncoding.Reference = putOrGet(descriptor) {
+    private fun TypeContext.enum(descriptor: SerialDescriptor): FieldEncoding.EnumReference = putOrGetEnum(descriptor) {
         val numberIterator = numberIteratorFromEnumElements(descriptor)
 
         val values = (0 until descriptor.elementsCount).map { index ->
@@ -449,8 +449,8 @@ class SchemaGenerator(
         )
     }
 
-    private fun TypeContext.messageOfClass(descriptor: SerialDescriptor): FieldEncoding.Reference =
-        putOrGet(descriptor) {
+    private fun TypeContext.messageOfClass(descriptor: SerialDescriptor): FieldEncoding.MessageReference =
+        putOrGetMessage(descriptor) {
             typeContext {
                 val numberIterator = fieldNumberIteratorFromClassElements(descriptor)
 
@@ -487,8 +487,8 @@ class SchemaGenerator(
             }
         }
 
-    private fun TypeContext.messageOfObject(descriptor: SerialDescriptor): FieldEncoding.Reference =
-        putOrGet(descriptor) {
+    private fun TypeContext.messageOfObject(descriptor: SerialDescriptor): FieldEncoding.MessageReference =
+        putOrGetMessage(descriptor) {
             Message(
                 Identifier(simpleTypeName(descriptor)),
                 encoder =
