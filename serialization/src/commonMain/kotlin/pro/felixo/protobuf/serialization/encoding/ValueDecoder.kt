@@ -35,8 +35,7 @@ class ValueDecoder(
     @ExperimentalSerializationApi
     override fun decodeNull(): Nothing? = null
 
-    override fun decodeInline(descriptor: SerialDescriptor): Decoder =
-        ValueDecoder(serializersModule, values, type)
+    override fun decodeInline(descriptor: SerialDescriptor): Decoder = this
 
     override fun decodeBoolean(): Boolean {
         require(type != null && type is FieldEncoding.Bool) { "Cannot decode Boolean from type $type" }
