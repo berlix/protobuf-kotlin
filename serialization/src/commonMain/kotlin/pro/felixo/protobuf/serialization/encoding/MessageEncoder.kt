@@ -53,61 +53,61 @@ class MessageEncoder(
 
     override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldEncoding.Bool
+        val type = field.encoding as FieldEncoding.Bool
         writeField(field, type.encode(value, encodeZeroValues))
     }
 
     override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldEncoding.Integer32
+        val type = field.encoding as FieldEncoding.Integer32
         writeField(field, type.encode(value.toInt(), encodeZeroValues))
     }
 
     override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldEncoding.Integer32
+        val type = field.encoding as FieldEncoding.Integer32
         writeField(field, type.encode(value.code, encodeZeroValues))
     }
 
     override fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldEncoding.Double
+        val type = field.encoding as FieldEncoding.Double
         writeField(field, type.encode(value, encodeZeroValues))
     }
 
     override fun encodeFloatElement(descriptor: SerialDescriptor, index: Int, value: Float) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldEncoding.Float
+        val type = field.encoding as FieldEncoding.Float
         writeField(field, type.encode(value, encodeZeroValues))
     }
 
     override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldEncoding.Integer32
+        val type = field.encoding as FieldEncoding.Integer32
         writeField(field, type.encode(value, encodeZeroValues))
     }
 
     override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldEncoding.Integer64
+        val type = field.encoding as FieldEncoding.Integer64
         writeField(field, type.encode(value, encodeZeroValues))
     }
 
     override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldEncoding.Integer32
+        val type = field.encoding as FieldEncoding.Integer32
         writeField(field, type.encode(value.toInt(), encodeZeroValues))
     }
 
     override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
         val field = fieldByElementIndex[index]
-        val type = field.type as FieldEncoding.String
+        val type = field.encoding as FieldEncoding.String
         writeField(field, type.encode(value, encodeZeroValues))
     }
 
     private fun writeField(field: Field, value: WireValue?) {
         value?.let {
-            buffer.encodeField(Tag.of(field.number, field.type.wireType), it)
+            buffer.encodeField(Tag.of(field.number, field.encoding.wireType), it)
         }
     }
 }

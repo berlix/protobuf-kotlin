@@ -30,7 +30,7 @@ class MessageDecoder(
 
     override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean {
         val field = fieldByElementIndex[index]
-        return decodeLast(values[field.number], field.type as FieldEncoding.Bool) ?: false
+        return decodeLast(values[field.number], field.encoding as FieldEncoding.Bool) ?: false
     }
 
     override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte =
@@ -41,7 +41,7 @@ class MessageDecoder(
 
     override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double {
         val field = fieldByElementIndex[index]
-        return decodeLast(values[field.number], field.type as FieldEncoding.Double) ?: 0.0
+        return decodeLast(values[field.number], field.encoding as FieldEncoding.Double) ?: 0.0
     }
 
     private var currentElementIndex = -1
@@ -64,7 +64,7 @@ class MessageDecoder(
 
     override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float {
         val field = fieldByElementIndex[index]
-        return decodeLast(values[field.number], field.type as FieldEncoding.Float) ?: 0f
+        return decodeLast(values[field.number], field.encoding as FieldEncoding.Float) ?: 0f
     }
 
     override fun decodeInlineElement(descriptor: SerialDescriptor, index: Int): Decoder {
@@ -75,12 +75,12 @@ class MessageDecoder(
 
     override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int {
         val field = fieldByElementIndex[index]
-        return decodeLast(values[field.number], field.type as FieldEncoding.Integer32) ?: 0
+        return decodeLast(values[field.number], field.encoding as FieldEncoding.Integer32) ?: 0
     }
 
     override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long {
         val field = fieldByElementIndex[index]
-        return decodeLast(values[field.number], field.type as FieldEncoding.Integer64) ?: 0L
+        return decodeLast(values[field.number], field.encoding as FieldEncoding.Integer64) ?: 0L
     }
 
     @ExperimentalSerializationApi
@@ -111,7 +111,7 @@ class MessageDecoder(
 
     override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String {
         val field = fieldByElementIndex[index]
-        check(field.type is FieldEncoding.String)
+        check(field.encoding is FieldEncoding.String)
         val wireValues = values[field.number]?.castItems<WireValue.Len>()
         var ret = ""
         if (wireValues != null)

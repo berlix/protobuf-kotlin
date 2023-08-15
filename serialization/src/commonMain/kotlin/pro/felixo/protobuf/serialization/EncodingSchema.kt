@@ -75,7 +75,7 @@ sealed interface Member {
 
 class Field(
     override val name: Identifier,
-    val type: FieldEncoding,
+    val encoding: FieldEncoding,
     val number: FieldNumber,
     val rule: FieldRule = FieldRule.Singular,
     val encoder: ((WireBuffer) -> Encoder),

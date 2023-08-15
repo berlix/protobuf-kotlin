@@ -21,8 +21,8 @@ private fun typeDependencies(type: Type): List<Type> = when (type) {
     is Enum -> emptyList()
 }
 
-fun fieldDependency(field: Field): Type? = when (field.type) {
-    is FieldEncoding.Reference -> field.type.type
+fun fieldDependency(field: Field): Type? = when (field.encoding) {
+    is FieldEncoding.Reference -> field.encoding.type
     else -> null
 }
 
@@ -63,7 +63,7 @@ fun OneOf.toDocumentOneOf() = pro.felixo.protobuf.schemadocument.OneOf(
 
 fun Field.toDocumentField() = pro.felixo.protobuf.schemadocument.Field(
     name,
-    type.toDocumentFieldType(),
+    encoding.toDocumentFieldType(),
     number,
     rule
 )
