@@ -3,24 +3,20 @@ package pro.felixo.protobuf.serialization
 import kotlinx.serialization.BinaryFormat
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import pro.felixo.protobuf.EnumValue
 import pro.felixo.protobuf.FieldNumber
 import pro.felixo.protobuf.FieldRule
 import pro.felixo.protobuf.Identifier
+import pro.felixo.protobuf.serialization.encoding.FieldEncoding
 import pro.felixo.protobuf.serialization.encoding.HybridDecoder
 import pro.felixo.protobuf.serialization.encoding.HybridEncoder
-import pro.felixo.protobuf.serialization.encoding.FieldEncoding
 import pro.felixo.protobuf.serialization.encoding.varInt
-import pro.felixo.protobuf.serialization.generation.SchemaGenerator
 import pro.felixo.protobuf.serialization.util.simpleTypeName
 import pro.felixo.protobuf.wire.WireBuffer
 import pro.felixo.protobuf.wire.WireValue
-import kotlin.reflect.KType
 
 class EncodingSchema internal constructor(
     override val serializersModule: SerializersModule,
@@ -41,16 +37,6 @@ class EncodingSchema internal constructor(
         val message = types[simpleTypeName] as? Message ?: error("Not a message type: $simpleTypeName")
         val decoder = message.decoder(listOf(WireValue.Len(WireBuffer(bytes))))
         return deserializer.deserialize(decoder)
-    }
-
-    companion object {
-        fun of(
-            descriptors: List<SerialDescriptor> = emptyList(),
-            typesFromSerializersModule: List<KType> = emptyList(),
-            serializersModule: SerializersModule = EmptySerializersModule(),
-            encodeZeroValues: Boolean = false
-        ): EncodingSchema =
-            SchemaGenerator(descriptors, typesFromSerializersModule, serializersModule, encodeZeroValues).schema()
     }
 }
 

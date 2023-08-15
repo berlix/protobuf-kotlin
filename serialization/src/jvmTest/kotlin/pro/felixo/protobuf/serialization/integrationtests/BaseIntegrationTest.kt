@@ -14,6 +14,7 @@ import pro.felixo.protobuf.protoscope.ProtoscopeTokenizer
 import pro.felixo.protobuf.schemadocument.validation.ValidationResult
 import pro.felixo.protobuf.schemadocument.validation.validate
 import pro.felixo.protobuf.serialization.EncodingSchema
+import pro.felixo.protobuf.serialization.generation.encodingSchema
 import pro.felixo.protobuf.serialization.testutil.schemaOf
 import pro.felixo.protobuf.serialization.toSchemaDocument
 import kotlin.reflect.KType
@@ -33,7 +34,7 @@ abstract class BaseIntegrationTest {
         encodeZeroValues: Boolean = false
     ) {
         schemaResult = runCatching {
-            EncodingSchema.of(
+            encodingSchema(
                 descriptors,
                 typesFromSerializersModule,
                 serializersModule,
