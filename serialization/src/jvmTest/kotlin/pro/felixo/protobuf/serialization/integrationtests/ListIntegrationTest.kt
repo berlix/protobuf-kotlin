@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import org.junit.Test
 import pro.felixo.protobuf.serialization.testutil.EmptyClass
+import pro.felixo.protobuf.serialization.testutil.EnumClass
 import pro.felixo.protobuf.serialization.testutil.SealedLevel2LeafClassA
 import pro.felixo.protobuf.serialization.testutil.SealedLevel3LeafClass
 import pro.felixo.protobuf.serialization.testutil.SealedTopClass
@@ -172,6 +173,38 @@ class ListIntegrationTest : BaseIntegrationTest() {
             encodeZeroValues = false
         )
         verifyEncode(ClassWithListOfBytes(listOf(byteArrayOf())), """1: {}""")
+    }
+
+    @Test
+    fun `creates message for class with list of enum`() {
+        givenSchema(
+            ClassWithListOfEnum.serializer().descriptor,
+            encodeZeroValues = true
+        )
+        verifySchema(
+            """
+            message ClassWithListOfEnum {
+                repeated EnumClass list = 1;
+            }
+            
+            enum EnumClass {
+                A = 0;
+                B = 1;
+                C = 2;
+            }
+            """
+        )
+        verifyConversion(ClassWithListOfEnum(emptyList()), "")
+        verifyConversion(ClassWithListOfEnum(listOf(EnumClass.A)), """1: 0""")
+        verifyConversion(ClassWithListOfEnum(listOf(EnumClass.A, EnumClass.B, EnumClass.C)), """1: 0 1: 1 1: 2""")
+
+        givenSchema(
+            ClassWithListOfEnum.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfEnum(emptyList()), "")
+        verifyEncode(ClassWithListOfEnum(listOf(EnumClass.A)), """1: 0""")
+        verifyEncode(ClassWithListOfEnum(listOf(EnumClass.A, EnumClass.B, EnumClass.C)), """1: 0 1: 1 1: 2""")
     }
 
     @Test
@@ -447,6 +480,11 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
         override fun hashCode(): Int = list.contentHashCode()
     }
+
+    @Serializable
+    data class ClassWithListOfEnum(
+        val list: List<EnumClass>
+    )
 
     @Serializable
     data class ClassWithNullableList(
