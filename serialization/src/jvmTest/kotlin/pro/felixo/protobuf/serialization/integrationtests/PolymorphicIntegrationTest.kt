@@ -2,6 +2,7 @@ package pro.felixo.protobuf.serialization.integrationtests
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
+import pro.felixo.protobuf.serialization.ProtoDefaultEnumValue
 import pro.felixo.protobuf.serialization.ProtoNumber
 import pro.felixo.protobuf.serialization.testutil.SealedLevel2Class
 import pro.felixo.protobuf.serialization.testutil.SealedLevel2LeafClassA
@@ -23,7 +24,6 @@ class PolymorphicIntegrationTest : BaseIntegrationTest() {
     fun `creates messages for sealed class hierarchy`() {
         givenSchema(
             listOf(SealedTopClass.serializer().descriptor),
-            serializersModule = module,
             encodeZeroValues = true
         )
         verifySchema(
@@ -78,7 +78,6 @@ class PolymorphicIntegrationTest : BaseIntegrationTest() {
 
         givenSchema(
             listOf(SealedTopClass.serializer().descriptor),
-            serializersModule = module,
             encodeZeroValues = false
         )
         verifyEncode<SealedTopClass>(
@@ -155,6 +154,68 @@ class PolymorphicIntegrationTest : BaseIntegrationTest() {
         )
     }
 
+    @Test
+    fun `creates messages for sealed class hierarchy with diverse sub-types`() {
+        givenSchema(
+            listOf(DiverseInterface.serializer().descriptor),
+            encodeZeroValues = true
+        )
+        verifySchema(
+            """
+            message DiverseInterface {
+              oneof subtypes {
+                ConcreteClass concreteClass = 1;
+                ConcreteObject concreteObject = 2;
+                ConcreteEnumClass concreteEnumClass = 3;
+              }
+            }
+            
+            message ConcreteClass {
+              int32 int = 1;
+            }
+            
+            message ConcreteObject {
+            }
+            
+            enum ConcreteEnumClass {
+              A = 0;
+              B = 1;
+            }
+            """
+        )
+
+        verifyConversion<DiverseInterface>(
+            ConcreteClass(0),
+            """1: { 1: 0 }"""
+        )
+        verifyConversion<DiverseInterface>(
+            ConcreteObject,
+            """2: {}"""
+        )
+        verifyConversion<DiverseInterface>(
+            ConcreteEnumClass.A,
+            """3: 0"""
+        )
+        verifyConversion<DiverseInterface>(
+            ConcreteEnumClass.B,
+            """3: 1"""
+        )
+
+        givenSchema(
+            listOf(DiverseInterface.serializer().descriptor),
+            encodeZeroValues = false
+        )
+
+        verifyConversion<DiverseInterface>(
+            ConcreteClass(0),
+            """1: {}"""
+        )
+        verifyEncode<DiverseInterface>(
+            ConcreteEnumClass.A,
+            """3: 0"""
+        )
+    }
+
     interface NonSealedInterface
 
     @Serializable
@@ -177,4 +238,22 @@ class PolymorphicIntegrationTest : BaseIntegrationTest() {
     data class NonSealedLevel3LeafClass(
         val top: NonSealedInterface
     ) : NonSealedLevel2Class()
+
+    @Serializable
+    sealed interface DiverseInterface
+
+    @Serializable
+    @ProtoNumber(1)
+    data class ConcreteClass(val int: Int) : DiverseInterface
+
+    @Serializable
+    @ProtoNumber(2)
+    data object ConcreteObject : DiverseInterface
+
+    @Serializable
+    @ProtoNumber(3)
+    enum class ConcreteEnumClass : DiverseInterface {
+        @ProtoDefaultEnumValue A,
+        B
+    }
 }
