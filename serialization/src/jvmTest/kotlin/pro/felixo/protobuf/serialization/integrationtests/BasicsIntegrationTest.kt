@@ -15,6 +15,7 @@ import pro.felixo.protobuf.serialization.ProtoIntegerType
 import pro.felixo.protobuf.serialization.ProtoNumber
 import pro.felixo.protobuf.serialization.testutil.EmptyClass
 import pro.felixo.protobuf.serialization.testutil.ListDescriptor
+import pro.felixo.protobuf.serialization.testutil.StringIntValueClass
 import kotlin.reflect.typeOf
 import kotlin.test.Test
 
@@ -1135,20 +1136,6 @@ class BasicsIntegrationTest : BaseIntegrationTest() {
     data class ClassWithValueClassProperty(
         val stringInt: StringIntValueClass
     )
-
-    @JvmInline
-    @Serializable(with = StringIntValueClassSerializer::class)
-    value class StringIntValueClass(val value: Int)
-
-    class StringIntValueClassSerializer : KSerializer<StringIntValueClass> {
-        override val descriptor: SerialDescriptor =
-            PrimitiveSerialDescriptor("StringIntValueClass", PrimitiveKind.STRING)
-
-        override fun deserialize(decoder: Decoder): StringIntValueClass =
-            StringIntValueClass(decoder.decodeString().toInt())
-
-        override fun serialize(encoder: Encoder, value: StringIntValueClass) = encoder.encodeString("${value.value}")
-    }
 
     class StringIntSerializer : KSerializer<StringInt> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("StringInt", PrimitiveKind.STRING)

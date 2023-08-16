@@ -42,7 +42,7 @@ class SyntheticDecoder(
     override fun decodeString(): String = fieldDecoder.decodeString()
 
     @ExperimentalSerializationApi
-    override fun decodeNotNullMark(): Boolean = fieldDecoder.decodeNotNullMark()
+    override fun decodeNotNullMark(): Boolean = values.isNotEmpty()
 
     @ExperimentalSerializationApi
     override fun decodeNull(): Nothing? = null

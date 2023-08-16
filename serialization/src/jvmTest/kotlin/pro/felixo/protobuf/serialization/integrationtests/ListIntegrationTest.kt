@@ -9,6 +9,7 @@ import pro.felixo.protobuf.serialization.testutil.SealedLevel2LeafClassA
 import pro.felixo.protobuf.serialization.testutil.SealedLevel3LeafClass
 import pro.felixo.protobuf.serialization.testutil.SealedTopClass
 import pro.felixo.protobuf.serialization.testutil.SimpleClass
+import pro.felixo.protobuf.serialization.testutil.StringIntValueClass
 import kotlin.reflect.typeOf
 
 class ListIntegrationTest : BaseIntegrationTest() {
@@ -379,6 +380,118 @@ class ListIntegrationTest : BaseIntegrationTest() {
     }
 
     @Test
+    fun `creates message for class with list of nullable bytes`() {
+        givenSchema(
+            ClassWithListOfNullableBytes.serializer().descriptor,
+            encodeZeroValues = true
+        )
+        verifySchema(
+            """
+            message ClassWithListOfNullableBytes {
+                repeated ListItem list = 1;
+                message ListItem {
+                    optional bytes value = 1;
+                }
+            }
+            """
+        )
+        verifyConversion(ClassWithListOfNullableBytes(emptyList()), "")
+        verifyConversion(ClassWithListOfNullableBytes(listOf(null)), "1: {}")
+        verifyConversion(ClassWithListOfNullableBytes(listOf(byteArrayOf())), "1: { 1: {} }")
+        verifyConversion(
+            ClassWithListOfNullableBytes(listOf(byteArrayOf(5), byteArrayOf(6))),
+            "1: { 1: { `05` } } 1: { 1: { `06` } }"
+        )
+        verifyConversion(
+            ClassWithListOfNullableBytes(listOf(null, byteArrayOf(7), null)),
+            "1: {} 1: { 1: { `07` } } 1: {}"
+        )
+
+        givenSchema(
+            ClassWithListOfNullableBytes.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfNullableBytes(listOf(null)), "1: {}")
+        verifyEncode(ClassWithListOfNullableBytes(listOf(byteArrayOf())), "1: { 1: {} }")
+    }
+
+    @Test
+    fun `creates message for class with list of nullable message`() {
+        givenSchema(
+            ClassWithListOfNullableMessage.serializer().descriptor,
+            encodeZeroValues = true
+        )
+        verifySchema(
+            """
+            message ClassWithListOfNullableMessage {
+                repeated ListItem list = 1;
+                message ListItem {
+                    optional SimpleClass value = 1;
+                }
+            }
+            
+            message SimpleClass {
+                int32 value = 1;
+            }
+            """
+        )
+        verifyConversion(ClassWithListOfNullableMessage(emptyList()), "")
+        verifyConversion(ClassWithListOfNullableMessage(listOf(null)), "1: {}")
+        verifyConversion(ClassWithListOfNullableMessage(listOf(SimpleClass(0))), "1: { 1: { 1: 0 } }")
+        verifyConversion(
+            ClassWithListOfNullableMessage(listOf(SimpleClass(5), SimpleClass(6))),
+            "1: { 1: { 1: 5 } } 1: { 1: { 1: 6 } }"
+        )
+        verifyConversion(
+            ClassWithListOfNullableMessage(listOf(null, SimpleClass(7), null)),
+            "1: {} 1: { 1: { 1: 7 } } 1: {}"
+        )
+
+        givenSchema(
+            ClassWithListOfNullableMessage.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfNullableMessage(listOf(null)), "1: {}")
+        verifyEncode(ClassWithListOfNullableMessage(listOf(SimpleClass(0))), "1: { 1: {} }")
+    }
+
+    @Test
+    fun `creates message for class with list of nullable value class`() {
+        givenSchema(
+            ClassWithListOfNullableValueClass.serializer().descriptor,
+            encodeZeroValues = true
+        )
+        verifySchema(
+            """
+            message ClassWithListOfNullableValueClass {
+                repeated ListItem list = 1;
+                message ListItem {
+                    optional string value = 1;
+                }
+            }
+            """
+        )
+        verifyConversion(ClassWithListOfNullableValueClass(emptyList()), "")
+        verifyConversion(ClassWithListOfNullableValueClass(listOf(null)), "1: {}")
+        verifyConversion(ClassWithListOfNullableValueClass(listOf(StringIntValueClass(0))), """1: { 1: { "0" } }""")
+        verifyConversion(
+            ClassWithListOfNullableValueClass(listOf(StringIntValueClass(5), StringIntValueClass(6))),
+            """1: { 1: { "5" } } 1: { 1: { "6" } }"""
+        )
+        verifyConversion(
+            ClassWithListOfNullableValueClass(listOf(null, StringIntValueClass(7), null)),
+            """1: {} 1: { 1: { "7" } } 1: {}"""
+        )
+
+        givenSchema(
+            ClassWithListOfNullableValueClass.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfNullableValueClass(listOf(null)), "1: {}")
+        verifyEncode(ClassWithListOfNullableValueClass(listOf(StringIntValueClass(0))), """1: { 1: { "0" } }""")
+    }
+
+    @Test
     fun `creates message for class with nested lists`() {
         givenSchema(
             ClassWithNestedLists.serializer().descriptor,
@@ -482,6 +595,22 @@ class ListIntegrationTest : BaseIntegrationTest() {
     }
 
     @Serializable
+    data class ClassWithListOfNullableBytes(
+        val list: List<ByteArray?>
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ClassWithListOfNullableBytes
+
+            return list.contentEquals(other.list)
+        }
+
+        override fun hashCode(): Int = list.contentHashCode()
+    }
+
+    @Serializable
     data class ClassWithListOfEnum(
         val list: List<EnumClass>
     )
@@ -494,6 +623,16 @@ class ListIntegrationTest : BaseIntegrationTest() {
     @Serializable
     data class ClassWithListOfNullableScalar(
         val list: List<Int?>
+    )
+
+    @Serializable
+    data class ClassWithListOfNullableValueClass(
+        val list: List<StringIntValueClass?>
+    )
+
+    @Serializable
+    data class ClassWithListOfNullableMessage(
+        val list: List<SimpleClass?>
     )
 
     @Serializable
@@ -526,10 +665,10 @@ class ListIntegrationTest : BaseIntegrationTest() {
     )
 
     companion object {
-        private fun List<ByteArray>.contentEquals(other: List<ByteArray>) =
+        private fun List<ByteArray?>.contentEquals(other: List<ByteArray?>) =
             contentEquals(other) { l, r -> l.contentEquals(r) }
 
-        private fun List<ByteArray>.contentHashCode() =
+        private fun List<ByteArray?>.contentHashCode() =
             fold(0) { acc, e -> acc * 31 + e.contentHashCode() }
 
         private fun <T> List<T>.contentEquals(other: List<T>, elementEquals: (T, T) -> Boolean) =

@@ -41,7 +41,7 @@ class SyntheticEncoder(
         fieldEncoder.encodeEnum(enumDescriptor, index).also { writeBuffer() }
 
     @ExperimentalSerializationApi
-    override fun encodeNull() = fieldEncoder.encodeNull().also { writeBuffer() }
+    override fun encodeNull() = writeBuffer()
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         fieldCompositeEncoder = fieldEncoder.beginStructure(descriptor)
