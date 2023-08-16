@@ -14,11 +14,16 @@ import pro.felixo.protobuf.serialization.encoding.FieldEncoding
 import pro.felixo.protobuf.serialization.encoding.HybridDecoder
 import pro.felixo.protobuf.serialization.encoding.HybridEncoder
 import pro.felixo.protobuf.serialization.encoding.varInt
+import pro.felixo.protobuf.serialization.generation.encodingSchema
 import pro.felixo.protobuf.serialization.util.simpleTypeName
 import pro.felixo.protobuf.wire.WireBuffer
 import pro.felixo.protobuf.wire.WireValue
 
-class EncodingSchema internal constructor(
+/**
+ * A [BinaryFormat] for encoding and decoding protobuf messages. Applications should obtain instances of this class
+ * using the [encodingSchema] function.
+ */
+class EncodingSchema(
     override val serializersModule: SerializersModule,
     val types: Map<String, Type>
 ) : BinaryFormat {

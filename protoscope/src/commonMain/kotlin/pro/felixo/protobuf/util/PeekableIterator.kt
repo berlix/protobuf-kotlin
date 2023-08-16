@@ -1,6 +1,6 @@
 package pro.felixo.protobuf.util
 
-internal class PeekableIterator<T : Any>(
+class PeekableIterator<T : Any>(
     private val base: Iterator<T>
 ) : Iterator<T> {
     private var peeked = ArrayDeque<T>()
