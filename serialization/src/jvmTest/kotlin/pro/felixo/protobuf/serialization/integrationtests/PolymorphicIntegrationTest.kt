@@ -11,7 +11,7 @@ import pro.felixo.protobuf.serialization.testutil.SealedTopClass
 import kotlin.reflect.typeOf
 import kotlin.test.Test
 
-class PolymorphyIntegrationTest : BaseIntegrationTest() {
+class PolymorphicIntegrationTest : BaseIntegrationTest() {
     private val module = SerializersModule {
         polymorphic(NonSealedLevel2Class::class, NonSealedLevel3LeafClass::class, NonSealedLevel3LeafClass.serializer())
         polymorphic(NonSealedInterface::class, NonSealedLevel2LeafClassA::class, NonSealedLevel2LeafClassA.serializer())
