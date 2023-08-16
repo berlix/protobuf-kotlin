@@ -12,7 +12,7 @@ import pro.felixo.protobuf.wire.WireValue
 import pro.felixo.protobuf.wire.encodeValue
 
 @OptIn(ExperimentalSerializationApi::class)
-class ValueEncoder(
+class PrimitiveEncoder(
     override val serializersModule: SerializersModule,
     private val output: WireBuffer,
     private val encoding: FieldEncoding,
@@ -20,7 +20,7 @@ class ValueEncoder(
     private val fieldNumber: FieldNumber? = null
 ) : Encoder {
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder =
-        error("ValueEncoder cannot encode structures.")
+        error("PrimitiveEncoder cannot encode structures.")
 
     @ExperimentalSerializationApi
     override fun encodeNull() {

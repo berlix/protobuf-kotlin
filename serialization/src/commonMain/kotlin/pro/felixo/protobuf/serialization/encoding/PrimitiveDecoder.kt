@@ -9,13 +9,13 @@ import pro.felixo.protobuf.serialization.util.castItems
 import pro.felixo.protobuf.wire.WireValue
 
 @OptIn(ExperimentalSerializationApi::class)
-class ValueDecoder(
+class PrimitiveDecoder(
     override val serializersModule: SerializersModule,
     private val values: List<WireValue>,
     private val type: FieldEncoding?
 ) : Decoder {
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
-        error("ValueDecoder cannot decode structures.")
+        error("PrimitiveDecoder cannot decode structures.")
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
         (type as FieldEncoding.EnumReference).type

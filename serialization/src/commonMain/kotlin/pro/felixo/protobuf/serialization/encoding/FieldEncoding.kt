@@ -27,10 +27,10 @@ sealed class FieldEncoding {
         fieldNumber: FieldNumber?,
         output: WireBuffer,
         encodeZeroValue: Boolean
-    ): Encoder = ValueEncoder(serializersModule, output, this, encodeZeroValue, fieldNumber)
+    ): Encoder = PrimitiveEncoder(serializersModule, output, this, encodeZeroValue, fieldNumber)
 
     open fun decoder(serializersModule: SerializersModule, input: List<WireValue>): Decoder =
-        ValueDecoder(serializersModule, input, this)
+        PrimitiveDecoder(serializersModule, input, this)
 
     sealed class Scalar<DecodedType: Any>(val name: kotlin.String) : FieldEncoding() {
         abstract fun encode(value: DecodedType, encodeZeroValue: Boolean): WireValue?
@@ -329,10 +329,10 @@ sealed class FieldEncoding {
             fieldNumber: FieldNumber?,
             output: WireBuffer,
             encodeZeroValue: Boolean
-        ): Encoder = ValueEncoder(serializersModule, output, this, encodeZeroValue, fieldNumber)
+        ): Encoder = PrimitiveEncoder(serializersModule, output, this, encodeZeroValue, fieldNumber)
 
         override fun decoder(serializersModule: SerializersModule, input: List<WireValue>): Decoder =
-            ValueDecoder(serializersModule, input, this)
+            PrimitiveDecoder(serializersModule, input, this)
     }
 }
 
