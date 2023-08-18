@@ -11,7 +11,25 @@ annotation class ProtoNumber(val number: Int)
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 @OptIn(ExperimentalSerializationApi::class)
-annotation class ProtoMapEntry(val keyName: String = "key", val valueName: String = "value")
+annotation class ProtoListItem(
+    val integerType: IntegerType = IntegerType.Default,
+    val messageName: String = "",
+    val fieldName: String = "value",
+    val fieldNumber: Int = 1,
+)
+
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+@OptIn(ExperimentalSerializationApi::class)
+annotation class ProtoMapEntry(
+    val messageName: String = "",
+    val keyName: String = "key",
+    val keyNumber: Int = 1,
+    val keyIntegerType: IntegerType = IntegerType.Default,
+    val valueName: String = "value",
+    val valueNumber: Int = 2,
+    val valueIntegerType: IntegerType = IntegerType.Default
+)
 
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)

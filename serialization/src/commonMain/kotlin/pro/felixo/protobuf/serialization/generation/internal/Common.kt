@@ -53,9 +53,9 @@ fun TypeContext.field(
             if (descriptor.getElementDescriptor(0).kind == PrimitiveKind.BYTE)
                 field(descriptor, name, FieldEncoding.Bytes, number)
             else if (descriptor.isNullable)
-                optionalListField(descriptor, name, number)
+                optionalListField(descriptor, name, number, annotations)
             else
-                listField(name, number, descriptor.actual)
+                listField(name, number, descriptor.actual, annotations)
         StructureKind.MAP ->
             if (descriptor.isNullable)
                 optionalMapField(name, annotations, descriptor, number)

@@ -13,6 +13,8 @@ import pro.felixo.protobuf.FieldNumber
 import pro.felixo.protobuf.FieldRule
 import pro.felixo.protobuf.Identifier
 import pro.felixo.protobuf.serialization.Field
+import pro.felixo.protobuf.serialization.ProtoIntegerType
+import pro.felixo.protobuf.serialization.ProtoListItem
 import pro.felixo.protobuf.serialization.encoding.FieldEncoding
 import pro.felixo.protobuf.serialization.encoding.ListDecoder
 import pro.felixo.protobuf.serialization.encoding.ListEncoder
@@ -24,9 +26,10 @@ import pro.felixo.protobuf.wire.WireValue
 fun TypeContext.optionalListField(
     descriptor: SerialDescriptor,
     name: Identifier,
-    number: FieldNumber
+    number: FieldNumber,
+    annotations: List<Annotation>
 ): Field {
-    val field = listField(Identifier("list"), FieldNumber(1), descriptor.actual)
+    val field = listField(Identifier("list"), FieldNumber(1), descriptor.actual, annotations)
     return Field(
         name,
         syntheticMessage(Identifier("${name.value.replaceFirstChar { it.uppercase() }}Value")) {
@@ -42,39 +45,40 @@ fun TypeContext.optionalListField(
 fun TypeContext.listField(
     name: Identifier,
     number: FieldNumber,
-    descriptor: SerialDescriptor
+    descriptor: SerialDescriptor,
+    annotations: List<Annotation>
 ): Field {
-    val elementDescriptor = descriptor.getElementDescriptor(0).actual
-    val elementAnnotations = descriptor.getElementAnnotations(0)
-    val syntheticMessageName = Identifier("${name.value.replaceFirstChar { it.uppercase() }}Item")
+    val listItemAnnotation = annotations.filterIsInstance<ProtoListItem>().firstOrNull() ?: ProtoListItem()
+    val itemDescriptor = descriptor.getElementDescriptor(0).actual
+    val itemAnnotations = descriptor.getElementAnnotations(0) + ProtoIntegerType(listItemAnnotation.integerType)
 
-    return repeatedField(name, number, elementDescriptor, elementAnnotations, syntheticMessageName)
+    return repeatedField(name, number, itemDescriptor, itemAnnotations, listItemAnnotation)
 }
 
 private fun TypeContext.repeatedField(
     name: Identifier,
     number: FieldNumber,
     descriptor: SerialDescriptor,
-    annotations: List<Annotation>,
-    syntheticMessageName: Identifier
+    itemAnnotations: List<Annotation>,
+    listItemAnnotation: ProtoListItem
 ): Field = if (descriptor.isNullable)
-    syntheticRepeatedField(name, number, syntheticMessageName, annotations, descriptor)
+    syntheticRepeatedField(name, number, listItemAnnotation, itemAnnotations, descriptor)
 else
     when (val kind = descriptor.kind) {
-        is PrimitiveKind -> naturalRepeatedField(name, number, scalar(annotations, kind))
+        is PrimitiveKind -> naturalRepeatedField(name, number, scalar(itemAnnotations, kind))
         SerialKind.CONTEXTUAL -> repeatedField(
             name,
             number,
             serializersModule.getContextualDescriptor(descriptor)
                 ?: error("No contextual serializer found for ${descriptor.serialName}"),
-            annotations,
-            syntheticMessageName
+            itemAnnotations,
+            listItemAnnotation
         )
         StructureKind.LIST -> if (descriptor.actual.getElementDescriptor(0).kind == PrimitiveKind.BYTE)
             naturalRepeatedField(name, number, FieldEncoding.Bytes)
         else
-            syntheticRepeatedField(name, number, syntheticMessageName, annotations, descriptor)
-        StructureKind.MAP -> syntheticRepeatedField(name, number, syntheticMessageName, annotations, descriptor)
+            syntheticRepeatedField(name, number, listItemAnnotation, itemAnnotations, descriptor)
+        StructureKind.MAP -> syntheticRepeatedField(name, number, listItemAnnotation, itemAnnotations, descriptor)
         StructureKind.CLASS, StructureKind.OBJECT, SerialKind.ENUM, is PolymorphicKind ->
             naturalRepeatedField(name, number, root.namedType(descriptor))
     }
@@ -106,16 +110,21 @@ private fun TypeContext.naturalRepeatedField(
 private fun TypeContext.syntheticRepeatedField(
     name: Identifier,
     number: FieldNumber,
-    syntheticMessageName: Identifier,
+    listItemAnnotation: ProtoListItem,
     annotations: List<Annotation>,
     descriptor: SerialDescriptor
 ): Field {
     lateinit var innerField: Field
 
-    val syntheticType = syntheticMessage(syntheticMessageName) {
+    val syntheticType = syntheticMessage(
+        Identifier(
+            listItemAnnotation.messageName.takeIf { it.isNotEmpty() }
+                ?: "${name.value.replaceFirstChar { it.uppercase() }}Item"
+        )
+    ) {
         val field = field(
-            Identifier("value"),
-            FieldNumber(1),
+            Identifier(listItemAnnotation.fieldName),
+            FieldNumber(listItemAnnotation.fieldNumber),
             annotations,
             descriptor
         )

@@ -9,6 +9,7 @@ import pro.felixo.protobuf.FieldRule
 import pro.felixo.protobuf.Identifier
 import pro.felixo.protobuf.serialization.Field
 import pro.felixo.protobuf.serialization.Message
+import pro.felixo.protobuf.serialization.ProtoIntegerType
 import pro.felixo.protobuf.serialization.ProtoMapEntry
 import pro.felixo.protobuf.serialization.encoding.MapDecoder
 import pro.felixo.protobuf.serialization.encoding.MapEncoder
@@ -42,24 +43,30 @@ fun TypeContext.mapField(
     descriptor: SerialDescriptor
 ): Field {
     val mapEntryAnnotation = annotations.filterIsInstance<ProtoMapEntry>().firstOrNull() ?: ProtoMapEntry()
-    val entryTypeName = "${name.value.replaceFirstChar { it.uppercase() }}Entry"
+
+    val entryMessageName = mapEntryAnnotation.messageName.takeIf { it.isNotEmpty() }
+        ?: "${name.value.replaceFirstChar { it.uppercase() }}Entry"
+
     lateinit var keyField: Field
     lateinit var valueField: Field
-    val entryType = putOrGetMessage(name = entryTypeName) {
+
+    val entryMessage = putOrGetMessage(name = entryMessageName) {
         typeContext {
             Message(
-                Identifier(entryTypeName),
+                Identifier(entryMessageName),
                 listOf(
                     field(
                         Identifier(mapEntryAnnotation.keyName),
-                        FieldNumber(1),
-                        descriptor.getElementAnnotations(0),
+                        FieldNumber(mapEntryAnnotation.keyNumber),
+                        descriptor.getElementAnnotations(0) +
+                            ProtoIntegerType(mapEntryAnnotation.keyIntegerType),
                         descriptor.getElementDescriptor(0)
                     ).also { keyField = it },
                     field(
                         Identifier(mapEntryAnnotation.valueName),
-                        FieldNumber(2),
-                        descriptor.getElementAnnotations(1),
+                        FieldNumber(mapEntryAnnotation.valueNumber),
+                        descriptor.getElementAnnotations(1) +
+                            ProtoIntegerType(mapEntryAnnotation.valueIntegerType),
                         descriptor.getElementDescriptor(1)
                     ).also { valueField = it },
                 ),
@@ -71,7 +78,7 @@ fun TypeContext.mapField(
     }
     return Field(
         name,
-        entryType,
+        entryMessage,
         number,
         FieldRule.Repeated,
         encoder = { MapEncoder(serializersModule, number, keyField, valueField, it) },

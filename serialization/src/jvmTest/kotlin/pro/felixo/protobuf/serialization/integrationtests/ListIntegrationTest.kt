@@ -3,6 +3,8 @@ package pro.felixo.protobuf.serialization.integrationtests
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import org.junit.Test
+import pro.felixo.protobuf.serialization.IntegerType
+import pro.felixo.protobuf.serialization.ProtoListItem
 import pro.felixo.protobuf.serialization.testutil.EmptyClass
 import pro.felixo.protobuf.serialization.testutil.EnumClass
 import pro.felixo.protobuf.serialization.testutil.SealedLevel2LeafClassA
@@ -548,6 +550,64 @@ class ListIntegrationTest : BaseIntegrationTest() {
     }
 
     @Test
+    fun `creates message for class with list of scalar with custom settings`() {
+        givenSchema(
+            ClassWithListOfIntWithCustomSettings.serializer().descriptor,
+            encodeZeroValues = true
+        )
+        verifySchema(
+            """
+            message ClassWithListOfIntWithCustomSettings {
+                repeated sfixed32 list = 1;
+            }
+            """
+        )
+        verifyConversion(ClassWithListOfIntWithCustomSettings(emptyList()), "")
+        verifyConversion(ClassWithListOfIntWithCustomSettings(listOf(0)), "1: { 0i32 }")
+        verifyConversion(ClassWithListOfIntWithCustomSettings(listOf(-1)), "1: { -1i32 }")
+        verifyConversion(ClassWithListOfIntWithCustomSettings(listOf(1, 2, 3)), "1: { 1i32 2i32 3i32 }")
+        verifyDecode(ClassWithListOfIntWithCustomSettings(emptyList()), "1: {}")
+        verifyDecode(ClassWithListOfIntWithCustomSettings(listOf(1, 2, 3)), "1: 1i32 1: 2i32 1: 3i32")
+        verifyDecode(ClassWithListOfIntWithCustomSettings(listOf(1, 2, 3)), "1: { 1i32 2i32 } 1: { 3i32 }")
+
+        givenSchema(
+            ClassWithListOfIntWithCustomSettings.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfIntWithCustomSettings(listOf(0)), "1: { 0i32 }")
+    }
+
+    @Test
+    fun `creates message for class with list of nullable scalar with custom settings`() {
+        givenSchema(
+            ClassWithListOfNullableScalarWithCustomSettings.serializer().descriptor,
+            encodeZeroValues = true
+        )
+        verifySchema(
+            """
+            message ClassWithListOfNullableScalarWithCustomSettings {
+                repeated CustomListItem list = 1;
+                message CustomListItem {
+                    optional fixed32 customValue = 5;
+                }
+            }
+            """
+        )
+        verifyConversion(ClassWithListOfNullableScalarWithCustomSettings(emptyList()), "")
+        verifyConversion(ClassWithListOfNullableScalarWithCustomSettings(listOf(null)), "1: {}")
+        verifyConversion(ClassWithListOfNullableScalarWithCustomSettings(listOf(0)), "1: { 5: 0i32 }")
+        verifyConversion(ClassWithListOfNullableScalarWithCustomSettings(listOf(5, 6)), "1: { 5: 5i32 } 1: { 5: 6i32 }")
+        verifyConversion(ClassWithListOfNullableScalarWithCustomSettings(listOf(null, 7, null)), "1: {} 1: { 5: 7i32 } 1: {}")
+
+        givenSchema(
+            ClassWithListOfNullableScalarWithCustomSettings.serializer().descriptor,
+            encodeZeroValues = false
+        )
+        verifyEncode(ClassWithListOfNullableScalarWithCustomSettings(listOf(null)), "1: {}")
+        verifyEncode(ClassWithListOfNullableScalarWithCustomSettings(listOf(0)), "1: { 5: 0i32 }")
+    }
+
+    @Test
     fun `does not create schema with synthetic top-level message for list`() {
         givenSchema(serializer(typeOf<List<String>>()).descriptor)
         verifySchemaGenerationFails()
@@ -555,6 +615,12 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Serializable
     data class ClassWithListOfInt(
+        val list: List<Int>
+    )
+
+    @Serializable
+    data class ClassWithListOfIntWithCustomSettings(
+        @ProtoListItem(integerType = IntegerType.SignedFixed)
         val list: List<Int>
     )
 
@@ -622,6 +688,17 @@ class ListIntegrationTest : BaseIntegrationTest() {
 
     @Serializable
     data class ClassWithListOfNullableScalar(
+        val list: List<Int?>
+    )
+
+    @Serializable
+    data class ClassWithListOfNullableScalarWithCustomSettings(
+        @ProtoListItem(
+            integerType = IntegerType.Fixed,
+            messageName = "CustomListItem",
+            fieldName = "customValue",
+            fieldNumber = 5
+        )
         val list: List<Int?>
     )
 

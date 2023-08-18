@@ -3,6 +3,7 @@ package pro.felixo.protobuf.serialization.integrationtests
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import org.junit.Test
+import pro.felixo.protobuf.serialization.IntegerType
 import pro.felixo.protobuf.serialization.ProtoMapEntry
 import pro.felixo.protobuf.serialization.testutil.ClassWithNullableEnumClassMember
 import pro.felixo.protobuf.serialization.testutil.EnumClass
@@ -120,24 +121,23 @@ class MapIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `creates message for class with map with custom entry property names`() {
         givenSchema(
-            ClassWithMapWithCustomEntryPropertyNames.serializer().descriptor
+            ClassWithMapWithCustomEntrySettings.serializer().descriptor
         )
         verifySchema(
             """
-            message ClassWithMapWithCustomEntryPropertyNames {
-                repeated MapEntry map = 1;
-                message MapEntry {
-                    int32 customKey = 1;
-                    int32 customValue = 2;
+            message ClassWithMapWithCustomEntrySettings {
+                repeated CustomMapEntry map = 1;
+                message CustomMapEntry {
+                    fixed32 customKey = 3;
+                    sint32 customValue = 4;
                 }
             }
             """
         )
-        verifyConversion(ClassWithMapWithCustomEntryPropertyNames(emptyMap()), "")
-        verifyConversion(ClassWithMapWithCustomEntryPropertyNames(mapOf(1 to 5)), """1: { 1: 1 2: 5 }""")
+        verifyConversion(ClassWithMapWithCustomEntrySettings(emptyMap()), "")
         verifyConversion(
-            ClassWithMapWithCustomEntryPropertyNames(mapOf(1 to 5, 2 to 6)),
-            """1: { 1: 1 2: 5 } 1: { 1: 2 2: 6 }"""
+            ClassWithMapWithCustomEntrySettings(mapOf(1 to 5, 2 to -6)),
+            """1: { 3: 1i32 4: 5z } 1: { 3: 2i32 4: -6z }"""
         )
     }
 
@@ -223,8 +223,16 @@ class MapIntegrationTest : BaseIntegrationTest() {
     )
 
     @Serializable
-    data class ClassWithMapWithCustomEntryPropertyNames(
-        @ProtoMapEntry("customKey", "customValue")
+    data class ClassWithMapWithCustomEntrySettings(
+        @ProtoMapEntry(
+            messageName = "CustomMapEntry",
+            keyName = "customKey",
+            keyNumber = 3,
+            keyIntegerType = IntegerType.Fixed,
+            valueName = "customValue",
+            valueNumber = 4,
+            valueIntegerType = IntegerType.Signed
+        )
         val map: Map<Int, Int>
     )
 
