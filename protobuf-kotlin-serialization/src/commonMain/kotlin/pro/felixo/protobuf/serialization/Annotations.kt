@@ -21,6 +21,7 @@ annotation class ProtoListItem(
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 @OptIn(ExperimentalSerializationApi::class)
+@Suppress("LongParameterList")
 annotation class ProtoMapEntry(
     val messageName: String = "",
     val keyName: String = "key",

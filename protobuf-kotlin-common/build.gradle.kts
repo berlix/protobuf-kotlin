@@ -9,7 +9,7 @@ kotlin {
         }
     }
 
-    js {
+    js(IR) {
         browser()
         nodejs()
     }
@@ -18,15 +18,18 @@ kotlin {
     sourceSets {
         val commonTest by getting {
             dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
+                implementation("io.kotest:kotest-framework-engine:5.6.2")
                 implementation("com.willowtreeapps.assertk:assertk:0.26.1")
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(kotlin("test"))
+                implementation("io.kotest:kotest-runner-junit5-jvm:5.6.2")
             }
         }
     }
+}
+
+tasks.named<Test>("jvmTest") {
+    useJUnitPlatform()
 }

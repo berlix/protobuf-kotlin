@@ -47,15 +47,21 @@ sealed class Token {
 
 enum class TokenType(val regex: Regex, val getToken: (text: String) -> Token? = { null }) {
     Whitespace(Regex("""\s+""")),
-    SingleLineComment(Regex("""//.*?\R""")),
-    MultiLineComment(Regex("""/\*(?:.|\R)*?\*/""")),
+    SingleLineComment(Regex("""//.*?(?:\r\n?|\n)""")),
+    MultiLineComment(Regex("""/\*(?:.|\r\n?|\n)*?\*/""")),
     Identifier(Regex("""[a-zA-Z.][a-zA-Z0-9_.]*"""), { Token.Identifier(it) }),
     NumberLiteral(Regex("[0-9]+"), { Token.NumberLiteral(it) }),
     StringLiteral(Regex(""""(?:[^"\\]|\\.)*""""), { Token.StringLiteral(it) }),
     OpenBrace(Regex("""\{"""), { Token.OpenBrace }),
-    CloseBrace(Regex("}"), { Token.CloseBrace }),
+
+    @Suppress("RegExpRedundantEscape") // JS target requires the escape
+    CloseBrace(Regex("""\}"""), { Token.CloseBrace }),
+
     OpenBracket(Regex("""\["""), { Token.OpenBracket }),
-    CloseBracket(Regex("]"), { Token.CloseBracket }),
+
+    @Suppress("RegExpRedundantEscape") // JS target requires the escape
+    CloseBracket(Regex("""\]"""), { Token.CloseBracket }),
+
     OpenParen(Regex("""\("""), { Token.OpenParen }),
     CloseParen(Regex("""\)"""), { Token.CloseParen }),
     Semicolon(Regex(";"), { Token.Semicolon }),

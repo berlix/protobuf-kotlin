@@ -120,15 +120,21 @@ sealed class Token {
 
 enum class TokenType(val regex: Regex, val getToken: (groupValues: List<String>) -> Token? = { null }) {
     Whitespace(Regex("""\s+""")),
-    Comment(Regex("""#.*?(\R|$)""")),
+    Comment(Regex("""#.*?(?:\r\n?|\n|$)""")),
     OpenBrace(Regex("""\{"""), { Token.OpenBrace }),
     OpenGroupBrace(Regex("""!\{"""), { Token.OpenGroupBrace }),
-    CloseBrace(Regex("}"), { Token.CloseBrace }),
+
+    @Suppress("RegExpRedundantEscape") // JS target requires the escape
+    CloseBrace(Regex("""\}"""), { Token.CloseBrace }),
+
     Tag(
         Regex("""((\d+)|(0x([\da-fA-F]+))):(VARINT|I64|LEN|SGROUP|EGROUP|I32|\d)?"""),
         { Token.Tag.of(it[2], it[4], it[5]) }
     ),
-    StringLiteral(Regex(""""((?:[^"\\]|\\\\|\\"|\\x\d\d|\\\d\d\d|\\n|\R)*)""""), { Token.StringLiteral.of(it[1]) }),
+    StringLiteral(
+        Regex(""""((?:[^"\\]|\\\\|\\"|\\x\d\d|\\\d\d\d|\\n|\r\n?|\n)*)""""),
+        { Token.StringLiteral.of(it[1]) }
+    ),
     BytesLiteral(Regex("""`(([\da-fA-F]{2})*?)`"""), { Token.BytesLiteral.of(it[1]) }),
     FloatLiteral(
         Regex(

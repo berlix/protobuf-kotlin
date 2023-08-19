@@ -7,6 +7,7 @@ plugins {
     id("maven-publish")
     id("io.gitlab.arturbosch.detekt") version "1.23.0"
     id("com.palantir.git-version") version "3.0.0"
+    id("io.kotest.multiplatform") version "5.6.2"
 }
 
 buildscript {
@@ -40,6 +41,7 @@ allprojects {
     version = version()
 
     apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "io.kotest.multiplatform")
 
     detekt {
         source.setFrom(
