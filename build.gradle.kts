@@ -36,7 +36,6 @@ allprojects {
         google()
     }
 
-
     group = "pro.felixo"
     version = version()
 

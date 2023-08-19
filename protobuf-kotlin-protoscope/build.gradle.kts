@@ -13,7 +13,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(project(":wire"))
+                api(project(":protobuf-kotlin-wire"))
             }
         }
         val commonTest by getting {

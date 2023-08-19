@@ -14,14 +14,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(project(":wire"))
-                api(project(":schema-document"))
+                api(project(":protobuf-kotlin-wire"))
+                api(project(":protobuf-kotlin-schemadocument"))
                 api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation(project(":protoscope"))
+                implementation(project(":protobuf-kotlin-protoscope"))
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
                 implementation("com.willowtreeapps.assertk:assertk:0.26.1")

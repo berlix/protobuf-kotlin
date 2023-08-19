@@ -1,7 +1,7 @@
 rootProject.name = "protobuf-kotlin"
 
-include("common")
-include("schema-document")
-include("wire")
-include("protoscope")
-include("serialization")
+include("protobuf-kotlin-common")
+include("protobuf-kotlin-schemadocument")
+include("protobuf-kotlin-wire")
+include("protobuf-kotlin-protoscope")
+include("protobuf-kotlin-serialization")
