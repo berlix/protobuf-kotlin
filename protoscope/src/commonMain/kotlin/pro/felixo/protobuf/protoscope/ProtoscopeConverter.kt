@@ -6,7 +6,7 @@ import pro.felixo.protobuf.wire.WireBuffer
 import pro.felixo.protobuf.wire.WireType
 import pro.felixo.protobuf.wire.encodeSInt64
 
-class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer) {
+class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer = ProtoscopeTokenizer()) {
     private var currentLongForm: Token.LongForm? = null
 
     /**

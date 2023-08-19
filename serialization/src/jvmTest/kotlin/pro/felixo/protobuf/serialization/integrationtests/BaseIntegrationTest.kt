@@ -10,7 +10,6 @@ import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 import pro.felixo.protobuf.protoscope.ProtoscopeConverter
-import pro.felixo.protobuf.protoscope.ProtoscopeTokenizer
 import pro.felixo.protobuf.schemadocument.validation.ValidationResult
 import pro.felixo.protobuf.schemadocument.validation.validate
 import pro.felixo.protobuf.serialization.EncodingSchema
@@ -20,7 +19,7 @@ import pro.felixo.protobuf.serialization.toSchemaDocument
 import kotlin.reflect.KType
 
 abstract class BaseIntegrationTest {
-    protected val protoscopeConverter = ProtoscopeConverter(ProtoscopeTokenizer())
+    protected val protoscopeConverter = ProtoscopeConverter()
     private var schemaResult: Result<EncodingSchema>? = null
     protected val schema get() = checkNotNull(schemaResult).getOrThrow()
 
