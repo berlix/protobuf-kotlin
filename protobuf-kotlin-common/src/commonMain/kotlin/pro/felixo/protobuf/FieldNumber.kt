@@ -1,5 +1,7 @@
 package pro.felixo.protobuf
 
+import kotlin.jvm.JvmInline
+
 @JvmInline
 value class FieldNumber(val value: Int) : Comparable<FieldNumber> {
     override fun compareTo(other: FieldNumber): Int = value.compareTo(other.value)

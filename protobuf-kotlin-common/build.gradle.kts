@@ -9,6 +9,11 @@ kotlin {
         }
     }
 
+    js {
+        browser()
+        nodejs()
+    }
+
     @Suppress("UNUSED_VARIABLE", "KotlinRedundantDiagnosticSuppress")
     sourceSets {
         val commonTest by getting {

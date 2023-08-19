@@ -52,7 +52,7 @@ class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer = Protoscop
                     check(currentLongForm == null) {
                         "Long-form cannot be applied to string literals - missing an open brace?"
                     }
-                    out.write(token.text.toByteArray())
+                    out.write(token.text.encodeToByteArray())
                 }
                 is Token.FloatLiteral -> {
                     check(currentLongForm == null) { "Long-form cannot be applied to floating-point numbers." }

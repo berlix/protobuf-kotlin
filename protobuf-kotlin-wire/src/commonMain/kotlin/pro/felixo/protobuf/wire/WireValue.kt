@@ -1,5 +1,7 @@
 package pro.felixo.protobuf.wire
 
+import kotlin.jvm.JvmInline
+
 sealed interface WireValue {
     @JvmInline
     value class VarInt(val value: Long) : WireValue

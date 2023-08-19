@@ -1,6 +1,7 @@
 package pro.felixo.protobuf.wire
 
 import pro.felixo.protobuf.FieldNumber
+import kotlin.jvm.JvmInline
 
 @JvmInline
 @Suppress("MagicNumber")

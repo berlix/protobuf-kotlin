@@ -15,4 +15,4 @@ fun len(value: ByteArray, encodeZeroValue: Boolean) = (encodeZeroValue || value.
     .then { WireValue.Len(WireBuffer(value)) }
 
 fun len(value: String, encodeZeroValue: Boolean) = (encodeZeroValue || value.isNotEmpty())
-    .then { WireValue.Len(WireBuffer(value.toByteArray())) }
+    .then { WireValue.Len(WireBuffer(value.encodeToByteArray())) }

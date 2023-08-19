@@ -3,7 +3,7 @@
 package pro.felixo.protobuf.protoscope
 
 import pro.felixo.protobuf.wire.WireType
-import java.lang.Integer.min
+import kotlin.math.min
 import kotlin.math.pow
 
 sealed class Token {

@@ -62,8 +62,7 @@ class WireBuffer(
     }
 
     fun readBytes(): ByteArray {
-        val ret = ByteArray(remaining)
-        System.arraycopy(bytes, position, ret, 0, remaining)
+        val ret = bytes.sliceArray(position until position + remaining)
         position += remaining
         return ret
     }
