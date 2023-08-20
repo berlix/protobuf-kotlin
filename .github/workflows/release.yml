@@ -18,6 +18,9 @@ jobs:
       - name: Check
         run: ./gradlew check --info --stacktrace
 
+      - name: Determine version
+        run: echo "VERSION=`./gradlew -q printVersion | tail -n 1`" >> $GITHUB_ENV
+
       - name: Publish package
         run: ./gradlew publish --info --stacktrace
         env:
@@ -25,6 +28,18 @@ jobs:
           OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
           OSSRH_GPG_KEY: ${{ secrets.OSSRH_GPG_KEY }}
           OSSRH_GPG_PASSWORD: ${{ secrets.OSSRH_GPG_PASSWORD }}
+
+      - name: Publish docs
+        run: |
+          ./gradlew dokkaHtmlMultiModule --info --stacktrace
+          git checkout gh-pages
+          mkdir -p apidocs
+          cp -r build/dokka/htmlMultiModule apidocs/$VERSION
+          rm -f apidocs/latest
+          ln -s apidocs/$VERSION apidocs/latest
+          git add apidocs/$VERSION apidocs/latest
+          git commit -m "Add docs for $VERSION"
+          git push
 
       - name: Upload reports
         uses: actions/upload-artifact@v3
