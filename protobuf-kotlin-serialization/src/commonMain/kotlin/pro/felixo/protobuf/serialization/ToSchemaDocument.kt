@@ -3,9 +3,15 @@ package pro.felixo.protobuf.serialization
 import pro.felixo.protobuf.EnumValue
 import pro.felixo.protobuf.schemadocument.FieldType
 import pro.felixo.protobuf.schemadocument.SchemaDocument
+import pro.felixo.protobuf.schemadocument.SchemaDocumentWriter
+import pro.felixo.protobuf.schemadocument.validation.validate
 import pro.felixo.protobuf.serialization.encoding.FieldEncoding
 import pro.felixo.protobuf.serialization.util.topologicalIndex
 
+/**
+ * Converts an [EncodingSchema] to a [SchemaDocument], which may be serialized using [SchemaDocumentWriter], validated
+ * using [validate], and compared with other [SchemaDocument]s.
+ */
 fun EncodingSchema.toSchemaDocument(): SchemaDocument {
     val typeOrdering = topologicalIndex(types.values.sortedBy { it.name }) { typeDependencies(it) }
     return SchemaDocument(
@@ -21,17 +27,17 @@ private fun typeDependencies(type: Type): List<Type> = when (type) {
     is Enum -> emptyList()
 }
 
-fun fieldDependency(field: Field): Type? = when (field.encoding) {
+private fun fieldDependency(field: Field): Type? = when (field.encoding) {
     is FieldEncoding.Reference<*> -> field.encoding.type
     else -> null
 }
 
-fun Type.toDocumentType(typeOrdering: Map<Type, Int>): pro.felixo.protobuf.schemadocument.Type = when (this) {
+private fun Type.toDocumentType(typeOrdering: Map<Type, Int>): pro.felixo.protobuf.schemadocument.Type = when (this) {
     is Message -> toDocumentMessage(typeOrdering)
     is Enum -> toDocumentEnum()
 }
 
-fun Message.toDocumentMessage(typeOrdering: Map<Type, Int>) = pro.felixo.protobuf.schemadocument.Message(
+private fun Message.toDocumentMessage(typeOrdering: Map<Type, Int>) = pro.felixo.protobuf.schemadocument.Message(
     name,
     members.sortedBy { member ->
         when (member) {
@@ -42,7 +48,7 @@ fun Message.toDocumentMessage(typeOrdering: Map<Type, Int>) = pro.felixo.protobu
     nestedTypes.sortedBy { typeOrdering[it] }.map { it.toDocumentType(typeOrdering) }
 )
 
-fun Enum.toDocumentEnum() = pro.felixo.protobuf.schemadocument.Enum(
+private fun Enum.toDocumentEnum() = pro.felixo.protobuf.schemadocument.Enum(
     name,
     values.sortedWith { a: EnumValue, b: EnumValue ->
         if (a.number == 0 && b.number != 0) -1
@@ -51,17 +57,17 @@ fun Enum.toDocumentEnum() = pro.felixo.protobuf.schemadocument.Enum(
     }
 )
 
-fun Member.toDocumentMember(): pro.felixo.protobuf.schemadocument.Member = when (this) {
+private fun Member.toDocumentMember(): pro.felixo.protobuf.schemadocument.Member = when (this) {
     is OneOf -> toDocumentOneOf()
     is Field -> toDocumentField()
 }
 
-fun OneOf.toDocumentOneOf() = pro.felixo.protobuf.schemadocument.OneOf(
+private fun OneOf.toDocumentOneOf() = pro.felixo.protobuf.schemadocument.OneOf(
     name,
     fields.sortedBy { it.number }.map { it.toDocumentField() }
 )
 
-fun Field.toDocumentField() = pro.felixo.protobuf.schemadocument.Field(
+private fun Field.toDocumentField() = pro.felixo.protobuf.schemadocument.Field(
     name,
     encoding.toDocumentFieldType(),
     number,

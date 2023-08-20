@@ -5,11 +5,19 @@ import pro.felixo.protobuf.FieldNumber
 import pro.felixo.protobuf.FieldRule
 import pro.felixo.protobuf.Identifier
 
+/**
+ * Common interface implemented by all the elements of a [SchemaDocument]. It serves to facilitate the
+ * generation of useful validation error messages.
+ */
 interface SchemaElement {
     val elementType: String
     val elementName: String
 }
 
+/**
+ * Represents a .proto file and describes the declarations therein. Note that only a subset of the .proto syntax is
+ * supported.
+ */
 data class SchemaDocument(
     val types: List<Type> = emptyList()
 ) : SchemaElement {
@@ -23,6 +31,9 @@ data class SchemaDocument(
     }
 }
 
+/**
+ * Represents a type declaration, which may be a [Message] or an [Enum].
+ */
 sealed class Type : SchemaElement {
     abstract val name: Identifier
 
@@ -35,6 +46,9 @@ sealed class Type : SchemaElement {
     }
 }
 
+/**
+ * Represents a message declaration.
+ */
 data class Message(
     override val name: Identifier,
     val members: List<Member> = emptyList(),
@@ -45,14 +59,23 @@ data class Message(
     override val elementType = "message"
 }
 
+/**
+ * Returns all the fields of this message, including those inside oneof declarations.
+ */
 val Message.fields: List<Field> get() =
     (members.filterIsInstance<Field>() + members.filterIsInstance<OneOf>().flatMap { it.fields })
 
+/**
+ * Represents a member of a [Message], which may be a [Field] or a [OneOf].
+ */
 sealed class Member : SchemaElement {
     abstract val name: Identifier
     override val elementName: String get() = name.toString()
 }
 
+/**
+ * Represents a field declaration inside a [Message] or a [OneOf].
+ */
 data class Field(
     override val name: Identifier,
     val type: FieldType,
@@ -62,6 +85,9 @@ data class Field(
     override val elementType = "field"
 }
 
+/**
+ * Represents a oneof declaration.
+ */
 data class OneOf(
     override val name: Identifier,
     val fields: List<Field>
@@ -69,6 +95,9 @@ data class OneOf(
     override val elementType = "oneof"
 }
 
+/**
+ * Represents an enum declaration.
+ */
 data class Enum(
     override val name: Identifier,
     val values: List<EnumValue>,
@@ -79,6 +108,9 @@ data class Enum(
     override val elementType = "enum"
 }
 
+/**
+ * The declared type of a [Field].
+ */
 sealed class FieldType {
     sealed class Scalar<DecodedType: Any>(val name: kotlin.String) : FieldType() {
         override fun toString() = name
@@ -111,6 +143,9 @@ sealed class FieldType {
     }
 }
 
+/**
+ * All [FieldType]s that are [FieldType.Scalar]s.
+ */
 val SCALARS: List<FieldType.Scalar<*>> = listOf(
     FieldType.Double,
     FieldType.Float,

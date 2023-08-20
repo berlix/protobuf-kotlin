@@ -16,6 +16,9 @@ import pro.felixo.protobuf.schemadocument.fields
 
 private val IDENTIFIER_REGEX = Regex("""[a-zA-Z_][a-zA-Z\d_]*""")
 
+/**
+ * Validates a [SchemaDocument] and returns the result as a [ValidationResult].
+ */
 fun validate(schema: SchemaDocument): ValidationResult = rootValidationScope(schema) {
     validateNoDuplicates(schema.types, { it.name }) { ValidationError.DuplicateTypeName(this, it.name) } +
     schema.types.map { validate(it) }

@@ -35,7 +35,7 @@ class ProtoscopeIntegrationTest : StringSpec({
         )
     }
 
-    "converts official protoscope specification document exactly as the original tool does" {
+    "converts official Protoscope specification document exactly as the original tool does" {
         verify(
             PROTOSCOPE_SPECIFICATION,
             PROTOSCOPE_SPECIFICATION_HEX

@@ -1,5 +1,10 @@
 package pro.felixo.protobuf.wire
 
+/**
+ * A buffer that can be used for both reading and writing the protobuf wire format. Writes always append to the end of
+ * the buffer, while reads always consume from the current read position, which initially is at the beginning of the
+ * buffer.
+ */
 @Suppress("MagicNumber")
 class WireBuffer(
     initialBytes: ByteArray? = null,

@@ -6,11 +6,14 @@ import pro.felixo.protobuf.wire.WireBuffer
 import pro.felixo.protobuf.wire.WireType
 import pro.felixo.protobuf.wire.encodeSInt64
 
+/**
+ * Converts Protoscope code to its binary representation. Note that the reverse is not currently supported.
+ */
 class ProtoscopeConverter(private val tokenizer: ProtoscopeTokenizer = ProtoscopeTokenizer()) {
     private var currentLongForm: Token.LongForm? = null
 
     /**
-     * Parses the given [protoscope] and returns its corresponding binary representation.
+     * Parses the given [protoscope] code and returns its corresponding binary representation.
      *
      * Maintains internal state in this instance of [ProtoscopeConverter] and must therefore not be used concurrently.
      */

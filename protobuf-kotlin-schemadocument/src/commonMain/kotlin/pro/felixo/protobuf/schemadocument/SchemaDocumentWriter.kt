@@ -4,6 +4,9 @@ import pro.felixo.protobuf.EnumValue
 import pro.felixo.protobuf.FieldRule
 import pro.felixo.protobuf.Identifier
 
+/**
+ * Converts [SchemaDocument]s to .proto syntax, in the "proto3" syntax.
+ */
 class SchemaDocumentWriter(
     private val out: StringBuilder,
     private val indentSpaces: Int = 2

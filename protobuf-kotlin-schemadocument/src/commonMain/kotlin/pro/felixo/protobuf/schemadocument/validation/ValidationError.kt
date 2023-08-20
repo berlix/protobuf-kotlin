@@ -2,7 +2,13 @@ package pro.felixo.protobuf.schemadocument.validation
 
 import pro.felixo.protobuf.FieldNumber
 import pro.felixo.protobuf.Identifier
+import pro.felixo.protobuf.schemadocument.SchemaElement
 
+/**
+ * An error encountered during validation of a [SchemaElement]. The error is described by its concrete type with any
+ * of its additional fields, a human-readable [message], and a [scope] which describes the location of the error
+ * in the schema.
+ */
 sealed class ValidationError {
     abstract val message: String
     abstract val scope: ValidationScope

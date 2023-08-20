@@ -1,5 +1,8 @@
 package pro.felixo.protobuf.schemadocument
 
+/**
+ * Converts .proto syntax into sequences of tokens.
+ */
 class SchemaTokenizer {
     fun tokenize(input: String): Sequence<Token> = sequence {
         var position = 0

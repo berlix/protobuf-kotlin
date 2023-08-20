@@ -3,6 +3,9 @@ package pro.felixo.protobuf.protoscope
 import pro.felixo.protobuf.wire.WireType
 import kotlin.math.pow
 
+/**
+ * Represents a Protoscope token.
+ */
 sealed class Token {
     data object OpenBrace : Token()
     data object OpenGroupBrace : Token()

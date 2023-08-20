@@ -1,5 +1,11 @@
 package pro.felixo.protobuf.schemadocument.validation
 
+import pro.felixo.protobuf.schemadocument.SchemaElement
+
+/**
+ * The result of validating a [SchemaElement]. An absence of errors indicates that the element is valid, in which
+ * case [isValid] will be `true`.
+ */
 data class ValidationResult(
     val errors: List<ValidationError>
 ) {
