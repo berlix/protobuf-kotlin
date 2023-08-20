@@ -4,6 +4,7 @@ package pro.felixo.protobuf.protoscope
  * For each Protoscope token type, the regex that matches it and a function that converts the regex match into a
  * [Token].
  */
+@Suppress("MagicNumber")
 enum class TokenType(val regex: Regex, val getToken: (groupValues: List<String>) -> Token? = { null }) {
     Whitespace(Regex("""\s+""")),
     Comment(Regex("""#.*?(?:\r\n?|\n|$)""")),

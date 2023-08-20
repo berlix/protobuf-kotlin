@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package pro.felixo.protobuf.protoscope
 
 import pro.felixo.protobuf.wire.WireType

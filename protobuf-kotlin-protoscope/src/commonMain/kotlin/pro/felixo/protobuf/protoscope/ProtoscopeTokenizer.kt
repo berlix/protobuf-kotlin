@@ -1,5 +1,3 @@
-@file:Suppress("MagicNumber")
-
 package pro.felixo.protobuf.protoscope
 
 import kotlin.math.min

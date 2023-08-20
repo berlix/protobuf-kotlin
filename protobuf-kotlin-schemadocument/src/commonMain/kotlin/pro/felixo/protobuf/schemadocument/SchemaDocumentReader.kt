@@ -9,7 +9,7 @@ import pro.felixo.protobuf.Identifier
  * Reads .proto syntax into [SchemaDocument]s. Note that only a subset of the .proto syntax is supported, and only
  * the "proto3" syntax.
  */
-class SchemaDocumentReader(private val tokenizer: SchemaTokenizer = SchemaTokenizer()) {
+class SchemaDocumentReader(private val tokenizer: SchemaDocumentTokenizer = SchemaDocumentTokenizer()) {
     fun readSchema(input: String): SchemaDocument {
         val tokens = tokenizer.tokenize(input).iterator()
 

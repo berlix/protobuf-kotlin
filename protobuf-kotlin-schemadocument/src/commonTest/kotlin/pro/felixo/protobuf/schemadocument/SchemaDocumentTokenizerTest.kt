@@ -20,7 +20,7 @@ class SchemaDocumentTokenizerTest : StringSpec({
         }
     """.trimIndent()
 
-        assertThat(SchemaTokenizer().tokenize(input).toList()).isEqualTo(
+        assertThat(SchemaDocumentTokenizer().tokenize(input).toList()).isEqualTo(
             listOf(
                 Token.Identifier("syntax"),
                 Token.Equals,
