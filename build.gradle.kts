@@ -8,6 +8,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.23.0"
     id("com.palantir.git-version") version "3.0.0"
     id("io.kotest.multiplatform") version "5.6.2"
+    id("org.jetbrains.dokka") version "1.8.20"
 }
 
 buildscript {
@@ -58,7 +59,13 @@ allprojects {
 }
 
 subprojects {
+    apply(plugin = "org.jetbrains.dokka")
     apply<MavenPublishPlugin>()
+
+    val javadocJar by tasks.registering(Jar::class) {
+        archiveClassifier.set("javadoc")
+        from(tasks.dokkaHtml)
+    }
 
     publishing {
         repositories {
@@ -70,6 +77,10 @@ subprojects {
                     password = System.getenv("OSSRH_TOKEN")
                 }
             }
+        }
+
+        publications.withType<MavenPublication> {
+            artifact(javadocJar)
         }
     }
 }
