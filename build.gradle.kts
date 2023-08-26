@@ -81,6 +81,30 @@ subprojects {
 
         publications.withType<MavenPublication> {
             artifact(javadocJar)
+
+            pom {
+                name = this@subprojects.name
+                description = "Protocol Buffers 3 support for Kotlin Multiplatform"
+                url = "https://github.com/berlix/protobuf-kotlin"
+                licenses {
+                    license {
+                        name = "MIT License"
+                        url = "https://opensource.org/license/mit/"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "berlix"
+                        name = "Felix Engelhardt"
+                        email = "pub@felix-engelhardt.de"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://github.com/berlix/protobuf-kotlin.git"
+                    developerConnection = "scm:git:git@github.com:berlix/protobuf-kotlin.git"
+                    url = "https://github.com/berlix/protobuf-kotlin"
+                }
+            }
         }
     }
 }
