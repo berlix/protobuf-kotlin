@@ -3,7 +3,7 @@ import java.time.Instant
 import java.time.ZoneId
 
 plugins {
-    kotlin("multiplatform") version "1.9.0" apply false
+    kotlin("multiplatform") version "1.9.10" apply false
     id("maven-publish")
     signing
     id("io.gitlab.arturbosch.detekt") version "1.23.0"
@@ -13,7 +13,6 @@ plugins {
 }
 
 buildscript {
-    extra.set("kotlin_version", "1.9.0")
     repositories {
         google()
         mavenCentral()
