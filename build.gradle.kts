@@ -5,6 +5,7 @@ import java.time.ZoneId
 plugins {
     kotlin("multiplatform") version "1.9.0" apply false
     id("maven-publish")
+    signing
     id("io.gitlab.arturbosch.detekt") version "1.23.0"
     id("com.palantir.git-version") version "3.0.0"
     id("io.kotest.multiplatform") version "5.6.2"
@@ -60,12 +61,8 @@ allprojects {
 
 subprojects {
     apply(plugin = "org.jetbrains.dokka")
+    apply<SigningPlugin>()
     apply<MavenPublishPlugin>()
-
-    val javadocJar by tasks.registering(Jar::class) {
-        archiveClassifier.set("javadoc")
-        from(tasks.dokkaHtml)
-    }
 
     publishing {
         repositories {
@@ -80,7 +77,13 @@ subprojects {
         }
 
         publications.withType<MavenPublication> {
-            artifact(javadocJar)
+            val javadocJar = tasks.register("javadocJar$name", Jar::class) {
+                archiveClassifier.set("javadoc")
+                archiveBaseName.set("javadoc-${this@withType.name}")
+                from(tasks.dokkaHtml)
+            }
+
+            artifact(javadocJar.get())
 
             pom {
                 name = this@subprojects.name
@@ -104,6 +107,11 @@ subprojects {
                     developerConnection = "scm:git:git@github.com:berlix/protobuf-kotlin.git"
                     url = "https://github.com/berlix/protobuf-kotlin"
                 }
+            }
+
+            signing {
+                useInMemoryPgpKeys(System.getenv("OSSRH_GPG_KEY"), System.getenv("OSSRH_GPG_PASSWORD"))
+                sign(this@withType)
             }
         }
     }
