@@ -35,33 +35,27 @@ private fun areEquivalent(member1: OneOf, member2: OneOf): Boolean =
 private fun areEquivalent(field1: Field, field2: Field): Boolean =
     field1.type == field2.type && field1.number == field2.number && field1.rule == field2.rule
 
-@Suppress("ReturnCount")
 internal fun <T> compareUnordered(
     list1: List<T>,
     list2: List<T>,
     areEqual: (T, T) -> Boolean = { item1, item2 -> item1 == item2 }
-): Boolean {
-    if (list1.size != list2.size)
-        return false
+): Boolean =
+    list1.size == list2.size && run {
+        val visited = BooleanArray(list1.size) { false }
 
-    val visited = BooleanArray(list1.size) { false }
+        list1.all { item1 ->
+            var matchFound = false
 
-    for (item1 in list1) {
-        var matchFound = false
+            for (index in list2.indices)
+                if (!visited[index] && areEqual(item1, list2[index])) {
+                    visited[index] = true
+                    matchFound = true
+                    break
+                }
 
-        for (index in list2.indices)
-            if (!visited[index] && areEqual(item1, list2[index])) {
-                visited[index] = true
-                matchFound = true
-                break
-            }
-
-        if (!matchFound)
-            return false
+            matchFound
+        }
     }
-
-    return true
-}
 
 internal fun normalize(ranges: List<IntRange>): List<IntRange> {
     val sortedRanges = ranges.filter { !it.isEmpty() }.sortedBy { it.first }
