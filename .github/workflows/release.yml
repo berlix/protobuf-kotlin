@@ -42,6 +42,8 @@ jobs:
           cp -r build/dokka/htmlMultiModule apidocs/$VERSION
           rm -f apidocs/latest
           ln -s $VERSION apidocs/latest
+          git config user.email "automation@felixo.pro"
+          git config user.name "Automation"
           git add apidocs/$VERSION apidocs/latest
           git commit -m "Add docs for $VERSION"
           git push
