@@ -4,12 +4,14 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 import pro.felixo.protobuf.protoscope.ProtoscopeConverter
+import pro.felixo.protobuf.schemadocument.areEquivalent
 import pro.felixo.protobuf.schemadocument.validation.ValidationResult
 import pro.felixo.protobuf.schemadocument.validation.validate
 import pro.felixo.protobuf.serialization.EncodingSchema
@@ -49,7 +51,7 @@ class IntegrationTestUtil {
         println("Actual schema:\n$schemaDocument")
 
         assertThat(validate(schemaDocument)).isEqualTo(ValidationResult.OK)
-        assertThat(schemaDocument).isEqualTo(expectedSchemaDocument)
+        assertThat(areEquivalent(schemaDocument, expectedSchemaDocument)).isTrue()
     }
 
     fun verifySchemaGenerationFails() {

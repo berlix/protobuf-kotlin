@@ -137,7 +137,8 @@ For more usage examples, see the
 ### Schema documents
 
 The module `protobuf-kotlin-schemadocument` provides support for `.proto` schema documents. It can be used to read
-and write `.proto` documents, and to compare them for equality. It also provides some support for schema validation.
+and write `.proto` documents, and to compare them for equality or equivalence. It also provides some support for
+schema validation.
 
 To parse a schema document, use the `SchemaDocumentReader` class:
 
@@ -160,12 +161,22 @@ val schema = encodingSchema(listOf(Person.serializer().descriptor))
 val schemaDocumentForEncodingSchema = encodingSchema.toSchemaDocument()
 ```
 
-To compare two schema documents for equality, which is useful for testing purposes, use the `==` operator. Note that
+To compare two schema documents for equality, use the `==` operator. Note that
 `SchemaDocument` does have a notion of the order of declarations, so two equivalent documents may be considered unequal
 because the orders of their declarations differ:
 
 ```kotlin
 val equal = schemaDocument == schemaDocumentForEncodingSchema
+```
+
+In order to compare two schema documents for equivalence, which is useful for testing purposes, use the `areEquivalent`
+function:
+
+```kotlin
+import pro.felixo.protobuf.schemadocument.areEquivalent
+
+val equivalent = areEquivalent(schemaDocument, schemaDocumentForEncodingSchema)
+
 ```
 
 To validate a document against the Protobuf schema validation rules, use the `validate` function:
