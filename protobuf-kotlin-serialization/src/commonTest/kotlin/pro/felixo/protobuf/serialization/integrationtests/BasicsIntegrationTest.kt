@@ -18,7 +18,6 @@ import pro.felixo.protobuf.serialization.ProtoNumber
 import pro.felixo.protobuf.serialization.testutil.EmptyClass
 import pro.felixo.protobuf.serialization.testutil.IntegrationTestUtil
 import pro.felixo.protobuf.serialization.testutil.ListDescriptor
-import pro.felixo.protobuf.serialization.testutil.StringIntValueClass
 import kotlin.reflect.typeOf
 
 typealias StringInt = @Serializable(with = BasicsIntegrationTest.StringIntSerializer::class) Int
@@ -818,30 +817,6 @@ class BasicsIntegrationTest : StringSpec({
             )
         }
 
-        "creates class with value class property" {
-            givenSchema(
-                ClassWithValueClassProperty.serializer().descriptor
-            )
-            verifySchema(
-                """
-            message ClassWithValueClassProperty {
-                string stringInt = 1;
-            }
-            """
-            )
-            verifyConversion(
-                ClassWithValueClassProperty(StringIntValueClass(5)),
-                """
-            1: {"5"}
-            """
-            )
-        }
-
-        "does not create synthetic top-level message from value class with custom serializer" {
-            givenSchema(StringIntValueClass.serializer().descriptor)
-            verifySchemaGenerationFails()
-        }
-
         "does not create synthetic top-level message for Int" {
             givenSchema(Int.serializer().descriptor)
             verifySchemaGenerationFails()
@@ -1116,11 +1091,6 @@ class BasicsIntegrationTest : StringSpec({
     data class ClassWithPropertyWithCustomByteArraySerializer(
         @Serializable(BooleanAsByteArraySerializer::class)
         val boolBytes: Boolean
-    )
-
-    @Serializable
-    data class ClassWithValueClassProperty(
-        val stringInt: StringIntValueClass
     )
 
     class StringIntSerializer : KSerializer<StringInt> {

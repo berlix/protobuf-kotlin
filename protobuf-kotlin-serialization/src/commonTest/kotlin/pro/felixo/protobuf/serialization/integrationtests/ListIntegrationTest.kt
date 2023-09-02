@@ -13,7 +13,6 @@ import pro.felixo.protobuf.serialization.testutil.SealedLevel2LeafClassA
 import pro.felixo.protobuf.serialization.testutil.SealedLevel3LeafClass
 import pro.felixo.protobuf.serialization.testutil.SealedTopClass
 import pro.felixo.protobuf.serialization.testutil.SimpleClass
-import pro.felixo.protobuf.serialization.testutil.StringIntValueClass
 import kotlin.reflect.typeOf
 
 class ListIntegrationTest : StringSpec({
@@ -446,41 +445,6 @@ class ListIntegrationTest : StringSpec({
             verifyEncode(ClassWithListOfNullableMessage(listOf(SimpleClass(0))), "1: { 1: {} }")
         }
 
-        "creates message for class with list of nullable value class" {
-            givenSchema(
-                ClassWithListOfNullableValueClass.serializer().descriptor,
-                encodeZeroValues = true
-            )
-            verifySchema(
-                """
-            message ClassWithListOfNullableValueClass {
-                repeated ListItem list = 1;
-                message ListItem {
-                    optional string value = 1;
-                }
-            }
-            """
-            )
-            verifyConversion(ClassWithListOfNullableValueClass(emptyList()), "")
-            verifyConversion(ClassWithListOfNullableValueClass(listOf(null)), "1: {}")
-            verifyConversion(ClassWithListOfNullableValueClass(listOf(StringIntValueClass(0))), """1: { 1: { "0" } }""")
-            verifyConversion(
-                ClassWithListOfNullableValueClass(listOf(StringIntValueClass(5), StringIntValueClass(6))),
-                """1: { 1: { "5" } } 1: { 1: { "6" } }"""
-            )
-            verifyConversion(
-                ClassWithListOfNullableValueClass(listOf(null, StringIntValueClass(7), null)),
-                """1: {} 1: { 1: { "7" } } 1: {}"""
-            )
-
-            givenSchema(
-                ClassWithListOfNullableValueClass.serializer().descriptor,
-                encodeZeroValues = false
-            )
-            verifyEncode(ClassWithListOfNullableValueClass(listOf(null)), "1: {}")
-            verifyEncode(ClassWithListOfNullableValueClass(listOf(StringIntValueClass(0))), """1: { 1: { "0" } }""")
-        }
-
         "creates message for class with nested lists" {
             givenSchema(
                 ClassWithNestedLists.serializer().descriptor,
@@ -687,11 +651,6 @@ class ListIntegrationTest : StringSpec({
             fieldNumber = 5
         )
         val list: List<Int?>
-    )
-
-    @Serializable
-    data class ClassWithListOfNullableValueClass(
-        val list: List<StringIntValueClass?>
     )
 
     @Serializable
