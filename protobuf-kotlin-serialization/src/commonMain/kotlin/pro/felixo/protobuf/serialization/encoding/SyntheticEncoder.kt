@@ -34,8 +34,7 @@ class SyntheticEncoder(
     override fun encodeShort(value: Short) = fieldEncoder.encodeShort(value).also { writeBuffer() }
     override fun encodeString(value: String) = fieldEncoder.encodeString(value).also { writeBuffer() }
 
-    override fun encodeInline(descriptor: SerialDescriptor): Encoder = fieldEncoder.encodeInline(descriptor)
-        .also { writeBuffer() }
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder = this
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) =
         fieldEncoder.encodeEnum(enumDescriptor, index).also { writeBuffer() }

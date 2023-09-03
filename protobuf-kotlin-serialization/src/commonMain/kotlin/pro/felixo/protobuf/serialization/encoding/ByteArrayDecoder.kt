@@ -14,19 +14,27 @@ class ByteArrayDecoder(
     values: List<WireValue>
 ) : HybridDecoder() {
 
-    private val bytes = concatLenValues(values.castItems()).value.readBytes()
+    private val bytes: ByteArray? =
+        if (values.isNotEmpty()) concatLenValues(values.castItems()).value.readBytes() else null
+
     private var position = -1
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         position++
-        return if (position >= bytes.size)
+        return if (position >= (bytes?.size ?: 0))
             CompositeDecoder.DECODE_DONE
         else
             position
     }
-    override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte = bytes[index]
+    override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte = requireNotNull(bytes)[index]
 
     override fun endStructure(descriptor: SerialDescriptor) {}
+
+    @ExperimentalSerializationApi
+    override fun decodeNotNullMark(): Boolean = bytes != null
+
+    @ExperimentalSerializationApi
+    override fun decodeNull(): Nothing? = if (bytes == null) null else error("Expected null")
 
     override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean = error("Unsupported")
     override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char = error("Unsupported")

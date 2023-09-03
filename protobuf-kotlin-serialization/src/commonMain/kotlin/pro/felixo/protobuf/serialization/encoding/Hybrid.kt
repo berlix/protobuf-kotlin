@@ -9,6 +9,7 @@ import kotlinx.serialization.encoding.Encoder
 
 abstract class HybridEncoder : Encoder, CompositeEncoder {
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = this
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder = this
 
     override fun encodeBoolean(value: Boolean) = error("HybridEncoder does not support encodeBoolean")
     override fun encodeByte(value: Byte) = error("HybridEncoder does not support encodeByte")
@@ -17,18 +18,16 @@ abstract class HybridEncoder : Encoder, CompositeEncoder {
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) =
         error("HybridEncoder does not support encodeEnum")
     override fun encodeFloat(value: Float) = error("HybridEncoder does not support encodeFloat")
-    override fun encodeInline(descriptor: SerialDescriptor): Encoder =
-        error("HybridEncoder does not support encodeInline")
-
     override fun encodeInt(value: Int) = error("HybridEncoder does not support encodeInt")
     override fun encodeLong(value: Long) = error("HybridEncoder does not support encodeLong")
-    @ExperimentalSerializationApi override fun encodeNull() = error("HybridEncoder does not support encodeNull")
+    @ExperimentalSerializationApi override fun encodeNull(): Unit = error("HybridEncoder does not support encodeNull")
     override fun encodeShort(value: Short) = error("HybridEncoder does not support encodeShort")
     override fun encodeString(value: String) = error("HybridEncoder does not support encodeString")
 }
 
 abstract class HybridDecoder : Decoder, CompositeDecoder {
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = this
+    override fun decodeInline(descriptor: SerialDescriptor): Decoder = this
 
     override fun decodeBoolean(): Boolean = error("HybridDecoder does not support decodeBoolean")
     override fun decodeByte(): Byte = error("HybridDecoder does not support decodeByte")
@@ -36,8 +35,6 @@ abstract class HybridDecoder : Decoder, CompositeDecoder {
     override fun decodeDouble(): Double = error("HybridDecoder does not support decodeDouble")
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = error("HybridDecoder does not support decodeEnum")
     override fun decodeFloat(): Float = error("HybridDecoder does not support decodeFloat")
-    override fun decodeInline(descriptor: SerialDescriptor): Decoder =
-        error("HybridDecoder does not support decodeInline")
     override fun decodeInt(): Int = error("HybridDecoder does not support decodeInt")
     override fun decodeLong(): Long = error("HybridDecoder does not support decodeLong")
     override fun decodeShort(): Short = error("HybridDecoder does not support decodeShort")
@@ -47,5 +44,5 @@ abstract class HybridDecoder : Decoder, CompositeDecoder {
     override fun decodeNotNullMark(): Boolean = error("HybridDecoder does not support decodeNotNullMark")
 
     @ExperimentalSerializationApi
-    override fun decodeNull(): Nothing = error("HybridDecoder does not support decodeNull")
+    override fun decodeNull(): Nothing? = error("HybridDecoder does not support decodeNull")
 }

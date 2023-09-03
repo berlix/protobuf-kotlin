@@ -31,6 +31,9 @@ class ByteArrayEncoder(
             output.encodeField(Tag.of(fieldNumber, WireType.Len), WireValue.Len(buffer))
     }
 
+    @ExperimentalSerializationApi
+    override fun encodeNull() {}
+
     override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) = error("Unsupported")
     override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) = error("Unsupported")
     override fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double) = error("Unsupported")

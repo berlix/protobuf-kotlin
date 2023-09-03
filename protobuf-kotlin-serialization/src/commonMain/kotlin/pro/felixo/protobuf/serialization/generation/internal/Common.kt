@@ -35,47 +35,47 @@ fun TypeContext.field(
     number: FieldNumber,
     annotations: List<Annotation>,
     descriptor: SerialDescriptor
-): Field =
-    when (val kind = descriptor.actual.kind) {
+): Field {
+    val typeDescriptor = descriptor.actual
+    val nullable = descriptor.isNullable || typeDescriptor.isNullable
+    return when (val kind = typeDescriptor.kind) {
         is PrimitiveKind ->
-            field(descriptor, name, scalar(annotations, kind), number)
+            field(name, scalar(annotations, kind), number, nullable)
         StructureKind.CLASS, StructureKind.OBJECT, SerialKind.ENUM, is PolymorphicKind ->
-            field(descriptor, name, root.namedType(descriptor), number)
+            field(name, root.namedType(typeDescriptor), number, nullable)
         SerialKind.CONTEXTUAL ->
             field(
                 name,
                 number,
                 annotations,
-                serializersModule.getContextualDescriptor(descriptor)
-                    ?: error("No contextual serializer found for ${descriptor.serialName}")
+                serializersModule.getContextualDescriptor(typeDescriptor)
+                    ?: error("No contextual serializer found for ${typeDescriptor.serialName}")
             )
         StructureKind.LIST ->
-            if (descriptor.getElementDescriptor(0).kind == PrimitiveKind.BYTE)
-                field(descriptor, name, FieldEncoding.Bytes, number)
-            else if (descriptor.isNullable)
-                optionalListField(descriptor, name, number, annotations)
+            if (typeDescriptor.getElementDescriptor(0).kind == PrimitiveKind.BYTE)
+                field(name, FieldEncoding.Bytes, number, nullable)
+            else if (nullable)
+                optionalListField(typeDescriptor, name, number, annotations)
             else
-                listField(name, number, descriptor.actual, annotations)
+                listField(name, number, typeDescriptor.actual, annotations)
         StructureKind.MAP ->
-            if (descriptor.isNullable)
-                optionalMapField(name, annotations, descriptor, number)
+            if (nullable)
+                optionalMapField(name, annotations, typeDescriptor, number)
             else
-                mapField(name, number, annotations, descriptor.actual)
+                mapField(name, number, annotations, typeDescriptor.actual)
     }
+}
 
 private fun TypeContext.field(
-    descriptor: SerialDescriptor,
     name: Identifier,
     type: FieldEncoding,
-    number: FieldNumber
-): Field {
-    val rule = descriptor.nullableToOptional()
-    return Field(
-        name,
-        type,
-        number,
-        rule,
-        fieldEncoder(type, number, rule != FieldRule.Singular),
-        fieldDecoder(type)
-    )
-}
+    number: FieldNumber,
+    optional: Boolean
+): Field = Field(
+    name,
+    type,
+    number,
+    if (optional) FieldRule.Optional else FieldRule.Singular,
+    fieldEncoder(type, number, optional),
+    fieldDecoder(type)
+)
