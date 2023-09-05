@@ -6,7 +6,7 @@ plugins {
     kotlin("multiplatform") version "1.9.10" apply false
     id("maven-publish")
     signing
-    id("io.gitlab.arturbosch.detekt") version "1.23.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.1"
     id("com.palantir.git-version") version "3.0.0"
     id("io.kotest.multiplatform") version "5.6.2"
     id("org.jetbrains.dokka") version "1.8.20"
