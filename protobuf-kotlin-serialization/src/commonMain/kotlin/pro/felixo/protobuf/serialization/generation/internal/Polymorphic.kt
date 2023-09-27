@@ -60,30 +60,24 @@ private fun TypeContext.messageOfPolymorphicClass(
     }
 }
 
-private fun TypeContext.fieldForSubType(subDescriptor: SerialDescriptor, numberIterator: FieldNumberIterator): Field {
-    val subTypeRef = root.namedType(subDescriptor)
-    val number = FieldNumber(
-        subDescriptor.annotations.filterIsInstance<ProtoNumber>()
-            .firstOrNull()?.number
-            ?: numberIterator.next()
-    )
-    return Field(
-        Identifier(
-            subTypeRef.name.value.replaceFirstChar { it.lowercaseChar() }
+private fun TypeContext.fieldForSubType(subDescriptor: SerialDescriptor, numberIterator: FieldNumberIterator): Field =
+    field(
+        Identifier(simpleTypeName(subDescriptor).replaceFirstChar { it.lowercaseChar() }),
+        FieldNumber(
+            subDescriptor.annotations.filterIsInstance<ProtoNumber>()
+                .firstOrNull()?.number
+                ?: numberIterator.next()
         ),
-        subTypeRef,
-        number,
-        encoder = fieldEncoder(subTypeRef, number, true),
-        decoder = fieldDecoder(subTypeRef)
+        emptyList(),
+        subDescriptor,
+        forceEncodeZeroValue = true
     )
-}
 
-private fun fieldNumberIteratorFromSubTypes(descriptors: Iterable<SerialDescriptor>): FieldNumberIterator {
-    return FieldNumberIterator(
+private fun fieldNumberIteratorFromSubTypes(descriptors: Iterable<SerialDescriptor>): FieldNumberIterator =
+    FieldNumberIterator(
         descriptors.mapNotNull {
             it.annotations.filterIsInstance<ProtoNumber>().firstOrNull()?.number
         }.requireNoDuplicates { duplicatedNumber ->
             "Duplicate field number $duplicatedNumber in sub-types: ${descriptors.map { it.serialName }}"
         }
     )
-}

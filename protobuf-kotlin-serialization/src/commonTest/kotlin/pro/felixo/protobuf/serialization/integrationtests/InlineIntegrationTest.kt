@@ -320,6 +320,52 @@ class InlineIntegrationTest : StringSpec({
             )
         }
 
+        "creates class hierarchy with value sub-class" {
+            givenSchema(
+                SuperClass.serializer().descriptor,
+                encodeZeroValues = true
+            )
+            verifySchema(
+                """
+                message SuperClass {
+                    oneof subtypes {
+                        int32 subValueClassWithInt = 1;
+                        string subValueClassWithString = 2;
+                    }
+                }
+                """
+            )
+            verifyConversion<SuperClass>(
+                SubValueClassWithInt(0),
+                "1: 0"
+            )
+            verifyConversion<SuperClass>(
+                SubValueClassWithInt(1),
+                "1: 1"
+            )
+            verifyConversion<SuperClass>(
+                SubValueClassWithString(""),
+                "2: {}"
+            )
+            verifyConversion<SuperClass>(
+                SubValueClassWithString("foo"),
+                """2: { "foo" }"""
+            )
+
+            givenSchema(
+                SuperClass.serializer().descriptor,
+                encodeZeroValues = false
+            )
+            verifyConversion<SuperClass>(
+                SubValueClassWithInt(0),
+                "1: 0"
+            )
+            verifyConversion<SuperClass>(
+                SubValueClassWithString(""),
+                "2: {}"
+            )
+        }
+
         "does not create synthetic top-level message from value class with custom serializer" {
             givenSchema(StringIntValueClass.serializer().descriptor)
             verifySchemaGenerationFails()
@@ -454,4 +500,17 @@ class InlineIntegrationTest : StringSpec({
 
         override fun serialize(encoder: Encoder, value: StringIntValueClass) = encoder.encodeString("${value.value}")
     }
+
+    @Serializable
+    sealed interface SuperClass
+
+    @JvmInline
+    @Serializable
+    @ProtoNumber(1)
+    value class SubValueClassWithInt(val int: Int) : SuperClass
+
+    @JvmInline
+    @Serializable
+    @ProtoNumber(2)
+    value class SubValueClassWithString(val string: String) : SuperClass
 }

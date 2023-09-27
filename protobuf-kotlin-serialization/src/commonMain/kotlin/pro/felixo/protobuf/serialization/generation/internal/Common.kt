@@ -34,15 +34,16 @@ fun TypeContext.field(
     name: Identifier,
     number: FieldNumber,
     annotations: List<Annotation>,
-    descriptor: SerialDescriptor
+    descriptor: SerialDescriptor,
+    forceEncodeZeroValue: Boolean = false
 ): Field {
     val typeDescriptor = descriptor.actual
     val nullable = descriptor.isNullable || typeDescriptor.isNullable
     return when (val kind = typeDescriptor.kind) {
         is PrimitiveKind ->
-            field(name, scalar(annotations, kind), number, nullable)
+            field(name, scalar(annotations, kind), number, nullable, forceEncodeZeroValue)
         StructureKind.CLASS, StructureKind.OBJECT, SerialKind.ENUM, is PolymorphicKind ->
-            field(name, root.namedType(typeDescriptor), number, nullable)
+            field(name, root.namedType(typeDescriptor), number, nullable, forceEncodeZeroValue)
         SerialKind.CONTEXTUAL ->
             field(
                 name,
@@ -53,7 +54,7 @@ fun TypeContext.field(
             )
         StructureKind.LIST ->
             if (typeDescriptor.getElementDescriptor(0).kind == PrimitiveKind.BYTE)
-                field(name, FieldEncoding.Bytes, number, nullable)
+                field(name, FieldEncoding.Bytes, number, nullable, forceEncodeZeroValue)
             else if (nullable)
                 optionalListField(typeDescriptor, name, number, annotations)
             else
@@ -70,12 +71,13 @@ private fun TypeContext.field(
     name: Identifier,
     type: FieldEncoding,
     number: FieldNumber,
-    optional: Boolean
+    optional: Boolean,
+    encodeZeroValue: Boolean
 ): Field = Field(
     name,
     type,
     number,
     if (optional) FieldRule.Optional else FieldRule.Singular,
-    fieldEncoder(type, number, optional),
+    fieldEncoder(type, number, encodeZeroValue || optional),
     fieldDecoder(type)
 )
