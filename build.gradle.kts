@@ -3,13 +3,13 @@ import java.time.Instant
 import java.time.ZoneId
 
 plugins {
-    kotlin("multiplatform") version "1.9.10" apply false
+    kotlin("multiplatform") version "1.9.24" apply false
     id("maven-publish")
     signing
-    id("io.gitlab.arturbosch.detekt") version "1.23.1"
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
     id("com.palantir.git-version") version "3.0.0"
-    id("io.kotest.multiplatform") version "5.6.2"
-    id("org.jetbrains.dokka") version "1.8.20"
+    id("io.kotest.multiplatform") version "5.9.0"
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
 buildscript {
