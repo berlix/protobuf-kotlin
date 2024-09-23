@@ -18,13 +18,13 @@ kotlin {
     sourceSets {
         val commonTest by getting {
             dependencies {
-                implementation("io.kotest:kotest-framework-engine:5.9.0")
+                implementation("io.kotest:kotest-framework-engine:5.9.1")
                 implementation("com.willowtreeapps.assertk:assertk:0.28.1")
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation("io.kotest:kotest-runner-junit5-jvm:5.9.0")
+                implementation("io.kotest:kotest-runner-junit5-jvm:5.9.1")
             }
         }
     }

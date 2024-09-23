@@ -21,19 +21,19 @@ kotlin {
             dependencies {
                 api(project(":protobuf-kotlin-wire"))
                 api(project(":protobuf-kotlin-schemadocument"))
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3")
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(project(":protobuf-kotlin-protoscope"))
-                implementation("io.kotest:kotest-framework-engine:5.9.0")
+                implementation("io.kotest:kotest-framework-engine:5.9.1")
                 implementation("com.willowtreeapps.assertk:assertk:0.28.1")
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation("io.kotest:kotest-runner-junit5-jvm:5.9.0")
+                implementation("io.kotest:kotest-runner-junit5-jvm:5.9.1")
             }
         }
     }
